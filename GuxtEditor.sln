@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29102.190
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GuxtEditor", "GuxtEditor\GuxtEditor.csproj", "{9835D0CF-6129-4EA6-8CD0-92078C639795}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GuxtModdingFramework", "GuxtModdingFramework\GuxtModdingFramework.csproj", "{35FE244C-51A2-462E-B3C0-676235E2A891}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9835D0CF-6129-4EA6-8CD0-92078C639795}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9835D0CF-6129-4EA6-8CD0-92078C639795}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9835D0CF-6129-4EA6-8CD0-92078C639795}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9835D0CF-6129-4EA6-8CD0-92078C639795}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35FE244C-51A2-462E-B3C0-676235E2A891}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35FE244C-51A2-462E-B3C0-676235E2A891}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35FE244C-51A2-462E-B3C0-676235E2A891}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35FE244C-51A2-462E-B3C0-676235E2A891}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {65466DDC-2192-40ED-89FD-CA6BB14D9BBD}
+	EndGlobalSection
+EndGlobal
