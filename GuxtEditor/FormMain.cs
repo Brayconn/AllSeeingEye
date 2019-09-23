@@ -44,6 +44,7 @@ namespace GuxtEditor
             imagesListBox.Items.AddRange(LoadedMod.Images.ToArray());
             attributesListBox.Items.AddRange(LoadedMod.Attributes.ToArray());
             projectListBox.Items.AddRange(LoadedMod.Projects.ToArray());
+            modPropertyGrid.SelectedObject = LoadedMod;
         }
 
         #region File
