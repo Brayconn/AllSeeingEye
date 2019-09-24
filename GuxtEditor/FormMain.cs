@@ -25,26 +25,40 @@ namespace GuxtEditor
         private const string BmpFilter = "Bitmaps (*.bmp)|*.bmp";
         private const string AllFilesFilter = "All Files (*.*)|*.*";
         private const string GuxtProjectFilter = "Guxt Mod Project (*.gux)|*.gux";
+        private const string GuxtEXEFilter = "Guxt Executable (pxGame.exe)|pxGame.exe";
 
-        private Mod lm = null;
-        private Mod LoadedMod
+        private Mod? lm = null;
+        private Mod? LoadedMod
         {
             get => lm;
             set
             {
-                lm = value;
-                InitialiseLists();
+                if (value != null)
+                {
+                    lm = value;
+                    InitialiseUI();
+                }
             }
         }
 
-        private void InitialiseLists()
+        /// <summary>
+        /// Initialises all lists/main ui elemets to be hooked up
+        /// </summary>
+        private void InitialiseUI()
         {
-            mapsListBox.Items.AddRange(LoadedMod.Maps.ToArray());
-            entitiesListBox.Items.AddRange(LoadedMod.Entities.ToArray());
-            imagesListBox.Items.AddRange(LoadedMod.Images.ToArray());
-            attributesListBox.Items.AddRange(LoadedMod.Attributes.ToArray());
-            projectListBox.Items.AddRange(LoadedMod.Projects.ToArray());
-            modPropertyGrid.SelectedObject = LoadedMod;
+            //Loaded mod can't be null here, because this method is only run once LoadedMod is set to something other than null
+            #nullable disable
+            mapsListBox.DataSource ??= LoadedMod.Maps;
+            entitiesListBox.DataSource ??= LoadedMod.Entities;
+            imagesListBox.DataSource ??= LoadedMod.Images;
+            attributesListBox.DataSource ??= LoadedMod.Attributes;
+            projectListBox.DataSource ??= LoadedMod.Projects;
+
+            modPropertyGrid.SelectedObject ??= LoadedMod;
+            #nullable restore
+
+            saveToolStripMenuItem.Enabled = true;
+            saveAsToolStripMenuItem.Enabled = true;
         }
 
         #region File
@@ -54,7 +68,7 @@ namespace GuxtEditor
             using(OpenFileDialog ofd = new OpenFileDialog()
             {
                 Title = "Pick a Guxt exe...",
-                Filter = "pxGame.exe (pxGame.exe)|pxGame.exe|All Files (*.*)|*.*"
+                Filter = string.Join("|", GuxtEXEFilter, AllFilesFilter)
             })
             {
                 if(ofd.ShowDialog() == DialogResult.OK)
@@ -63,7 +77,6 @@ namespace GuxtEditor
                     if(Directory.Exists(dataDir))
                     {
                         LoadedMod = Mod.FromDataFolder(dataDir);
-                        InitialiseLists();
                     }
                     else
                     {
@@ -74,6 +87,7 @@ namespace GuxtEditor
             }
         }
 
+        private string? savePath = null;
         private void OpenToolStripMenuItem_Click(object sender, EventArgs e)
         {
             using(OpenFileDialog ofd = new OpenFileDialog()
@@ -83,11 +97,13 @@ namespace GuxtEditor
             })
             {
                 if (ofd.ShowDialog() == DialogResult.OK)
-                    LoadedMod = Mod.Load(ofd.FileName);
+                {
+                    LoadedMod = Mod.Load(savePath = ofd.FileName);
+                }
             }
         }
-
-        private string savePath = null;
+        //Save and Save As are only enabled once LoadedMod has been set to non-null
+        #nullable disable
         private void SaveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (savePath != null)
@@ -110,6 +126,7 @@ namespace GuxtEditor
                 }
             }
         }
+        #nullable restore
 
         #endregion
 

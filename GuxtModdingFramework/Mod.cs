@@ -102,6 +102,11 @@ namespace GuxtModdingFramework
 
         #endregion
 
+        private Mod(string path)
+        {
+            DataPath = path;
+        }
+
         private void UpdateLists()
         {
             static void FillWithFileNames(BindingList<string> list, string dir, string filter)
@@ -124,7 +129,7 @@ namespace GuxtModdingFramework
                 //TODO don't make me xml edit
                 throw new DirectoryNotFoundException($"The directory \"{path}\" was not found. Please fix it using an xml editor.");
             
-            var m = new Mod() { DataPath = path };
+            var m = new Mod(path);
             m.UpdateLists();
             return m;
         }
@@ -157,8 +162,12 @@ namespace GuxtModdingFramework
             if (!Directory.Exists(dataFolder))
                 //TODO don't make me xml edit
                 throw new DirectoryNotFoundException($"The directory \"{dataFolder}\" was not found. Please fix it using an xml editor.");
-
+            
+            //Already have a null check earlier
+            #nullable disable
             Mod m = FromDataFolder(dataFolder);
+            #nullable restore
+            
             m.ImagesScrambeled = doc.SelectSingleNode("GuxtMod/ImagesScrambeled")?.InnerText == "true";
 
             var extensions = doc.SelectSingleNode("GuxtMod/FileExtensions");
