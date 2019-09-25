@@ -9,17 +9,17 @@ namespace GuxtModdingFramework.StageProjects
 {
     public class StageProject
     {
-        public Map Map { get; set; }
-        public List<Entity> Entity { get; set; }
-        public Bitmap Tileset { get; set; }
-        public Map TilesetProperties { get; set; }
-        public Bitmap Spritesheet { get; set; }
+        public Map? Map { get; set; }
+        public List<Entity>? Entity { get; set; }
+        public Bitmap? Tileset { get; set; }
+        public Map? TilesetProperties { get; set; }
+        public Bitmap? Spritesheet { get; set; }
 
-        public string MapPath { get; set; }
-        public string EntityPath { get; set; }
-        public string TilesetPath { get; set; }
-        public string TilesetPropertiesPath { get; set; }
-        public string SpritesheetPath { get; set; }
+        public string? MapPath { get; set; }
+        public string? EntityPath { get; set; }
+        public string? TilesetPath { get; set; }
+        public string? TilesetPropertiesPath { get; set; }
+        public string? SpritesheetPath { get; set; }
 
         /// <summary>
         /// Creates a new StageProject from a .stgprj file
@@ -56,6 +56,7 @@ namespace GuxtModdingFramework.StageProjects
                 }
             }
             //Load in valid ones
+            #nullable disable
             if (!string.IsNullOrWhiteSpace(MapPath))
                 Map = new Map(MapPath);
 
@@ -72,6 +73,7 @@ namespace GuxtModdingFramework.StageProjects
             if (!string.IsNullOrWhiteSpace(SpritesheetPath))
                 using (Bitmap b = new Bitmap(SpritesheetPath))
                     Spritesheet = imagesScrambled ? Scrambler.Unscramble(b) : new Bitmap(b);
+            #nullable restore
         }
 
         public override string ToString()
@@ -97,6 +99,8 @@ namespace GuxtModdingFramework.StageProjects
         /// </summary>
         public void SaveAll(bool imagesScrambled = true)
         {
+            //These have all been checked
+            #nullable disable
             Map?.Save(MapPath);
 
             if(Entity != null)
@@ -120,6 +124,7 @@ namespace GuxtModdingFramework.StageProjects
                 else
                     Spritesheet.Save(SpritesheetPath);
             }
+            #nullable restore
         }
     }
 }
