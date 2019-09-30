@@ -24,6 +24,13 @@ namespace GuxtModdingFramework
         private string attributeExtension = DefaultAttributeExtension;
         private string projectExtension = DefaultProjectExtension;
 
+        private static void FillWithFileNames(IList<string> list, string dir, string filter)
+        {
+            list.Clear();
+            foreach (var f in Directory.EnumerateFiles(dir, "*." + filter))
+                list.Add(Path.GetFileName(f));
+        }
+
         [Category("File Extensions"), DefaultValue(DefaultMapExtension)]
         public string MapExtension
         {
@@ -31,7 +38,7 @@ namespace GuxtModdingFramework
             set
             {
                 mapExtension = value;
-                UpdateLists();
+                FillWithFileNames(Maps, DataPath, mapExtension);
             }
         }
 
@@ -42,7 +49,7 @@ namespace GuxtModdingFramework
             set
             {
                 entityExtension = value;
-                UpdateLists();
+                FillWithFileNames(Entities, DataPath, EntityExtension);
             }
         }
         
@@ -53,7 +60,7 @@ namespace GuxtModdingFramework
             set
             {
                 imageExtension = value;
-                UpdateLists();
+                FillWithFileNames(Images, DataPath, ImageExtension);
             }
         }
         
@@ -64,7 +71,7 @@ namespace GuxtModdingFramework
             set
             {
                 attributeExtension = value;
-                UpdateLists();
+                FillWithFileNames(Attributes, DataPath, AttributeExtension);
             }
         }
         
@@ -75,7 +82,7 @@ namespace GuxtModdingFramework
             set
             {
                 projectExtension = value;
-                UpdateLists();
+                FillWithFileNames(Projects, DataPath, ProjectExtension);
             }
         }
 
@@ -107,22 +114,6 @@ namespace GuxtModdingFramework
             DataPath = path;
         }
 
-        private void UpdateLists()
-        {
-            static void FillWithFileNames(BindingList<string> list, string dir, string filter)
-            {
-                list.Clear();
-                foreach (var f in Directory.EnumerateFiles(dir, "*." + filter))
-                    list.Add(Path.GetFileName(f));
-            }
-
-            FillWithFileNames(Maps, DataPath, mapExtension);
-            FillWithFileNames(Entities, DataPath, EntityExtension);
-            FillWithFileNames(Images, DataPath, ImageExtension);
-            FillWithFileNames(Attributes, DataPath, AttributeExtension);
-            FillWithFileNames(Projects, DataPath, ProjectExtension);
-        }
-
         public static Mod FromDataFolder(string path)
         {
             if(!Directory.Exists(path))
@@ -130,7 +121,11 @@ namespace GuxtModdingFramework
                 throw new DirectoryNotFoundException($"The directory \"{path}\" was not found. Please fix it using an xml editor.");
             
             var m = new Mod(path);
-            m.UpdateLists();
+            FillWithFileNames(m.Maps, m.DataPath, m.mapExtension);
+            FillWithFileNames(m.Entities, m.DataPath, m.EntityExtension);
+            FillWithFileNames(m.Images, m.DataPath, m.ImageExtension);
+            FillWithFileNames(m.Attributes, m.DataPath, m.AttributeExtension);
+            FillWithFileNames(m.Projects, m.DataPath, m.ProjectExtension);
             return m;
         }
 
@@ -171,11 +166,11 @@ namespace GuxtModdingFramework
             m.ImagesScrambeled = doc.SelectSingleNode("GuxtMod/ImagesScrambeled")?.InnerText == "true";
 
             var extensions = doc.SelectSingleNode("GuxtMod/FileExtensions");
-            m.MapExtension = extensions.SelectSingleNode("Map")?.InnerText ?? m.MapExtension;
-            m.EntityExtension = extensions.SelectSingleNode("Entity")?.InnerText ?? m.EntityExtension;
-            m.ImageExtension = extensions.SelectSingleNode("Image")?.InnerText ?? m.ImageExtension;
-            m.AttributeExtension = extensions.SelectSingleNode("Attribute")?.InnerText ?? m.AttributeExtension;
-            m.ProjectExtension = extensions.SelectSingleNode("Projects")?.InnerText ?? m.ProjectExtension;
+            m.mapExtension = extensions.SelectSingleNode("Map")?.InnerText ?? m.MapExtension;
+            m.entityExtension = extensions.SelectSingleNode("Entity")?.InnerText ?? m.EntityExtension;
+            m.imageExtension = extensions.SelectSingleNode("Image")?.InnerText ?? m.ImageExtension;
+            m.attributeExtension = extensions.SelectSingleNode("Attribute")?.InnerText ?? m.AttributeExtension;
+            m.projectExtension = extensions.SelectSingleNode("Projects")?.InnerText ?? m.ProjectExtension;
             
             return m;
         }
