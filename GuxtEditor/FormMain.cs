@@ -48,8 +48,7 @@ namespace GuxtEditor
         {
             //Loaded mod can't be null here, because this method is only run once LoadedMod is set to something other than null
             #nullable disable
-            mapsListBox.DataSource ??= LoadedMod.Maps;
-            entitiesListBox.DataSource ??= LoadedMod.Entities;
+            stagesListBox.DataSource ??= LoadedMod.Stages;
             imagesListBox.DataSource ??= LoadedMod.Images;
             attributesListBox.DataSource ??= LoadedMod.Attributes;
             projectListBox.DataSource ??= LoadedMod.Projects;
@@ -188,7 +187,7 @@ namespace GuxtEditor
 
         #region Open editors
 
-        private void MapsListBox_DoubleClick(object sender, EventArgs e)
+        private void StagesListBox_DoubleClick(object sender, EventArgs e)
         {
             //TODO open map editor
         }

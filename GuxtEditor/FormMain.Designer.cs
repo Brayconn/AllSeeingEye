@@ -38,13 +38,11 @@
             this.scrambleImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.unscrambleImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.mapsListBox = new System.Windows.Forms.ListBox();
-            this.entitiesListBox = new System.Windows.Forms.ListBox();
+            this.stagesListBox = new System.Windows.Forms.ListBox();
             this.imagesListBox = new System.Windows.Forms.ListBox();
             this.attributesListBox = new System.Windows.Forms.ListBox();
             this.projectListBox = new System.Windows.Forms.ListBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.modPropertyGrid = new System.Windows.Forms.PropertyGrid();
@@ -77,14 +75,14 @@
             // newToolStripMenuItem
             // 
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(123, 22);
             this.newToolStripMenuItem.Text = "New...";
             this.newToolStripMenuItem.Click += new System.EventHandler(this.NewToolStripMenuItem_Click);
             // 
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(123, 22);
             this.openToolStripMenuItem.Text = "Open...";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.OpenToolStripMenuItem_Click);
             // 
@@ -92,7 +90,7 @@
             // 
             this.saveToolStripMenuItem.Enabled = false;
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(123, 22);
             this.saveToolStripMenuItem.Text = "Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.SaveToolStripMenuItem_Click);
             // 
@@ -100,7 +98,7 @@
             // 
             this.saveAsToolStripMenuItem.Enabled = false;
             this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(123, 22);
             this.saveAsToolStripMenuItem.Text = "Save As...";
             this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.SaveAsToolStripMenuItem_Click);
             // 
@@ -130,27 +128,25 @@
             // tableLayoutPanel1
             // 
             this.tableLayoutPanel1.AutoSize = true;
-            this.tableLayoutPanel1.ColumnCount = 5;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.tableLayoutPanel1.Controls.Add(this.mapsListBox, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.entitiesListBox, 1, 1);
-            this.tableLayoutPanel1.Controls.Add(this.imagesListBox, 2, 1);
-            this.tableLayoutPanel1.Controls.Add(this.attributesListBox, 3, 1);
-            this.tableLayoutPanel1.Controls.Add(this.projectListBox, 3, 2);
+            this.tableLayoutPanel1.ColumnCount = 4;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20.00001F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20.00001F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20.00001F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 39.99999F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.Controls.Add(this.stagesListBox, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.imagesListBox, 1, 1);
+            this.tableLayoutPanel1.Controls.Add(this.attributesListBox, 2, 1);
+            this.tableLayoutPanel1.Controls.Add(this.projectListBox, 2, 2);
             this.tableLayoutPanel1.Controls.Add(this.label1, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.label2, 1, 0);
-            this.tableLayoutPanel1.Controls.Add(this.label3, 2, 0);
-            this.tableLayoutPanel1.Controls.Add(this.label4, 3, 0);
-            this.tableLayoutPanel1.Controls.Add(this.modPropertyGrid, 4, 0);
+            this.tableLayoutPanel1.Controls.Add(this.label3, 1, 0);
+            this.tableLayoutPanel1.Controls.Add(this.label4, 2, 0);
+            this.tableLayoutPanel1.Controls.Add(this.modPropertyGrid, 3, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 24);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 3;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.Size = new System.Drawing.Size(800, 426);
@@ -158,34 +154,23 @@
             // 
             // mapsListBox
             // 
-            this.mapsListBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.mapsListBox.FormattingEnabled = true;
-            this.mapsListBox.Location = new System.Drawing.Point(3, 23);
-            this.mapsListBox.Name = "mapsListBox";
-            this.tableLayoutPanel1.SetRowSpan(this.mapsListBox, 2);
-            this.mapsListBox.Size = new System.Drawing.Size(127, 400);
-            this.mapsListBox.TabIndex = 0;
-            this.mapsListBox.DoubleClick += new System.EventHandler(this.MapsListBox_DoubleClick);
-            // 
-            // entitiesListBox
-            // 
-            this.entitiesListBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.entitiesListBox.FormattingEnabled = true;
-            this.entitiesListBox.Location = new System.Drawing.Point(136, 23);
-            this.entitiesListBox.Name = "entitiesListBox";
-            this.tableLayoutPanel1.SetRowSpan(this.entitiesListBox, 2);
-            this.entitiesListBox.Size = new System.Drawing.Size(127, 400);
-            this.entitiesListBox.TabIndex = 1;
-            this.entitiesListBox.DoubleClick += new System.EventHandler(this.EntitiesListBox_DoubleClick);
+            this.stagesListBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.stagesListBox.FormattingEnabled = true;
+            this.stagesListBox.Location = new System.Drawing.Point(3, 29);
+            this.stagesListBox.Name = "mapsListBox";
+            this.tableLayoutPanel1.SetRowSpan(this.stagesListBox, 2);
+            this.stagesListBox.Size = new System.Drawing.Size(154, 394);
+            this.stagesListBox.TabIndex = 0;
+            this.stagesListBox.DoubleClick += new System.EventHandler(this.StagesListBox_DoubleClick);
             // 
             // imagesListBox
             // 
             this.imagesListBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.imagesListBox.FormattingEnabled = true;
-            this.imagesListBox.Location = new System.Drawing.Point(269, 23);
+            this.imagesListBox.Location = new System.Drawing.Point(163, 29);
             this.imagesListBox.Name = "imagesListBox";
             this.tableLayoutPanel1.SetRowSpan(this.imagesListBox, 2);
-            this.imagesListBox.Size = new System.Drawing.Size(127, 400);
+            this.imagesListBox.Size = new System.Drawing.Size(154, 394);
             this.imagesListBox.TabIndex = 2;
             this.imagesListBox.DoubleClick += new System.EventHandler(this.ImagesListBox_DoubleClick);
             // 
@@ -193,9 +178,9 @@
             // 
             this.attributesListBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.attributesListBox.FormattingEnabled = true;
-            this.attributesListBox.Location = new System.Drawing.Point(402, 23);
+            this.attributesListBox.Location = new System.Drawing.Point(323, 29);
             this.attributesListBox.Name = "attributesListBox";
-            this.attributesListBox.Size = new System.Drawing.Size(127, 197);
+            this.attributesListBox.Size = new System.Drawing.Size(154, 194);
             this.attributesListBox.TabIndex = 3;
             this.attributesListBox.DoubleClick += new System.EventHandler(this.AttributesListBox_DoubleClick);
             // 
@@ -203,9 +188,9 @@
             // 
             this.projectListBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.projectListBox.FormattingEnabled = true;
-            this.projectListBox.Location = new System.Drawing.Point(402, 226);
+            this.projectListBox.Location = new System.Drawing.Point(323, 229);
             this.projectListBox.Name = "projectListBox";
-            this.projectListBox.Size = new System.Drawing.Size(127, 197);
+            this.projectListBox.Size = new System.Drawing.Size(154, 194);
             this.projectListBox.TabIndex = 4;
             this.projectListBox.DoubleClick += new System.EventHandler(this.ProjectListBox_DoubleClick);
             // 
@@ -215,29 +200,18 @@
             this.label1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label1.Location = new System.Drawing.Point(3, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(127, 20);
+            this.label1.Size = new System.Drawing.Size(154, 26);
             this.label1.TabIndex = 5;
-            this.label1.Text = "Maps";
+            this.label1.Text = "Stages";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label2.Location = new System.Drawing.Point(136, 0);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(127, 20);
-            this.label2.TabIndex = 6;
-            this.label2.Text = "Entities";
-            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // label3
             // 
             this.label3.AutoSize = true;
             this.label3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label3.Location = new System.Drawing.Point(269, 0);
+            this.label3.Location = new System.Drawing.Point(163, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(127, 20);
+            this.label3.Size = new System.Drawing.Size(154, 26);
             this.label3.TabIndex = 7;
             this.label3.Text = "Images";
             this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -246,9 +220,9 @@
             // 
             this.label4.AutoSize = true;
             this.label4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label4.Location = new System.Drawing.Point(402, 0);
+            this.label4.Location = new System.Drawing.Point(323, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(127, 20);
+            this.label4.Size = new System.Drawing.Size(154, 26);
             this.label4.TabIndex = 8;
             this.label4.Text = "Map Attributes | Project Files";
             this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -256,10 +230,10 @@
             // modPropertyGrid
             // 
             this.modPropertyGrid.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.modPropertyGrid.Location = new System.Drawing.Point(535, 3);
+            this.modPropertyGrid.Location = new System.Drawing.Point(483, 3);
             this.modPropertyGrid.Name = "modPropertyGrid";
             this.tableLayoutPanel1.SetRowSpan(this.modPropertyGrid, 3);
-            this.modPropertyGrid.Size = new System.Drawing.Size(262, 420);
+            this.modPropertyGrid.Size = new System.Drawing.Size(314, 420);
             this.modPropertyGrid.TabIndex = 9;
             // 
             // FormMain
@@ -290,8 +264,7 @@
         private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-        private System.Windows.Forms.ListBox mapsListBox;
-        private System.Windows.Forms.ListBox entitiesListBox;
+        private System.Windows.Forms.ListBox stagesListBox;
         private System.Windows.Forms.ListBox imagesListBox;
         private System.Windows.Forms.ListBox attributesListBox;
         private System.Windows.Forms.ListBox projectListBox;
@@ -299,7 +272,6 @@
         private System.Windows.Forms.ToolStripMenuItem scrambleImageToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem unscrambleImageToolStripMenuItem;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.PropertyGrid modPropertyGrid;

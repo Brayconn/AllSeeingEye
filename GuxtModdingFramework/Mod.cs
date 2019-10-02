@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
 
@@ -10,6 +11,60 @@ namespace GuxtModdingFramework
 {
     public class Mod
     {
+        #region File Name stuff
+        public const string DefaultMapName = "map";
+        public const string DefaultEntityName = "event";
+        public const string DefaultImageName = "enemy";
+        public const string DefaultAttributeName = "parts";
+        
+        private string mapName = DefaultMapName;
+        private string entityName = DefaultEntityName;
+        private string imageName = DefaultImageName;
+        private string attributeName = DefaultAttributeName;
+
+        [Category("File Names"), DefaultValue(DefaultMapName)]
+        public string MapName
+        {
+            get => mapName;
+            set
+            {
+                mapName = value;
+                //FillStagesList();
+            }
+        }
+        [Category("File Names"), DefaultValue(DefaultEntityName)]
+        public string EntityName
+        {
+            get => entityName;
+            set
+            {
+                entityName = value;
+                //FillStagesList();
+            }
+        }
+        [Category("File Names"), DefaultValue(DefaultImageName)]
+        public string ImageName
+        {
+            get => imageName;
+            set
+            {
+                imageName = value;
+                //FillWithFileNames(Images, DataPath, ImageExtension);
+            }
+        }
+        [Category("File Names"), DefaultValue(DefaultAttributeName)]
+        public string AttributeName
+        {
+            get => attributeName;
+            set
+            {
+                attributeName = value;
+                //FillStagesList();
+            }
+        }
+
+        #endregion
+
         #region File Extension stuff
 
         public const string DefaultMapExtension = "pxmap";
@@ -24,13 +79,6 @@ namespace GuxtModdingFramework
         private string attributeExtension = DefaultAttributeExtension;
         private string projectExtension = DefaultProjectExtension;
 
-        private static void FillWithFileNames(IList<string> list, string dir, string filter)
-        {
-            list.Clear();
-            foreach (var f in Directory.EnumerateFiles(dir, "*." + filter))
-                list.Add(Path.GetFileName(f));
-        }
-
         [Category("File Extensions"), DefaultValue(DefaultMapExtension)]
         public string MapExtension
         {
@@ -38,7 +86,7 @@ namespace GuxtModdingFramework
             set
             {
                 mapExtension = value;
-                FillWithFileNames(Maps, DataPath, mapExtension);
+                //FillStagesList();
             }
         }
 
@@ -49,10 +97,25 @@ namespace GuxtModdingFramework
             set
             {
                 entityExtension = value;
-                FillWithFileNames(Entities, DataPath, EntityExtension);
+                //FillStagesList();
             }
         }
-        
+
+        /// <summary>
+        /// Fills up the given list with the file names from the given directory, that match the given extension, but don't match the given filter
+        /// </summary>
+        /// <param name="list">The list to fill</param>
+        /// <param name="dir">Directory to search</param>
+        /// <param name="ext">Extension the files must have</param>
+        /// <param name="filter">Filter the files must NOT meet</param>
+        private static void FillWithFileNames(IList<string> list, string dir, string ext, string? filter = null)
+        {
+            list.Clear();
+            foreach (var f in Directory.EnumerateFiles(dir, "*." + ext))
+                if (filter == null || !Regex.Match(f, $@"^{filter}\d+\.{ext}$").Success)
+                    list.Add(Path.GetFileName(f));
+        }
+
         [Category("File Extensions"), DefaultValue(DefaultImageExtension)]
         public string ImageExtension
         {
@@ -94,16 +157,57 @@ namespace GuxtModdingFramework
         [Category("General"), ReadOnly(true), Description("Path to the data folder of your mod. This should only be changed in the event something gets desynced.")]
         public string DataPath { get; set; }
 
+        #region Stage stuff
+        
+        /// <summary>
+        /// Fills the stage list with all the right numbers
+        /// </summary>
+        private void FillStagesList()
+        {
+            Stages.Clear();
+            for (int i = 1; i <= stageCount; i++)
+                Stages.Add($"Stage {i}");
+        }
+
+        private int stageCount = 6;
+        public int StageCount
+        {
+            get => stageCount;
+            set
+            {
+                if (stageCount != value)
+                {
+                    stageCount = value;
+
+                }
+            }
+        }
+
+        /// <summary>
+        /// Used for editing "stages" (collection of map + entites + backgrounds)
+        /// </summary>
+        [Browsable(false)]
+        public BindingList<string> Stages { get; } = new BindingList<string>();
+
+        #endregion
+
         #region Internal lists
 
-        [Browsable(false)]
-        public BindingList<string> Maps { get; } = new BindingList<string>();
-        [Browsable(false)]
-        public BindingList<string> Entities { get; } = new BindingList<string>();
+        /// <summary>
+        /// Images (spritesheets + backgrounds)
+        /// </summary>
         [Browsable(false)]
         public BindingList<string> Images { get; } = new BindingList<string>();
+        
+        /// <summary>
+        /// Tileset/backgroud tile attributes
+        /// </summary>
         [Browsable(false)]
         public BindingList<string> Attributes { get; } = new BindingList<string>();
+        
+        /// <summary>
+        /// Project files (kinda useless to edit...)
+        /// </summary>
         [Browsable(false)]
         public BindingList<string> Projects { get; } = new BindingList<string>();
 
@@ -121,9 +225,8 @@ namespace GuxtModdingFramework
                 throw new DirectoryNotFoundException($"The directory \"{path}\" was not found. Please fix it using an xml editor.");
             
             var m = new Mod(path);
-            FillWithFileNames(m.Maps, m.DataPath, m.mapExtension);
-            FillWithFileNames(m.Entities, m.DataPath, m.EntityExtension);
-            FillWithFileNames(m.Images, m.DataPath, m.ImageExtension);
+            FillWithFileNames(m.Stages, m.DataPath, m.mapExtension);
+            FillWithFileNames(m.Images, m.DataPath, m.ImageExtension, m.ImageName);
             FillWithFileNames(m.Attributes, m.DataPath, m.AttributeExtension);
             FillWithFileNames(m.Projects, m.DataPath, m.ProjectExtension);
             return m;
