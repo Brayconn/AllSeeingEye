@@ -151,7 +151,7 @@ namespace GuxtModdingFramework
 
         #endregion
 
-        [Category("General"), Description("Whether or not the images are scrambeled or not. Only turn this off if you've patched your exe and converted the images.")]
+        [Category("General"), DefaultValue(true), Description("Whether or not the images are scrambeled or not. Only turn this off if you've patched your exe and converted the images.")]
         public bool ImagesScrambeled { get; set; } = true;
 
         [Category("General"), ReadOnly(true), Description("Path to the data folder of your mod. This should only be changed in the event something gets desynced.")]
@@ -170,6 +170,7 @@ namespace GuxtModdingFramework
         }
 
         private int stageCount = 6;
+        [Category("General"), DefaultValue(6)]
         public int StageCount
         {
             get => stageCount;
@@ -178,7 +179,7 @@ namespace GuxtModdingFramework
                 if (stageCount != value)
                 {
                     stageCount = value;
-
+                    FillStagesList();
                 }
             }
         }
@@ -222,7 +223,7 @@ namespace GuxtModdingFramework
         {
             if(!Directory.Exists(path))
                 //TODO don't make me xml edit
-                throw new DirectoryNotFoundException($"The directory \"{path}\" was not found. Please fix it using an xml editor.");
+                throw new DirectoryNotFoundException($"The directory \"{path}\" was not found. Please fix this project file using an xml editor.");
             
             var m = new Mod(path);
             m.FillStagesList();
@@ -236,8 +237,15 @@ namespace GuxtModdingFramework
         {
             new XDocument(
                 new XElement("GuxtMod",
-                    new XElement("ImagesScrambeled", ImagesScrambeled),
                     new XElement("DataPath", DataPath),
+                    new XElement("ImagesScrambeled", ImagesScrambeled),
+                    new XElement("Stages", StageCount),
+                    new XElement("FileNames",
+                        new XElement("Map", MapName),
+                        new XElement("Entity", EntityName),
+                        new XElement("Images", ImageName),
+                        new XElement("Attributes", AttributeName)
+                    ),
                     new XElement("FileExtensions",
                         new XElement("Map", MapExtension),
                         new XElement("Entity", EntityExtension),
@@ -253,27 +261,40 @@ namespace GuxtModdingFramework
         {
             var doc = new XmlDocument();
             doc.Load(path);
+            var root = doc["GuxtMod"];
+            if (root == null)
+                throw new FileLoadException("The given file wasn't a Guxt project. Make sure it has the root XML tag as \"GuxtMod\".", path);
 
-            string? dataFolder = doc.SelectSingleNode("GuxtMod/DataPath")?.InnerText;
+            string? dataFolder = root["DataPath"]?.InnerText;
             if(string.IsNullOrWhiteSpace(dataFolder))
                 throw new ArgumentNullException("DataPath","The selected Guxt Mod doesn't have a data folder.");
             if (!Directory.Exists(dataFolder))
                 //TODO don't make me xml edit
-                throw new DirectoryNotFoundException($"The directory \"{dataFolder}\" was not found. Please fix it using an xml editor.");
+                throw new DirectoryNotFoundException($"The directory \"{dataFolder}\" was not found. Please fix this project file using an xml editor.");
             
             //Already have a null check earlier
             #nullable disable
             Mod m = FromDataFolder(dataFolder);
             #nullable restore
             
-            m.ImagesScrambeled = doc.SelectSingleNode("GuxtMod/ImagesScrambeled")?.InnerText == "true";
+            m.ImagesScrambeled = root["ImagesScrambeled"]?.InnerText == "true";
+            
+            string? sc = root["Stages"]?.InnerText;
+            if(sc != null)
+                m.StageCount = int.Parse(sc);
 
-            var extensions = doc.SelectSingleNode("GuxtMod/FileExtensions");
-            m.mapExtension = extensions.SelectSingleNode("Map")?.InnerText ?? m.MapExtension;
-            m.entityExtension = extensions.SelectSingleNode("Entity")?.InnerText ?? m.EntityExtension;
-            m.imageExtension = extensions.SelectSingleNode("Image")?.InnerText ?? m.ImageExtension;
-            m.attributeExtension = extensions.SelectSingleNode("Attribute")?.InnerText ?? m.AttributeExtension;
-            m.projectExtension = extensions.SelectSingleNode("Projects")?.InnerText ?? m.ProjectExtension;
+            var names = root["FileNames"];
+            m.mapName = names["Map"]?.InnerText ?? m.MapName;
+            m.entityName = names["Entity"]?.InnerText ?? m.EntityName;
+            m.imageName = names["Image"]?.InnerText ?? m.ImageName;
+            m.attributeName = names["Attribute"]?.InnerText ?? m.AttributeName;
+
+            var extensions = root["FileExtensions"];
+            m.mapExtension = extensions["Map"]?.InnerText ?? m.MapExtension;
+            m.entityExtension = extensions["Entity"]?.InnerText ?? m.EntityExtension;
+            m.imageExtension = extensions["Image"]?.InnerText ?? m.ImageExtension;
+            m.attributeExtension = extensions["Attribute"]?.InnerText ?? m.AttributeExtension;
+            m.projectExtension = extensions["Projects"]?.InnerText ?? m.ProjectExtension;
             
             return m;
         }
