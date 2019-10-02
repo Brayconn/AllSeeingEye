@@ -225,7 +225,7 @@ namespace GuxtModdingFramework
                 throw new DirectoryNotFoundException($"The directory \"{path}\" was not found. Please fix it using an xml editor.");
             
             var m = new Mod(path);
-            FillWithFileNames(m.Stages, m.DataPath, m.mapExtension);
+            m.FillStagesList();
             FillWithFileNames(m.Images, m.DataPath, m.ImageExtension, m.ImageName);
             FillWithFileNames(m.Attributes, m.DataPath, m.AttributeExtension);
             FillWithFileNames(m.Projects, m.DataPath, m.ProjectExtension);
