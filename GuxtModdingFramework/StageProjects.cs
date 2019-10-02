@@ -7,6 +7,17 @@ using System.IO;
 
 namespace GuxtModdingFramework.StageProjects
 {
+    /// <summary>
+    /// Represents a .stgprj file
+    /// 
+    /// Format of the files is:
+    /// map:MapPath
+    /// eve:EntityPath
+    /// prt:TilesetPath
+    /// att:TilesetPropertiesPath
+    /// uni:SpritesheetPath 
+    /// 
+    /// </summary>
     public class StageProject
     {
         public Map? Map { get; set; }
