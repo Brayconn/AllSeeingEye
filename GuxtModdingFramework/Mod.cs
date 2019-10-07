@@ -235,9 +235,10 @@ namespace GuxtModdingFramework
 
         public void Save(string path)
         {
+            var relativeDataPath = new Uri(path).MakeRelativeUri(new Uri(DataPath));            
             new XDocument(
                 new XElement("GuxtMod",
-                    new XElement("DataPath", DataPath),
+                    new XElement("DataPath", relativeDataPath),
                     new XElement("ImagesScrambeled", ImagesScrambeled),
                     new XElement("Stages", StageCount),
                     new XElement("FileNames",
@@ -268,6 +269,7 @@ namespace GuxtModdingFramework
             string? dataFolder = root["DataPath"]?.InnerText;
             if(string.IsNullOrWhiteSpace(dataFolder))
                 throw new ArgumentNullException("DataPath","The selected Guxt Mod doesn't have a data folder.");
+            dataFolder = Path.Combine(Path.GetDirectoryName(path), dataFolder);
             if (!Directory.Exists(dataFolder))
                 //TODO don't make me xml edit
                 throw new DirectoryNotFoundException($"The directory \"{dataFolder}\" was not found. Please fix this project file using an xml editor.");
