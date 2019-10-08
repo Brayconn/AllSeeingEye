@@ -23,19 +23,10 @@ namespace GuxtModdingFramework.Images
         /// <returns>Hash A's new value</returns>
         private static ushort Shuffle(ref ushort a, ref ushort b)
         {
-            //TODO pretty sure this entire method could be condensed to one or two lines
-            ushort tmp = (ushort)(a + b);
-            //Store low/high bytes
-            byte low = (byte)tmp;
-            byte high = (byte)(tmp >> 8);
-            //swap them around
-            ushort result = (ushort)(low << 8);
-            result |= (ushort)(high & 0xFF);
-            //re-store again (yes, this does modify hash a and b for the next method call
+            ushort sum = (ushort)(a + b);
             b = a;
-            a = result;
-            //QED
-            return result;
+            //a = (ushort)(a + b) but in reverse byte order
+            return a = (ushort)((sum << 8) | (sum >> 8));
         }
 
         /// <summary>
