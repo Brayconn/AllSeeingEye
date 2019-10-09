@@ -20,13 +20,15 @@ namespace GuxtModdingFramework.Images
         /// </summary>
         /// <param name="a">Hash A value</param>
         /// <param name="b">Hash B value</param>
-        /// <returns>Hash A's new value</returns>
+        /// <returns>High byte of Hash A's new value (minimum of 1)</returns>
         private static ushort Shuffle(ref ushort a, ref ushort b)
         {
             ushort sum = (ushort)(a + b);
             b = a;
             //a = (ushort)(a + b) but in reverse byte order
-            return a = (ushort)((sum << 8) | (sum >> 8));
+            a = (ushort)((sum << 8) | (sum >> 8));
+            //Returning the high byte of a (minimum of 1)
+            return (byte)Math.Max(a >> 8, 1);
         }
 
         /// <summary>
@@ -47,15 +49,14 @@ namespace GuxtModdingFramework.Images
             //for each row in the image...
             for (int i = 0; i < h; i++)
             {
-                //get the high byte of Shuffle() (minimum of 1)
-                //move that many rows down the image (looping around when reaching the end)
-                current_line = (current_line + Math.Max((Shuffle(ref a, ref b) >> 8) & 0xFF, 1)) % free_rows.Count;
+                //move Shuffle() rows down the image (looping around when reaching the end)
+                current_line = (current_line + Shuffle(ref a, ref b)) % free_rows.Count;
 
                 //we have now reached where the "i"th row in the decoded image is
                 yield return free_rows[current_line];
 
                 //now remove that row from list, and move the current_line back by one
-                //moving back by one simulates how current_line would still be on pointing to the old line in other implementations
+                //moving back by one simulates how current_line would still be pointing to the old line in other implementations
                 free_rows.RemoveAt(current_line--);
             }
         }
