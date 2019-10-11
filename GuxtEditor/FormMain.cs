@@ -41,6 +41,13 @@ namespace GuxtEditor
             }
         }
 
+        private bool LoadWarning()
+        {
+            return LoadedMod == null ||
+                MessageBox.Show("You already have a mod loaded! All unsaved progress will be lost.\n" +
+                    "Are you sure you want to continue?", "Warning", MessageBoxButtons.YesNo) == DialogResult.Yes;
+        }
+
         /// <summary>
         /// Initialises all lists/main ui elemets to be hooked up
         /// </summary>
@@ -48,12 +55,12 @@ namespace GuxtEditor
         {
             //Loaded mod can't be null here, because this method is only run once LoadedMod is set to something other than null
             #nullable disable
-            stagesListBox.DataSource ??= LoadedMod.Stages;
-            imagesListBox.DataSource ??= LoadedMod.Images;
-            attributesListBox.DataSource ??= LoadedMod.Attributes;
-            projectListBox.DataSource ??= LoadedMod.Projects;
+            stagesListBox.DataSource = LoadedMod.Stages;
+            imagesListBox.DataSource = LoadedMod.Images;
+            attributesListBox.DataSource = LoadedMod.Attributes;
+            projectListBox.DataSource = LoadedMod.Projects;
 
-            modPropertyGrid.SelectedObject ??= LoadedMod;
+            modPropertyGrid.SelectedObject = LoadedMod;
             #nullable restore
 
             saveToolStripMenuItem.Enabled = true;
@@ -64,6 +71,9 @@ namespace GuxtEditor
 
         private void NewToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (!LoadWarning())
+                return;
+
             using(OpenFileDialog ofd = new OpenFileDialog()
             {
                 Title = "Pick a Guxt exe...",
@@ -89,7 +99,10 @@ namespace GuxtEditor
         private string? savePath = null;
         private void OpenToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            using(OpenFileDialog ofd = new OpenFileDialog()
+            if (!LoadWarning())
+                return;
+
+            using (OpenFileDialog ofd = new OpenFileDialog()
             {
                 Title = "Pick a Guxt mod project",
                 Filter = string.Join("|", GuxtProjectFilter, AllFilesFilter)
