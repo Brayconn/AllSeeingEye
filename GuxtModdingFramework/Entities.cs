@@ -74,10 +74,17 @@ namespace GuxtModdingFramework.Entities
             List<Entity> contents = new List<Entity>();
             using (PXEVEReader pxr = new PXEVEReader(new FileStream(path, FileMode.Open, FileAccess.Read)))
             {
-                while (pxr.BaseStream.Position != pxr.BaseStream.Length)
+                try
                 {
-                    //contents.Add(new Entity(ReadVarInt(fs), ReadVarInt(fs), ReadVarInt(fs), ReadVarInt(fs)));
-                    contents.Add(new Entity(pxr.Read7BitEncodedInt(), pxr.Read7BitEncodedInt(), pxr.Read7BitEncodedInt(), pxr.Read7BitEncodedInt()));
+                    while (pxr.BaseStream.Position != pxr.BaseStream.Length)
+                    {
+                        //contents.Add(new Entity(ReadVarInt(fs), ReadVarInt(fs), ReadVarInt(fs), ReadVarInt(fs)));
+                        contents.Add(new Entity(pxr.Read7BitEncodedInt(), pxr.Read7BitEncodedInt(), pxr.Read7BitEncodedInt(), pxr.Read7BitEncodedInt()));
+                    }
+                }
+                catch(EndOfStreamException e)
+                {
+
                 }
             }
             return contents;
