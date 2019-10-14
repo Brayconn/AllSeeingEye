@@ -1,6 +1,8 @@
-﻿using System;
+﻿using GuxtModdingFramework.Images;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -16,11 +18,13 @@ namespace GuxtModdingFramework
         public const string DefaultEntityName = "event";
         public const string DefaultImageName = "enemy";
         public const string DefaultAttributeName = "parts";
+        public const string DefaultEditorIconName = "units";
         
         private string mapName = DefaultMapName;
         private string entityName = DefaultEntityName;
         private string imageName = DefaultImageName;
         private string attributeName = DefaultAttributeName;
+        private string editorIconName = DefaultEditorIconName;
 
         [Category("File Names"), DefaultValue(DefaultMapName)]
         public string MapName
@@ -62,8 +66,30 @@ namespace GuxtModdingFramework
                 //FillStagesList();
             }
         }
+        [Category("File Names"), DefaultValue(DefaultEditorIconName)]
+        public string EditorIconName
+        {
+            get => editorIconName;
+            set
+            {
+                if(File.Exists(value))
+                {
+                    editorIconName = value;
+                    UpdateIconImage();
+                }
+            }
+        }
 
         #endregion
+
+        Bitmap iconImage;
+
+        void UpdateIconImage()
+        {
+            iconImage = new Bitmap(Path.Combine(DataPath, EditorIconName + "." + ImageExtension));
+            if(ImagesScrambeled)
+                iconImage = Scrambler.Unscramble(iconImage);
+        }
 
         #region File Extension stuff
 
@@ -230,11 +256,14 @@ namespace GuxtModdingFramework
             FillWithFileNames(m.Images, m.DataPath, m.ImageExtension, m.ImageName);
             FillWithFileNames(m.Attributes, m.DataPath, m.AttributeExtension);
             FillWithFileNames(m.Projects, m.DataPath, m.ProjectExtension);
+            m.UpdateIconImage();
+            
             return m;
         }
 
         public void Save(string path)
         {
+            //TODO save icon name
             var relativeDataPath = new Uri(path).MakeRelativeUri(new Uri(DataPath));            
             new XDocument(
                 new XElement("GuxtMod",
