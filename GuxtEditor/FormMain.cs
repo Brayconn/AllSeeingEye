@@ -200,14 +200,15 @@ namespace GuxtEditor
 
         #region Open editors
 
+        List<Form> openEditors = new List<Form>();
         private void StagesListBox_DoubleClick(object sender, EventArgs e)
         {
-            //TODO open map editor
-        }
-
-        private void EntitiesListBox_DoubleClick(object sender, EventArgs e)
-        {
-            //TODO open entity editor
+            if (stagesListBox.Items.Count > 0)
+            {
+                var f = new FormStageEditor(LoadedMod, stagesListBox.SelectedIndex + 1);
+                openEditors.Add(f);
+                f.Show();
+            }
         }
 
         private void ImagesListBox_DoubleClick(object sender, EventArgs e)
