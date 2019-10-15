@@ -9,6 +9,10 @@ namespace GuxtModdingFramework.Entities
     public class Entity
     {
         /// <summary>
+        /// Unused variable
+        /// </summary>
+        public int Unused { get; set; }
+        /// <summary>
         /// X position of the entity (in tiles)
         /// </summary>
         public int X { get; set; }
@@ -25,12 +29,13 @@ namespace GuxtModdingFramework.Entities
         /// </summary>
         public int ExtraInfo { get; set; }
 
-        public Entity(int x, int y, int type1, int type2)
+        public Entity(int u, int x, int y, int id, int info)
         {
+            Unused = u;
             X = x;
             Y = y;
-            EntityID = type1;
-            ExtraInfo = type2;
+            EntityID = id;
+            ExtraInfo = info;
         }
 
         //rough list of "everything" that belongs in an Entity struct?
@@ -71,15 +76,16 @@ namespace GuxtModdingFramework.Entities
         /// <returns>List of entities in the PXEVE file</returns>
         public static List<Entity> Read(string path)
         {
-            List<Entity> contents = new List<Entity>();
+            List<Entity> contents; 
             using (PXEVEReader pxr = new PXEVEReader(new FileStream(path, FileMode.Open, FileAccess.Read)))
             {
+                contents = new List<Entity>(pxr.Read7BitEncodedInt());
                 try
                 {
                     while (pxr.BaseStream.Position != pxr.BaseStream.Length)
                     {
                         //contents.Add(new Entity(ReadVarInt(fs), ReadVarInt(fs), ReadVarInt(fs), ReadVarInt(fs)));
-                        contents.Add(new Entity(pxr.Read7BitEncodedInt(), pxr.Read7BitEncodedInt(), pxr.Read7BitEncodedInt(), pxr.Read7BitEncodedInt()));
+                        contents.Add(new Entity(pxr.Read7BitEncodedInt(), pxr.Read7BitEncodedInt(), pxr.Read7BitEncodedInt(), pxr.Read7BitEncodedInt(), pxr.Read7BitEncodedInt()));
                     }
                 }
                 catch(EndOfStreamException e)
@@ -110,8 +116,10 @@ namespace GuxtModdingFramework.Entities
         {
             using (PXEVEWriter pxw = new PXEVEWriter(new FileStream(path, FileMode.Create, FileAccess.Write)))
             {
+                pxw.Write7BitEncodedInt(input.Count);
                 foreach (var e in input)
                 {
+                    pxw.Write7BitEncodedInt(e.Unused);
                     pxw.Write7BitEncodedInt(e.X);
                     pxw.Write7BitEncodedInt(e.Y);
                     pxw.Write7BitEncodedInt(e.EntityID);
