@@ -3,9 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Linq;
 
@@ -82,13 +84,33 @@ namespace GuxtModdingFramework
 
         #endregion
 
-        Bitmap iconImage;
+        public ImageList EntityIcons { get; private set; } = new ImageList();
+
+        /// <summary>
+        /// Size of each icon
+        /// </summary>
+        public int IconSize { get; set; } = 16;
 
         void UpdateIconImage()
         {
-            iconImage = new Bitmap(Path.Combine(DataPath, EditorIconName + "." + ImageExtension));
+            var iconImage = new Bitmap(Path.Combine(DataPath, EditorIconName + "." + ImageExtension));
             if(ImagesScrambeled)
                 iconImage = Scrambler.Unscramble(iconImage);
+            iconImage.MakeTransparent(Color.Black);
+
+            for(int i = 0; i < 16 * 8; i++)
+            {
+                var iconX = (i % 16) * 16;
+                var iconY = (i / 16) * 16;
+
+                var entityIcon = iconImage.Clone(new Rectangle(
+                    iconX, iconY, IconSize, IconSize
+                    ), PixelFormat.DontCare);
+
+                EntityIcons.Images.Add(entityIcon);
+            }
+
+            iconImage.Dispose();
         }
 
         #region File Extension stuff
