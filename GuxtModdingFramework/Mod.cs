@@ -263,7 +263,6 @@ namespace GuxtModdingFramework
 
         public void Save(string path)
         {
-            //TODO save icon name
             var relativeDataPath = new Uri(path).MakeRelativeUri(new Uri(DataPath));            
             new XDocument(
                 new XElement("GuxtMod",
@@ -274,7 +273,8 @@ namespace GuxtModdingFramework
                         new XElement("Map", MapName),
                         new XElement("Entity", EntityName),
                         new XElement("Images", ImageName),
-                        new XElement("Attributes", AttributeName)
+                        new XElement("Attributes", AttributeName),
+                        new XElement("IconName", EditorIconName)
                     ),
                     new XElement("FileExtensions",
                         new XElement("Map", MapExtension),
@@ -319,6 +319,7 @@ namespace GuxtModdingFramework
             m.entityName = names["Entity"]?.InnerText ?? m.EntityName;
             m.imageName = names["Image"]?.InnerText ?? m.ImageName;
             m.attributeName = names["Attribute"]?.InnerText ?? m.AttributeName;
+            m.editorIconName = names["IconName"]?.InnerText ?? m.editorIconName;
 
             var extensions = root["FileExtensions"];
             m.mapExtension = extensions["Map"]?.InnerText ?? m.MapExtension;
