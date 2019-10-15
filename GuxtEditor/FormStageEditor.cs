@@ -21,31 +21,62 @@ namespace GuxtEditor
         List<Entity> entities;
         Map map, attributes;
         Bitmap tileset;
+        Mod parentMod;
         public FormStageEditor(Mod m, int stageNum)
         {
-            InitializeComponent();
+            parentMod = m;
 
-            map = new Map(Path.Combine(m.DataPath, m.MapName + stageNum + "." + m.MapExtension));
+            InitializeComponent();            
+            mapPictureBox.SizeMode = PictureBoxSizeMode.AutoSize;            
+            InitEntityList();
 
-            var backgroundPath = Path.Combine(m.DataPath, m.AttributeName + stageNum + "." + m.ImageExtension);
-            tileset = new Bitmap(backgroundPath);
-            if (m.ImagesScrambeled)
+            
+
+            //base map setup
+            map = new Map(Path.Combine(parentMod.DataPath, parentMod.MapName + stageNum + "." + parentMod.MapExtension));
+            mapPropertyGrid.SelectedObject = map;
+
+            var tilesetPath = Path.Combine(parentMod.DataPath, parentMod.AttributeName + stageNum + "." + parentMod.ImageExtension);
+            tileset = new Bitmap(tilesetPath);
+            if (parentMod.ImagesScrambeled)
                 tileset = Scrambler.Unscramble(tileset);
 
-            attributes = new Map(Path.ChangeExtension(backgroundPath, m.AttributeExtension));
+            attributes = new Map(Path.ChangeExtension(tilesetPath, parentMod.AttributeExtension));
 
-            entities = PXEVE.Read(Path.Combine(m.DataPath, m.EntityName + stageNum + "." + m.EntityExtension));
+            entities = PXEVE.Read(Path.Combine(parentMod.DataPath, parentMod.EntityName + stageNum + "." + parentMod.EntityExtension));
 
-            pictureBox2.SizeMode = PictureBoxSizeMode.AutoSize;
+            
             DisplayTileset();
-            DisplayMap();
+            InitMap();
 
         }
 
-        void DisplayMap()
+        void InitEntityList()
+        {
+            entityListView.Clear();
+            entityListView.LargeImageList = parentMod.EntityIcons;
+            for(int i = 0; i < 16 * 8; i++)
+            {
+                entityListView.Items.Add(i.ToString(), i);
+            }
+        }
+
+        void InitMap()
         {
             Bitmap mapImage = new Bitmap(map.Width * 16, map.Height * 16);
-            using (Graphics g = Graphics.FromImage(mapImage))
+            DrawWholeMap(mapImage);
+            if (tileTypesToolStripMenuItem.Checked)
+                DrawTileTypes(mapImage);
+            if (entitiesToolStripMenuItem.Checked)
+                DrawEntities(mapImage);
+
+            mapPictureBox.Image = mapImage;
+        }
+
+        //TODO a lot of hard coded values in here. Make customizeable
+        void DrawWholeMap(Image img)
+        {            
+            using (Graphics g = Graphics.FromImage(img))
             {
                 for(int i = 0; i < map.Tiles.Count; i++)
                 {
@@ -62,12 +93,44 @@ namespace GuxtEditor
                     g.DrawImage(tileImage, x, y);
                 }
             }
-            pictureBox2.Image = mapImage;
+        }
+
+        void DrawTileTypes(Image img)
+        {
+
+        }
+
+        void DrawEntities(Image img)
+        {
+            using (Graphics g = Graphics.FromImage(img))
+            {
+                for (int i = 0; i < entities.Count; i++)
+                {
+                    var entityIcon = parentMod.EntityIcons.Images[entities[i].EntityID];
+                    
+                    var y = (entities[i].Y * 16) / 2;
+                    var x = (entities[i].X * 16) / 2;
+
+                    g.DrawImage(entityIcon, x, y);
+                }
+            }
+            
         }
 
         void DisplayTileset()
         {
-            pictureBox1.Image = tileset;
+            tilesetPictureBox.Image = tileset;
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            if(e.CloseReason == CloseReason.UserClosing)
+            {
+                e.Cancel = true;
+                Hide();
+            }
+            else
+                base.OnFormClosing(e);
         }
     }
 }

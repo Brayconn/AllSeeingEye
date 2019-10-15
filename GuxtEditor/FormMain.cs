@@ -200,14 +200,18 @@ namespace GuxtEditor
 
         #region Open editors
 
-        List<Form> openEditors = new List<Form>();
+        Dictionary<int, Form> openEditors = new Dictionary<int, Form>();
         private void StagesListBox_DoubleClick(object sender, EventArgs e)
         {
             if (stagesListBox.Items.Count > 0)
             {
-                var f = new FormStageEditor(LoadedMod, stagesListBox.SelectedIndex + 1);
-                openEditors.Add(f);
-                f.Show();
+                var selectedStage = stagesListBox.SelectedIndex + 1;
+                if (!openEditors.ContainsKey(selectedStage))
+                {
+                    var editorForm = new FormStageEditor(LoadedMod, selectedStage);
+                    openEditors.Add(selectedStage, editorForm);
+                }
+                openEditors[selectedStage].Show();
             }
         }
 

@@ -35,13 +35,17 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.tilesetPictureBox = new System.Windows.Forms.PictureBox();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.propertyGrid1 = new System.Windows.Forms.PropertyGrid();
-            this.listView1 = new System.Windows.Forms.ListView();
-            this.pictureBox2 = new System.Windows.Forms.PictureBox();
+            this.entityPropertyGrid = new System.Windows.Forms.PropertyGrid();
+            this.entityListView = new System.Windows.Forms.ListView();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.mapPictureBox = new System.Windows.Forms.PictureBox();
+            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            this.mapPropertyGrid = new System.Windows.Forms.PropertyGrid();
+            this.tileTypesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.entitiesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -49,11 +53,12 @@
             this.splitContainer1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.tilesetPictureBox)).BeginInit();
             this.tabPage2.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             this.panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.mapPictureBox)).BeginInit();
+            this.tableLayoutPanel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -82,6 +87,9 @@
             // 
             // viewToolStripMenuItem
             // 
+            this.viewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tileTypesToolStripMenuItem,
+            this.entitiesToolStripMenuItem});
             this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
             this.viewToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.viewToolStripMenuItem.Text = "View";
@@ -116,7 +124,7 @@
             // 
             // tabPage1
             // 
-            this.tabPage1.Controls.Add(this.pictureBox1);
+            this.tabPage1.Controls.Add(this.tableLayoutPanel2);
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
@@ -125,14 +133,14 @@
             this.tabPage1.Text = "Map";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
-            // pictureBox1
+            // tilesetPictureBox
             // 
-            this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pictureBox1.Location = new System.Drawing.Point(3, 3);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(252, 394);
-            this.pictureBox1.TabIndex = 0;
-            this.pictureBox1.TabStop = false;
+            this.tilesetPictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tilesetPictureBox.Location = new System.Drawing.Point(3, 200);
+            this.tilesetPictureBox.Name = "tilesetPictureBox";
+            this.tilesetPictureBox.Size = new System.Drawing.Size(246, 191);
+            this.tilesetPictureBox.TabIndex = 0;
+            this.tilesetPictureBox.TabStop = false;
             // 
             // tabPage2
             // 
@@ -149,8 +157,8 @@
             // 
             this.tableLayoutPanel1.ColumnCount = 1;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.Controls.Add(this.propertyGrid1, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.listView1, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.entityPropertyGrid, 0, 0);
+            this.tableLayoutPanel1.Controls.Add(this.entityListView, 0, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -160,41 +168,81 @@
             this.tableLayoutPanel1.Size = new System.Drawing.Size(252, 394);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
-            // propertyGrid1
+            // entityPropertyGrid
             // 
-            this.propertyGrid1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.propertyGrid1.Location = new System.Drawing.Point(3, 3);
-            this.propertyGrid1.Name = "propertyGrid1";
-            this.propertyGrid1.Size = new System.Drawing.Size(246, 191);
-            this.propertyGrid1.TabIndex = 0;
+            this.entityPropertyGrid.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.entityPropertyGrid.Location = new System.Drawing.Point(3, 3);
+            this.entityPropertyGrid.Name = "entityPropertyGrid";
+            this.entityPropertyGrid.Size = new System.Drawing.Size(246, 191);
+            this.entityPropertyGrid.TabIndex = 0;
             // 
-            // listView1
+            // entityListView
             // 
-            this.listView1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.listView1.HideSelection = false;
-            this.listView1.Location = new System.Drawing.Point(3, 200);
-            this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(246, 191);
-            this.listView1.TabIndex = 1;
-            this.listView1.UseCompatibleStateImageBehavior = false;
-            // 
-            // pictureBox2
-            // 
-            this.pictureBox2.Location = new System.Drawing.Point(0, 0);
-            this.pictureBox2.Name = "pictureBox2";
-            this.pictureBox2.Size = new System.Drawing.Size(167, 133);
-            this.pictureBox2.TabIndex = 0;
-            this.pictureBox2.TabStop = false;
+            this.entityListView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.entityListView.HideSelection = false;
+            this.entityListView.Location = new System.Drawing.Point(3, 200);
+            this.entityListView.Name = "entityListView";
+            this.entityListView.Size = new System.Drawing.Size(246, 191);
+            this.entityListView.TabIndex = 1;
+            this.entityListView.UseCompatibleStateImageBehavior = false;
             // 
             // panel1
             // 
             this.panel1.AutoScroll = true;
-            this.panel1.Controls.Add(this.pictureBox2);
+            this.panel1.Controls.Add(this.mapPictureBox);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(530, 426);
             this.panel1.TabIndex = 1;
+            // 
+            // mapPictureBox
+            // 
+            this.mapPictureBox.Location = new System.Drawing.Point(0, 0);
+            this.mapPictureBox.Name = "mapPictureBox";
+            this.mapPictureBox.Size = new System.Drawing.Size(167, 133);
+            this.mapPictureBox.TabIndex = 0;
+            this.mapPictureBox.TabStop = false;
+            // 
+            // tableLayoutPanel2
+            // 
+            this.tableLayoutPanel2.ColumnCount = 1;
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel2.Controls.Add(this.tilesetPictureBox, 0, 1);
+            this.tableLayoutPanel2.Controls.Add(this.mapPropertyGrid, 0, 0);
+            this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 3);
+            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
+            this.tableLayoutPanel2.RowCount = 2;
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(252, 394);
+            this.tableLayoutPanel2.TabIndex = 1;
+            // 
+            // mapPropertyGrid
+            // 
+            this.mapPropertyGrid.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.mapPropertyGrid.Location = new System.Drawing.Point(3, 3);
+            this.mapPropertyGrid.Name = "mapPropertyGrid";
+            this.mapPropertyGrid.Size = new System.Drawing.Size(246, 191);
+            this.mapPropertyGrid.TabIndex = 1;
+            // 
+            // tileTypesToolStripMenuItem
+            // 
+            this.tileTypesToolStripMenuItem.CheckOnClick = true;
+            this.tileTypesToolStripMenuItem.Name = "tileTypesToolStripMenuItem";
+            this.tileTypesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.tileTypesToolStripMenuItem.Text = "Tile Types";
+            // 
+            // entitiesToolStripMenuItem
+            // 
+            this.entitiesToolStripMenuItem.Checked = true;
+            this.entitiesToolStripMenuItem.CheckOnClick = true;
+            this.entitiesToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.entitiesToolStripMenuItem.Name = "entitiesToolStripMenuItem";
+            this.entitiesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.entitiesToolStripMenuItem.Text = "Entities";
             // 
             // FormStageEditor
             // 
@@ -214,11 +262,12 @@
             this.splitContainer1.ResumeLayout(false);
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.tilesetPictureBox)).EndInit();
             this.tabPage2.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             this.panel1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.mapPictureBox)).EndInit();
+            this.tableLayoutPanel2.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -233,12 +282,16 @@
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage1;
-        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.PictureBox tilesetPictureBox;
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-        private System.Windows.Forms.PropertyGrid propertyGrid1;
-        private System.Windows.Forms.ListView listView1;
-        private System.Windows.Forms.PictureBox pictureBox2;
+        private System.Windows.Forms.PropertyGrid entityPropertyGrid;
+        private System.Windows.Forms.ListView entityListView;
+        private System.Windows.Forms.PictureBox mapPictureBox;
         private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
+        private System.Windows.Forms.PropertyGrid mapPropertyGrid;
+        private System.Windows.Forms.ToolStripMenuItem tileTypesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem entitiesToolStripMenuItem;
     }
 }
