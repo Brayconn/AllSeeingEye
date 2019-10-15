@@ -122,6 +122,29 @@ namespace GuxtEditor
             tilesetPictureBox.Image = tileset;
         }
 
+        private void mapPictureBox_MouseClick(object sender, MouseEventArgs e)
+        {
+            switch (tabControl1.SelectedIndex)
+            {
+                //Map
+                case 0:
+                    //get slection as tile
+
+                    break;
+                //Entity
+                case 1:
+                    //get selection as entity square
+                    //TODO more hard coding
+                    var x = e.X / 8;
+                    var y = e.Y / 8;
+
+                    var sel = entities.Where(entity => entity.X == x && entity.Y == y);
+                    if (sel.Any())
+                        entityPropertyGrid.SelectedObject = sel.First();
+                    break;
+            }
+        }
+
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             if(e.CloseReason == CloseReason.UserClosing)
