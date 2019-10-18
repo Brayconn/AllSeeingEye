@@ -77,7 +77,7 @@ namespace GuxtModdingFramework
                 if(File.Exists(value))
                 {
                     editorIconName = value;
-                    UpdateIconImage();
+                    UpdateEntityIcons();
                 }
             }
         }
@@ -86,28 +86,41 @@ namespace GuxtModdingFramework
 
         public ImageList EntityIcons { get; private set; } = new ImageList();
 
+        public int TileSize { get; set; } = 16;
+
         /// <summary>
-        /// Size of each icon
+        /// Size of each icon (pixels)
         /// </summary>
         public int IconSize { get; set; } = 16;
 
-        void UpdateIconImage()
+        void UpdateEntityIcons()
         {
             var iconImage = new Bitmap(Path.Combine(DataPath, EditorIconName + "." + ImageExtension));
             if(ImagesScrambeled)
                 iconImage = Scrambler.Unscramble(iconImage);
             iconImage.MakeTransparent(Color.Black);
 
-            for(int i = 0; i < 16 * 8; i++)
+            EntityIcons.Images.Clear();
+            var IconsPerRow = iconImage.Width / IconSize;
+            try
             {
-                var iconX = (i % 16) * 16;
-                var iconY = (i / 16) * 16;
+                for (int i = 0; i < (iconImage.Width * iconImage.Height) / (IconSize * IconSize); i++)
+                {
+                    var iconX = (i % IconsPerRow) * IconSize;
+                    var iconY = (i / IconsPerRow) * IconSize;
 
-                var entityIcon = iconImage.Clone(new Rectangle(
-                    iconX, iconY, IconSize, IconSize
-                    ), PixelFormat.DontCare);
+                    var entityIcon = iconImage.Clone(new Rectangle(
+                        iconX, iconY, IconSize, IconSize
+                        ), PixelFormat.DontCare);
 
-                EntityIcons.Images.Add(entityIcon);
+                    EntityIcons.Images.Add(entityIcon);
+                }
+            }
+            //Clone() likes to throw this when you do most things wrong
+            //but here it's most likley that the image isn't big enough
+            catch(OutOfMemoryException e)
+            {
+                //TODO uh...
             }
 
             iconImage.Dispose();
@@ -278,7 +291,7 @@ namespace GuxtModdingFramework
             FillWithFileNames(m.Images, m.DataPath, m.ImageExtension, m.ImageName);
             FillWithFileNames(m.Attributes, m.DataPath, m.AttributeExtension);
             FillWithFileNames(m.Projects, m.DataPath, m.ProjectExtension);
-            m.UpdateIconImage();
+            m.UpdateEntityIcons();
             
             return m;
         }
