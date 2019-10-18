@@ -16,43 +16,50 @@ using GuxtModdingFramework.Maps;
 
 namespace GuxtEditor
 {
-    public partial class FormStageEditor: Form
+    public partial class FormStageEditor : Form
     {
-        List<Entity> entities;
-        Map map, attributes;
-        Bitmap tileset, baseMapImage;
         Mod parentMod;
+        public int StageNumber { get; private set; }
+        
+        List<Entity> entities;
 
-        Point LastSelected = new Point(-1, -1);
+        readonly string mapPath, entityPath;
+        Map map, attributes;
+        Bitmap baseTileset, baseMap, tileset;
+        
+        byte SelectedTile = 0;
+        Point LastHover = new Point(-1, -1);
 
+        
         public FormStageEditor(Mod m, int stageNum)
         {
             parentMod = m;
+            StageNumber = stageNum;
 
             InitializeComponent();            
             mapPictureBox.SizeMode = PictureBoxSizeMode.AutoSize;            
             InitEntityList();
 
-            
-
             //base map setup
-            map = new Map(Path.Combine(parentMod.DataPath, parentMod.MapName + stageNum + "." + parentMod.MapExtension));
+            mapPath = Path.Combine(parentMod.DataPath, parentMod.MapName + StageNumber + "." + parentMod.MapExtension);
+            map = new Map(mapPath);
             mapPropertyGrid.SelectedObject = map;
 
-            var tilesetPath = Path.Combine(parentMod.DataPath, parentMod.AttributeName + stageNum + "." + parentMod.ImageExtension);
+            var tilesetPath = Path.Combine(parentMod.DataPath, parentMod.AttributeName + StageNumber + "." + parentMod.ImageExtension);
             tileset = new Bitmap(tilesetPath);
             if (parentMod.ImagesScrambeled)
-                tileset = Scrambler.Unscramble(tileset);
+                tileset = Scrambler.Unscramble(tileset); 
 
             attributes = new Map(Path.ChangeExtension(tilesetPath, parentMod.AttributeExtension));
 
-            entities = PXEVE.Read(Path.Combine(parentMod.DataPath, parentMod.EntityName + stageNum + "." + parentMod.EntityExtension));
+            entityPath = Path.Combine(parentMod.DataPath, parentMod.EntityName + StageNumber + "." + parentMod.EntityExtension);
+            entities = PXEVE.Read(entityPath);
 
-            
+            InitTileset();
             DisplayTileset();
 
             InitMap();
-            DrawTiles();
+            DisplayMap();
 
         }
 
@@ -60,43 +67,49 @@ namespace GuxtEditor
         {
             entityListView.Clear();
             entityListView.LargeImageList = parentMod.EntityIcons;
-            for(int i = 0; i < parentMod.EntityIcons.Images.Count; i++)
+            for (int i = 0; i < parentMod.EntityIcons.Images.Count; i++)
             {
                 entityListView.Items.Add(i.ToString(), i);
             }
         }
 
+        #region map stuff
+        
         void InitMap()
         {
-            baseMapImage = new Bitmap(map.Width * parentMod.TileSize, map.Height * parentMod.TileSize);
-            DrawWholeMap(baseMapImage);
+            baseMap = new Bitmap(map.Width * parentMod.TileSize, map.Height * parentMod.TileSize);
+            DrawTiles(baseMap);
         }
 
-        void DrawWholeMap(Image img)
+        void DrawTile(Graphics g, int i)
+        {
+            var tilesetX = (map.Tiles[i] % 16) * parentMod.TileSize;
+            var tilesetY = (map.Tiles[i] / 16) * parentMod.TileSize;
+
+            var x = (i % map.Width) * parentMod.TileSize;
+            var y = (i / map.Width) * parentMod.TileSize;
+            
+            using (var tileImage = tileset.Clone(new Rectangle(
+                tilesetX, tilesetY, parentMod.TileSize, parentMod.TileSize
+            ), PixelFormat.DontCare))
+            {
+                g.DrawImage(tileImage, x, y, parentMod.TileSize, parentMod.TileSize);
+            }
+        }
+        void DrawTiles(Image img)
         {
             using (Graphics g = Graphics.FromImage(img))
             {
                 for (int i = 0; i < map.Tiles.Count; i++)
                 {
-                    var tilesetX = (map.Tiles[i] % 16) * parentMod.TileSize;
-                    var tilesetY = (map.Tiles[i] / 16) * parentMod.TileSize;
-
-                    var x = (i % map.Width) * parentMod.TileSize;
-                    var y = (i / map.Width) * parentMod.TileSize;
-
-                    using (var tileImage = tileset.Clone(new Rectangle(
-                        tilesetX, tilesetY, parentMod.TileSize, parentMod.TileSize
-                    ), PixelFormat.DontCare))
-                    {
-                        g.DrawImage(tileImage, x, y, parentMod.TileSize, parentMod.TileSize);
-                    }
+                    DrawTile(g, i);
                 }
             }
         }
 
-        void DrawTiles(Point? p = null)
+        void DisplayMap(Point? p = null)
         {
-            Bitmap mapImage = new Bitmap(baseMapImage);
+            Bitmap mapImage = new Bitmap(baseMap);
             if (tileTypesToolStripMenuItem.Checked)
                 DrawTileTypes(mapImage);
             if (entitiesToolStripMenuItem.Checked)
@@ -129,11 +142,6 @@ namespace GuxtEditor
             }
         }
 
-        void DrawTileTypes(Image img)
-        {
-            //TODO implement
-        }
-
         void DrawEntities(Image img)
         {
             using (Graphics g = Graphics.FromImage(img))
@@ -151,9 +159,48 @@ namespace GuxtEditor
             
         }
 
+        #endregion
+
+        void DrawTileTypes(Image img)
+        {
+            //TODO implement
+        }
+
+        void InitTileset()
+        {
+            baseTileset = new Bitmap(parentMod.TileSize * 16, parentMod.TileSize * 16);
+            using (Graphics g = Graphics.FromImage(baseTileset))
+            {
+                //init to black
+                g.DrawRectangle(new Pen(Color.Black), 0, 0, baseTileset.Width, baseTileset.Height);
+            }
+        }
+        void DrawTileset(Image img)
+        {
+            using (Graphics g = Graphics.FromImage(img))
+            {
+                g.DrawImage(tileset, 0, 0, tileset.Width, tileset.Height);
+            }            
+        }
+        void DrawSelectedTile(Image img)
+        {
+            using (Graphics g = Graphics.FromImage(img))
+            {
+                g.DrawRectangle(new Pen(Color.LightGray),
+                    (SelectedTile % 16) * parentMod.TileSize,
+                    (SelectedTile / 16) * parentMod.TileSize,
+                    parentMod.TileSize - 1,
+                    parentMod.TileSize - 1);
+            }
+        }
         void DisplayTileset()
         {
-            tilesetPictureBox.Image = tileset;
+            var thing = new Bitmap(baseTileset);
+            DrawTileset(thing);
+            DrawSelectedTile(thing);
+
+            tilesetPictureBox.Image?.Dispose();
+            tilesetPictureBox.Image = thing;
         }
 
         private void mapPictureBox_MouseClick(object sender, MouseEventArgs e)
@@ -164,8 +211,10 @@ namespace GuxtEditor
             {
                 //Map
                 case 0:
-                    //get slection as tile
-
+                    var tile = (Selection.Y * map.Width) + Selection.X;
+                    map.Tiles[tile] = SelectedTile;
+                    using (Graphics g = Graphics.FromImage(baseMap))
+                        DrawTile(g, tile);
                     break;
                 //Entity
                 case 1:
@@ -178,14 +227,32 @@ namespace GuxtEditor
 
         private void mapPictureBox_MouseLeave(object sender, EventArgs e)
         {
-            DrawTiles();
+            DisplayMap();
+        }
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            map.Save(mapPath);
+            //attributes.Save();
+            PXEVE.Write(entities, entityPath);
+        }
+
+        private void tilesetPictureBox_MouseClick(object sender, MouseEventArgs e)
+        {
+            var p = GetSelectedPoint(e.Location);
+            var value = (p.Y * 16) + p.X;
+            if (value <= byte.MaxValue && value != SelectedTile)
+            {
+                SelectedTile = (byte)value;
+                DisplayTileset();
+            }                
         }
 
         private void mapPictureBox_MouseMove(object sender, MouseEventArgs e)
         {
             var p = GetSelectedPoint(e.Location);
-            if (p != LastSelected)
-                DrawTiles(LastSelected = p);
+            if (p != LastHover)
+                DisplayMap(LastHover = p);
                 
         }
 
