@@ -26,11 +26,7 @@ namespace GuxtEditor
         readonly string mapPath, entityPath;
         Map map, attributes;
         Bitmap baseTileset, baseMap, tileset;
-        
-        byte SelectedTile = 0;
-        Point LastHover = new Point(-1, -1);
 
-        
         public FormStageEditor(Mod m, int stageNum)
         {
             parentMod = m;
@@ -73,14 +69,35 @@ namespace GuxtEditor
             }
         }
 
-        #region map stuff
-        
+        int gridSize { get => parentMod.TileSize / (tabControl1.SelectedIndex + 1); }
+
+        private Point GetSelectedPoint(Point p)
+        {
+            return new Point(p.X / gridSize, p.Y / gridSize);
+        }
+
+        #region Map display
+
         void InitMap()
         {
             baseMap = new Bitmap(map.Width * parentMod.TileSize, map.Height * parentMod.TileSize);
             DrawTiles(baseMap);
         }
-
+        void DrawTiles(Image img)
+        {
+            using (Graphics g = Graphics.FromImage(img))
+            {
+                for (int i = 0; i < map.Tiles.Count; i++)
+                {
+                    DrawTile(g, i);
+                }
+            }
+        }
+        void DrawTile(int i)
+        {
+            using (Graphics g = Graphics.FromImage(baseMap))
+                DrawTile(g, i);
+        }
         void DrawTile(Graphics g, int i)
         {
             var tilesetX = (map.Tiles[i] % 16) * parentMod.TileSize;
@@ -95,39 +112,23 @@ namespace GuxtEditor
             {
                 g.DrawImage(tileImage, x, y, parentMod.TileSize, parentMod.TileSize);
             }
-        }
-        void DrawTiles(Image img)
+        }        
+        void DrawEntities(Image img)
         {
             using (Graphics g = Graphics.FromImage(img))
             {
-                for (int i = 0; i < map.Tiles.Count; i++)
+                for (int i = 0; i < entities.Count; i++)
                 {
-                    DrawTile(g, i);
+                    var entityIcon = parentMod.EntityIcons.Images[entities[i].EntityID];
+
+                    var y = (entities[i].Y * parentMod.TileSize) / 2;
+                    var x = (entities[i].X * parentMod.TileSize) / 2;
+
+                    g.DrawImage(entityIcon, x, y, parentMod.IconSize, parentMod.IconSize);
                 }
             }
+
         }
-
-        void DisplayMap(Point? p = null)
-        {
-            Bitmap mapImage = new Bitmap(baseMap);
-            if (tileTypesToolStripMenuItem.Checked)
-                DrawTileTypes(mapImage);
-            if (entitiesToolStripMenuItem.Checked)
-                DrawEntities(mapImage);
-            if(p != null)
-                DrawMouseOverlay(mapImage, (Point)p);
-
-            mapPictureBox.Image?.Dispose();
-            mapPictureBox.Image = mapImage;
-        }
-
-        int gridSize { get => parentMod.TileSize / (tabControl1.SelectedIndex + 1); }
-
-        private Point GetSelectedPoint(Point p)
-        {
-            return new Point(p.X / gridSize, p.Y / gridSize);
-        }
-
         private void DrawMouseOverlay(Image img, Point p)
         {
             using (Graphics g = Graphics.FromImage(img))
@@ -141,22 +142,18 @@ namespace GuxtEditor
                 g.DrawRectangle(new Pen(Color.LightGray), x, y, width, height);
             }
         }
-
-        void DrawEntities(Image img)
+        void DisplayMap(Point? p = null)
         {
-            using (Graphics g = Graphics.FromImage(img))
-            {
-                for (int i = 0; i < entities.Count; i++)
-                {
-                    var entityIcon = parentMod.EntityIcons.Images[entities[i].EntityID];
-                    
-                    var y = (entities[i].Y * parentMod.TileSize) / 2;
-                    var x = (entities[i].X * parentMod.TileSize) / 2;
+            Bitmap mapImage = new Bitmap(baseMap);
+            if (tileTypesToolStripMenuItem.Checked)
+                DrawTileTypes(mapImage);
+            if (entitiesToolStripMenuItem.Checked)
+                DrawEntities(mapImage);
+            if (p != null)
+                DrawMouseOverlay(mapImage, (Point)p);
 
-                    g.DrawImage(entityIcon, x, y, parentMod.IconSize, parentMod.IconSize);
-                }
-            }
-            
+            mapPictureBox.Image?.Dispose();
+            mapPictureBox.Image = mapImage;
         }
 
         #endregion
@@ -165,6 +162,8 @@ namespace GuxtEditor
         {
             //TODO implement
         }
+
+        #region Tileset display
 
         void InitTileset()
         {
@@ -203,7 +202,25 @@ namespace GuxtEditor
             tilesetPictureBox.Image = thing;
         }
 
-        private void mapPictureBox_MouseClick(object sender, MouseEventArgs e)
+        #endregion
+
+        enum AvailableActions
+        {
+            DrawTiles,
+            PickTile,
+            SelectEntities,
+            MoveEntities
+        }
+
+        AvailableActions? CurrentAction = null;
+
+        byte SelectedTile = 0;
+        Point LastTileDrawn = new Point(-1, -1);
+        Point EntitySelectionStart = new Point(-1, -1);
+
+        #region Map interaction
+
+        private void mapPictureBox_MouseDown(object sender, MouseEventArgs e)
         {
             Point Selection = GetSelectedPoint(e.Location);
 
@@ -212,17 +229,81 @@ namespace GuxtEditor
                 //Map
                 case 0:
                     var tile = (Selection.Y * map.Width) + Selection.X;
-                    map.Tiles[tile] = SelectedTile;
-                    using (Graphics g = Graphics.FromImage(baseMap))
-                        DrawTile(g, tile);
+                    switch (e.Button)
+                    {
+                        case MouseButtons.Left:
+                            CurrentAction = AvailableActions.DrawTiles;
+                                                        
+                            map.Tiles[tile] = SelectedTile;
+                            DrawTile(tile);
+                            DisplayMap();
+                            break;
+                        case MouseButtons.Middle:
+                            CurrentAction = AvailableActions.PickTile;
+
+                            SelectedTile = map.Tiles[tile];
+                            DisplayTileset();
+                            break;
+                    }
                     break;
                 //Entity
                 case 1:
-                    var sel = entities.Where(entity => entity.X == Selection.X && entity.Y == Selection.Y);
+                    switch(e.Button)
+                    {
+                        case MouseButtons.Left:
+                            CurrentAction = AvailableActions.SelectEntities;
+                            EntitySelectionStart = Selection;
+                            break;
+                    }
+                    break;
+            }
+        }
+
+        private void mapPictureBox_MouseMove(object sender, MouseEventArgs e)
+        {
+            var p = GetSelectedPoint(e.Location);
+            //if we're still on the same grid space, stop
+            if (p == LastTileDrawn)
+                return;
+            //otherwise, we've moved, so update to new position
+            LastTileDrawn = p;
+
+            //do the actual work
+            switch (CurrentAction)
+            {
+                case AvailableActions.DrawTiles:
+                    var tile = (p.Y * map.Width) + p.X;
+                    map.Tiles[tile] = SelectedTile;
+                    DrawTile(tile);
+                    break;
+            }
+
+            //display map either way
+            //but only display cursor if not doing something already
+            if (CurrentAction == null)
+                DisplayMap(p);
+            else
+                DisplayMap();
+        }
+
+        private void mapPictureBox_MouseUp(object sender, MouseEventArgs e)
+        {
+            switch(CurrentAction)
+            {
+                case AvailableActions.SelectEntities:
+                    var EntitytSelectionEnd = GetSelectedPoint(e.Location);
+                    //TODO M E S S Y
+                    int x = Math.Min(EntitySelectionStart.X, EntitytSelectionEnd.X);
+                    int y = Math.Min(EntitySelectionStart.Y, EntitytSelectionEnd.Y);
+                    int xd = Math.Max(EntitySelectionStart.X, EntitytSelectionEnd.X);
+                    int yd = Math.Max(EntitySelectionStart.Y, EntitytSelectionEnd.Y);
+
+                    var sel = entities.Where(entity => x <= entity.X && entity.X <=xd && y <= entity.Y && entity.Y <= yd);
                     if (sel.Any())
                         entityPropertyGrid.SelectedObject = sel.First();
                     break;
             }
+            CurrentAction = null;            
         }
 
         private void mapPictureBox_MouseLeave(object sender, EventArgs e)
@@ -230,12 +311,9 @@ namespace GuxtEditor
             DisplayMap();
         }
 
-        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            map.Save(mapPath);
-            //attributes.Save();
-            PXEVE.Write(entities, entityPath);
-        }
+        #endregion
+
+        #region Tileset Interaction
 
         private void tilesetPictureBox_MouseClick(object sender, MouseEventArgs e)
         {
@@ -245,15 +323,16 @@ namespace GuxtEditor
             {
                 SelectedTile = (byte)value;
                 DisplayTileset();
-            }                
+            }
         }
 
-        private void mapPictureBox_MouseMove(object sender, MouseEventArgs e)
+        #endregion
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var p = GetSelectedPoint(e.Location);
-            if (p != LastHover)
-                DisplayMap(LastHover = p);
-                
+            map.Save(mapPath);
+            //attributes.Save();
+            PXEVE.Write(entities, entityPath);
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
