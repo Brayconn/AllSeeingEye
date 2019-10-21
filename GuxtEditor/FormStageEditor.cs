@@ -29,12 +29,19 @@ namespace GuxtEditor
 
         public FormStageEditor(Mod m, int stageNum)
         {
+            //everything needs this stuff
             parentMod = m;
             StageNumber = stageNum;
 
+            //UI init
             InitializeComponent();            
             mapPictureBox.SizeMode = PictureBoxSizeMode.AutoSize;            
             InitEntityList();
+
+            //Tool strip menu items init
+
+            createEntityToolStripMenuItem = new ToolStripMenuItem("Insert Entity");
+            createEntityToolStripMenuItem.Click += CreateNewEntity;
 
             //base map setup
             mapPath = Path.Combine(parentMod.DataPath, parentMod.MapName + StageNumber + "." + parentMod.MapExtension);
@@ -69,9 +76,9 @@ namespace GuxtEditor
             }
         }
 
-        int gridSize { get => parentMod.TileSize / (tabControl1.SelectedIndex + 1); }
+        int gridSize { get => parentMod.TileSize / (editModeTabControl.SelectedIndex + 1); }
 
-        private Point GetSelectedPoint(Point p)
+        private Point GetMousePointOnGrid(Point p)
         {
             return new Point(p.X / gridSize, p.Y / gridSize);
         }
@@ -204,43 +211,76 @@ namespace GuxtEditor
 
         #endregion
 
-        enum AvailableActions
+        void SetTile(Point p)
+        {
+            SetTile((p.Y * map.Width) + p.X);
+        }
+        void SetTile(int tile)
+        {
+            map.Tiles[tile] = SelectedTile;
+            DrawTile(tile);
+        }
+
+        enum HoldActions
         {
             DrawTiles,
-            PickTile,
             SelectEntities,
             MoveEntities
         }
 
-        AvailableActions? CurrentAction = null;
+        HoldActions? HoldAction = null;
 
         byte SelectedTile = 0;
-        Point LastTileDrawn = new Point(-1, -1);
+        HashSet<Entity> selectedEntities = new HashSet<Entity>();
+        Point MousePositionOnGrid = new Point(-1, -1);
         Point EntitySelectionStart = new Point(-1, -1);
 
         #region Map interaction
 
+        private IEnumerable<Entity> GetEntitiesAtLocation(int x, int y)
+        {
+            return GetEntitiesAtLocation(x, y, x, y);
+        }
+        private IEnumerable<Entity> GetEntitiesAtLocation(int x, int y, int x2, int y2)
+        {
+            //TODO maybe remove LINQ?
+            return entities.Where(entity => x <= entity.X && entity.X <= x2
+                                         && y <= entity.Y && entity.Y <= y2);
+        }
+
+        ToolStripMenuItem createEntityToolStripMenuItem;
+        private void CreateNewEntity(object sender, EventArgs e)
+        {
+            if (entityListView.SelectedIndices.Count > 0)
+            {
+                entities.Add(new Entity(0, MousePositionOnGrid.X, MousePositionOnGrid.Y, entityListView.SelectedIndices[0], 0));
+                DisplayMap(MousePositionOnGrid);
+            }
+        }
+        private void SelectEntity(object sender, EventArgs e)
+        {
+            if(sender is ToolStripMenuItem tsmi)
+                entityPropertyGrid.SelectedObject = entities[int.Parse(tsmi.Name)];
+        }
+
         private void mapPictureBox_MouseDown(object sender, MouseEventArgs e)
         {
-            Point Selection = GetSelectedPoint(e.Location);
+            Point p = GetMousePointOnGrid(e.Location);
 
-            switch (tabControl1.SelectedIndex)
+            switch (editModeTabControl.SelectedIndex)
             {
                 //Map
                 case 0:
-                    var tile = (Selection.Y * map.Width) + Selection.X;
+                    var tile = (p.Y * map.Width) + p.X;
                     switch (e.Button)
                     {
                         case MouseButtons.Left:
-                            CurrentAction = AvailableActions.DrawTiles;
-                                                        
-                            map.Tiles[tile] = SelectedTile;
-                            DrawTile(tile);
+                            HoldAction = HoldActions.DrawTiles;
+
+                            SetTile(tile);
                             DisplayMap();
                             break;
                         case MouseButtons.Middle:
-                            CurrentAction = AvailableActions.PickTile;
-
                             SelectedTile = map.Tiles[tile];
                             DisplayTileset();
                             break;
@@ -248,11 +288,52 @@ namespace GuxtEditor
                     break;
                 //Entity
                 case 1:
-                    switch(e.Button)
+                    var hoveredEntities = GetEntitiesAtLocation(p.X, p.Y);
+                    switch (e.Button)
                     {
                         case MouseButtons.Left:
-                            CurrentAction = AvailableActions.SelectEntities;
-                            EntitySelectionStart = Selection;
+                            //if the user is clicking on an entity that's already selected
+                            if(hoveredEntities.Intersect(selectedEntities).Any())
+                            {
+                                //start moving
+                                HoldAction = HoldActions.MoveEntities;
+                            }
+                            //if the user isn't, that means they're either:
+                            // a. clicking on a new entity, or
+                            // b. clicking on an empty space
+                            // either way, we're selecting something new
+                            else
+                            {
+                                HoldAction = HoldActions.SelectEntities;
+                                EntitySelectionStart = p;
+                            }                            
+                            break;
+                        case MouseButtons.Right:
+                            ContextMenuStrip entityContextMenu = new ContextMenuStrip();
+                            entityContextMenu.Items.Add(createEntityToolStripMenuItem);
+                            //TODO add paste
+
+                            var c = hoveredEntities.Count();
+                            //add copy and delete
+                            if (c == 1)
+                            {
+                                //TODO add copy and delete
+                            }
+                            //anything else is bigger, so we gotta check what entity to select
+                            else if(c > 1)
+                            {
+                                foreach(var ent in hoveredEntities)
+                                {
+                                    var index = entities.IndexOf(ent);
+
+                                    //TODO temp text
+                                    var tsmi = new ToolStripMenuItem(index.ToString());
+                                    tsmi.Name = index.ToString();
+                                    tsmi.Click += SelectEntity;
+                                    entityContextMenu.Items.Add(tsmi);
+                                }                                    
+                            }
+                            entityContextMenu.Show(mapPictureBox, new Point(MousePositionOnGrid.X * gridSize, MousePositionOnGrid.Y * gridSize));
                             break;
                     }
                     break;
@@ -261,26 +342,31 @@ namespace GuxtEditor
 
         private void mapPictureBox_MouseMove(object sender, MouseEventArgs e)
         {
-            var p = GetSelectedPoint(e.Location);
+            var p = GetMousePointOnGrid(e.Location);
             //if we're still on the same grid space, stop
-            if (p == LastTileDrawn)
+            if (p == MousePositionOnGrid)
                 return;
-            //otherwise, we've moved, so update to new position
-            LastTileDrawn = p;
-
-            //do the actual work
-            switch (CurrentAction)
+            
+            switch (HoldAction)
             {
-                case AvailableActions.DrawTiles:
-                    var tile = (p.Y * map.Width) + p.X;
-                    map.Tiles[tile] = SelectedTile;
-                    DrawTile(tile);
+                case HoldActions.DrawTiles:
+                    SetTile(p);
+                    break;
+                case HoldActions.MoveEntities:
+                    int xd = MousePositionOnGrid.X - p.X;
+                    int yd = MousePositionOnGrid.Y - p.Y;
+                    foreach(var ent in selectedEntities)
+                    {
+                        ent.X -= xd;
+                        ent.Y -= yd;
+                    }
                     break;
             }
 
-            //display map either way
-            //but only display cursor if not doing something already
-            if (CurrentAction == null)
+            MousePositionOnGrid = p;
+            //TODO this won't work for an expanding selection square
+            //display map not matter what, but only display cursor if not doing something already
+            if (HoldAction == null)
                 DisplayMap(p);
             else
                 DisplayMap();
@@ -288,26 +374,27 @@ namespace GuxtEditor
 
         private void mapPictureBox_MouseUp(object sender, MouseEventArgs e)
         {
-            switch(CurrentAction)
+            switch(HoldAction)
             {
-                case AvailableActions.SelectEntities:
-                    var EntitytSelectionEnd = GetSelectedPoint(e.Location);
+                case HoldActions.SelectEntities:
+                    var EntitySelectionEnd = GetMousePointOnGrid(e.Location);
                     //TODO M E S S Y
-                    int x = Math.Min(EntitySelectionStart.X, EntitytSelectionEnd.X);
-                    int y = Math.Min(EntitySelectionStart.Y, EntitytSelectionEnd.Y);
-                    int xd = Math.Max(EntitySelectionStart.X, EntitytSelectionEnd.X);
-                    int yd = Math.Max(EntitySelectionStart.Y, EntitytSelectionEnd.Y);
+                    int x = Math.Min(EntitySelectionStart.X, EntitySelectionEnd.X);
+                    int y = Math.Min(EntitySelectionStart.Y, EntitySelectionEnd.Y);
+                    int xd = Math.Max(EntitySelectionStart.X, EntitySelectionEnd.X);
+                    int yd = Math.Max(EntitySelectionStart.Y, EntitySelectionEnd.Y);
 
-                    var sel = entities.Where(entity => x <= entity.X && entity.X <=xd && y <= entity.Y && entity.Y <= yd);
-                    if (sel.Any())
-                        entityPropertyGrid.SelectedObject = sel.First();
+                    var sel = GetEntitiesAtLocation(x, y, xd, yd);
+                    selectedEntities = new HashSet<Entity>(sel);
+                    entityPropertyGrid.SelectedObject = sel.Any() ? sel.First() : null;
                     break;
             }
-            CurrentAction = null;            
+            HoldAction = null;            
         }
 
         private void mapPictureBox_MouseLeave(object sender, EventArgs e)
         {
+            HoldAction = null;
             DisplayMap();
         }
 
@@ -317,7 +404,7 @@ namespace GuxtEditor
 
         private void tilesetPictureBox_MouseClick(object sender, MouseEventArgs e)
         {
-            var p = GetSelectedPoint(e.Location);
+            var p = GetMousePointOnGrid(e.Location);
             var value = (p.Y * 16) + p.X;
             if (value <= byte.MaxValue && value != SelectedTile)
             {

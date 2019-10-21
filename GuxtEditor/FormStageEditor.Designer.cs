@@ -36,7 +36,7 @@
             this.tileTypesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.entitiesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.editModeTabControl = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.tilesetPictureBox = new System.Windows.Forms.PictureBox();
@@ -52,7 +52,7 @@
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
-            this.tabControl1.SuspendLayout();
+            this.editModeTabControl.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tilesetPictureBox)).BeginInit();
@@ -128,7 +128,7 @@
             // 
             // splitContainer1.Panel1
             // 
-            this.splitContainer1.Panel1.Controls.Add(this.tabControl1);
+            this.splitContainer1.Panel1.Controls.Add(this.editModeTabControl);
             // 
             // splitContainer1.Panel2
             // 
@@ -137,16 +137,16 @@
             this.splitContainer1.SplitterDistance = 266;
             this.splitContainer1.TabIndex = 1;
             // 
-            // tabControl1
+            // editModeTabControl
             // 
-            this.tabControl1.Controls.Add(this.tabPage1);
-            this.tabControl1.Controls.Add(this.tabPage2);
-            this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl1.Location = new System.Drawing.Point(0, 0);
-            this.tabControl1.Name = "tabControl1";
-            this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(266, 426);
-            this.tabControl1.TabIndex = 0;
+            this.editModeTabControl.Controls.Add(this.tabPage1);
+            this.editModeTabControl.Controls.Add(this.tabPage2);
+            this.editModeTabControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.editModeTabControl.Location = new System.Drawing.Point(0, 0);
+            this.editModeTabControl.Name = "editModeTabControl";
+            this.editModeTabControl.SelectedIndex = 0;
+            this.editModeTabControl.Size = new System.Drawing.Size(266, 426);
+            this.editModeTabControl.TabIndex = 0;
             // 
             // tabPage1
             // 
@@ -232,6 +232,7 @@
             this.entityListView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.entityListView.HideSelection = false;
             this.entityListView.Location = new System.Drawing.Point(3, 200);
+            this.entityListView.MultiSelect = false;
             this.entityListView.Name = "entityListView";
             this.entityListView.Size = new System.Drawing.Size(246, 191);
             this.entityListView.TabIndex = 1;
@@ -275,7 +276,7 @@
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
-            this.tabControl1.ResumeLayout(false);
+            this.editModeTabControl.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tableLayoutPanel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.tilesetPictureBox)).EndInit();
@@ -295,7 +296,7 @@
         private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem viewToolStripMenuItem;
         private System.Windows.Forms.SplitContainer splitContainer1;
-        private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.TabControl editModeTabControl;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.PictureBox tilesetPictureBox;
         private System.Windows.Forms.TabPage tabPage2;
