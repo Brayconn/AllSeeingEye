@@ -232,6 +232,7 @@ namespace GuxtEditor
 
         byte SelectedTile = 0;
         HashSet<Entity> selectedEntities = new HashSet<Entity>();
+        Entity? entityClipboard;
         Point MousePositionOnGrid = new Point(-1, -1);
         Point EntitySelectionStart = new Point(-1, -1);
 
@@ -257,10 +258,32 @@ namespace GuxtEditor
                 DisplayMap(MousePositionOnGrid);
             }
         }
+        private void SetSelectedEntity(IEnumerable<Entity> entities)
+        {
+            selectedEntities = new HashSet<Entity>(entities);
+            entityPropertyGrid.SelectedObject = entities.Any() ? entities.First() : null;
+        }
         private void SelectEntity(object sender, EventArgs e)
         {
+            if (sender is ToolStripMenuItem tsmi)
+            {
+                SetSelectedEntity(new[] { entities[int.Parse(tsmi.Name)] });
+            }
+        }
+        private void CopyEntity(object sender, EventArgs e)
+        {
             if(sender is ToolStripMenuItem tsmi)
-                entityPropertyGrid.SelectedObject = entities[int.Parse(tsmi.Name)];
+                entityClipboard = new Entity(entities[int.Parse(tsmi.Name)]);             
+        }
+        private void PasteEntity(object sender, EventArgs e)
+        {
+            if (entityClipboard == null)
+                return;
+            entities.Add(new Entity(entityClipboard) { 
+            X = MousePositionOnGrid.X,
+            Y = MousePositionOnGrid.Y
+            });
+            DisplayMap(MousePositionOnGrid);
         }
 
         private void mapPictureBox_MouseDown(object sender, MouseEventArgs e)
@@ -311,17 +334,28 @@ namespace GuxtEditor
                         case MouseButtons.Right:
                             ContextMenuStrip entityContextMenu = new ContextMenuStrip();
                             entityContextMenu.Items.Add(createEntityToolStripMenuItem);
-                            //TODO add paste
 
                             var c = hoveredEntities.Count();
-                            //add copy and delete
-                            if (c == 1)
+                            
+                            var copy = new ToolStripMenuItem("Copy");
+                            //copy enabled if only one entity selected, other stuff only initiallized then too
+                            if (copy.Enabled = c == 1)
                             {
-                                //TODO add copy and delete
+                                copy.Name = entities.IndexOf(hoveredEntities.First()).ToString();
+                                copy.Click += CopyEntity;
                             }
+                            entityContextMenu.Items.Add(copy);
+
+                            var paste = new ToolStripMenuItem("Paste");
+                            //paste enabled if you have something on the clipboard
+                            paste.Enabled = entityClipboard != null;
+                            paste.Click += PasteEntity;
+                            entityContextMenu.Items.Add(paste);
+
                             //anything else is bigger, so we gotta check what entity to select
-                            else if(c > 1)
+                            if (c > 1)
                             {
+                                entityContextMenu.Items.Add(new ToolStripSeparator());
                                 foreach(var ent in hoveredEntities)
                                 {
                                     var index = entities.IndexOf(ent);
@@ -385,8 +419,7 @@ namespace GuxtEditor
                     int yd = Math.Max(EntitySelectionStart.Y, EntitySelectionEnd.Y);
 
                     var sel = GetEntitiesAtLocation(x, y, xd, yd);
-                    selectedEntities = new HashSet<Entity>(sel);
-                    entityPropertyGrid.SelectedObject = sel.Any() ? sel.First() : null;
+                    SetSelectedEntity(sel);
                     break;
             }
             HoldAction = null;            
