@@ -29,6 +29,7 @@ namespace GuxtModdingFramework.Entities
         /// </summary>
         public int ExtraInfo { get; set; }
 
+        public Entity(Entity e) : this(e.Unused, e.X, e.Y, e.EntityID, e.ExtraInfo) { }
         public Entity(int u, int x, int y, int id, int info)
         {
             Unused = u;
