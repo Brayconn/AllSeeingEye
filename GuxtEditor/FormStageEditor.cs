@@ -25,7 +25,7 @@ namespace GuxtEditor
 
         readonly string mapPath, entityPath;
         Map map, attributes;
-        Bitmap baseTileset, baseMap, tileset;
+        Bitmap baseMap, tileset;
 
         public FormStageEditor(Mod m, int stageNum)
         {
@@ -34,12 +34,10 @@ namespace GuxtEditor
             StageNumber = stageNum;
 
             //UI init
-            InitializeComponent();            
-            mapPictureBox.SizeMode = PictureBoxSizeMode.AutoSize;            
+            InitializeComponent();       
             InitEntityList();
 
             //Tool strip menu items init
-
             createEntityToolStripMenuItem = new ToolStripMenuItem("Insert Entity");
             createEntityToolStripMenuItem.Click += CreateNewEntity;
 
@@ -48,19 +46,23 @@ namespace GuxtEditor
             map = new Map(mapPath);
             mapPropertyGrid.SelectedObject = map;
 
+            //tileset
             var tilesetPath = Path.Combine(parentMod.DataPath, parentMod.AttributeName + StageNumber + "." + parentMod.ImageExtension);
-            tileset = new Bitmap(tilesetPath);
+            var t = new Bitmap(tilesetPath);
             if (parentMod.ImagesScrambeled)
-                tileset = Scrambler.Unscramble(tileset); 
+                t = Scrambler.Unscramble(t);
+            InitTileset(t);
+            t.Dispose();
 
+            //attributes
             attributes = new Map(Path.ChangeExtension(tilesetPath, parentMod.AttributeExtension));
 
+            //entities
             entityPath = Path.Combine(parentMod.DataPath, parentMod.EntityName + StageNumber + "." + parentMod.EntityExtension);
             entities = PXEVE.Read(entityPath);
 
-            InitTileset();
+            //display            
             DisplayTileset();
-
             InitMap();
             DisplayMap();
 
@@ -172,13 +174,15 @@ namespace GuxtEditor
 
         #region Tileset display
 
-        void InitTileset()
+        void InitTileset(Image img)
         {
-            baseTileset = new Bitmap(parentMod.TileSize * 16, parentMod.TileSize * 16);
-            using (Graphics g = Graphics.FromImage(baseTileset))
+            tileset = new Bitmap(parentMod.TileSize * 16, parentMod.TileSize * 16);
+            using (Graphics g = Graphics.FromImage(tileset))
             {
                 //init to black
-                g.DrawRectangle(new Pen(Color.Black), 0, 0, baseTileset.Width, baseTileset.Height);
+                g.FillRectangle(Brushes.Black, 0, 0, tileset.Width, tileset.Height);
+                //draw the actual tileset
+                g.DrawImage(img, 0, 0, img.Width, img.Height);
             }
         }
         void DrawTileset(Image img)
@@ -201,7 +205,7 @@ namespace GuxtEditor
         }
         void DisplayTileset()
         {
-            var thing = new Bitmap(baseTileset);
+            var thing = new Bitmap(tileset);
             DrawTileset(thing);
             DrawSelectedTile(thing);
 
@@ -337,6 +341,7 @@ namespace GuxtEditor
 
                             var c = hoveredEntities.Count();
                             
+                            //TODO expand on copy/paste functionality
                             var copy = new ToolStripMenuItem("Copy");
                             //copy enabled if only one entity selected, other stuff only initiallized then too
                             if (copy.Enabled = c == 1)

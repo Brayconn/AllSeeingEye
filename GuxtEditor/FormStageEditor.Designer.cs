@@ -177,10 +177,10 @@
             // 
             // tilesetPictureBox
             // 
-            this.tilesetPictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tilesetPictureBox.Location = new System.Drawing.Point(3, 200);
             this.tilesetPictureBox.Name = "tilesetPictureBox";
             this.tilesetPictureBox.Size = new System.Drawing.Size(246, 191);
+            this.tilesetPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.tilesetPictureBox.TabIndex = 0;
             this.tilesetPictureBox.TabStop = false;
             this.tilesetPictureBox.MouseClick += new System.Windows.Forms.MouseEventHandler(this.tilesetPictureBox_MouseClick);
@@ -253,6 +253,7 @@
             this.mapPictureBox.Location = new System.Drawing.Point(0, 0);
             this.mapPictureBox.Name = "mapPictureBox";
             this.mapPictureBox.Size = new System.Drawing.Size(167, 133);
+            this.mapPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.mapPictureBox.TabIndex = 0;
             this.mapPictureBox.TabStop = false;
             this.mapPictureBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.mapPictureBox_MouseDown);
@@ -279,10 +280,12 @@
             this.editModeTabControl.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tableLayoutPanel2.ResumeLayout(false);
+            this.tableLayoutPanel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tilesetPictureBox)).EndInit();
             this.tabPage2.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.mapPictureBox)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
