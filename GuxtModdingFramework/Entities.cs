@@ -89,9 +89,9 @@ namespace GuxtModdingFramework.Entities
                         contents.Add(new Entity(pxr.Read7BitEncodedInt(), pxr.Read7BitEncodedInt(), pxr.Read7BitEncodedInt(), pxr.Read7BitEncodedInt(), pxr.Read7BitEncodedInt()));
                     }
                 }
-                catch(EndOfStreamException e)
+                catch(EndOfStreamException)
                 {
-
+                    //TODO maybe warn?
                 }
             }
             return contents;

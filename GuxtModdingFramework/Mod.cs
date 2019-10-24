@@ -118,7 +118,7 @@ namespace GuxtModdingFramework
             }
             //Clone() likes to throw this when you do most things wrong
             //but here it's most likley that the image isn't big enough
-            catch(OutOfMemoryException e)
+            catch(OutOfMemoryException)
             {
                 //TODO uh...
             }

@@ -16,9 +16,11 @@ namespace GuxtEditor
 {
     public partial class FormMain : Form
     {
+        private string tileTypePath;
         public FormMain()
         {
             InitializeComponent();
+            tileTypePath = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "tiletypes.png");
         }
 
         private const string ImgFilter = "Pixel Images (*.pximg)|*.pximg";
@@ -208,7 +210,10 @@ namespace GuxtEditor
                 var selectedStage = stagesListBox.SelectedIndex + 1;
                 if (!openEditors.ContainsKey(selectedStage))
                 {
-                    var editorForm = new FormStageEditor(LoadedMod, selectedStage);
+                    //The list of stages will only have entries when LoadedMod != null
+                    #nullable disable
+                    var editorForm = new FormStageEditor(LoadedMod, selectedStage, tileTypePath);
+                    #nullable restore
                     openEditors.Add(selectedStage, editorForm);
                 }
                 openEditors[selectedStage].Show();
