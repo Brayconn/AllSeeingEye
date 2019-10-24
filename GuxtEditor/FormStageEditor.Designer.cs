@@ -108,8 +108,9 @@
             // 
             this.tileTypesToolStripMenuItem.CheckOnClick = true;
             this.tileTypesToolStripMenuItem.Name = "tileTypesToolStripMenuItem";
-            this.tileTypesToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.tileTypesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.tileTypesToolStripMenuItem.Text = "Tile Types";
+            this.tileTypesToolStripMenuItem.CheckedChanged += new System.EventHandler(this.RefreshDisplay);
             // 
             // entitiesToolStripMenuItem
             // 
@@ -117,8 +118,9 @@
             this.entitiesToolStripMenuItem.CheckOnClick = true;
             this.entitiesToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.entitiesToolStripMenuItem.Name = "entitiesToolStripMenuItem";
-            this.entitiesToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.entitiesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.entitiesToolStripMenuItem.Text = "Entities";
+            this.entitiesToolStripMenuItem.CheckedChanged += new System.EventHandler(this.RefreshDisplay);
             // 
             // splitContainer1
             // 

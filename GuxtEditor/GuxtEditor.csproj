@@ -54,4 +54,9 @@
   <ItemGroup>
     <ProjectReference Include="..\GuxtModdingFramework\GuxtModdingFramework.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="tiletypes.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>
