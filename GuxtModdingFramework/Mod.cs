@@ -86,6 +86,9 @@ namespace GuxtModdingFramework
 
         public ImageList EntityIcons { get; private set; } = new ImageList();
 
+        /// <summary>
+        /// Size of each tile (pixels)
+        /// </summary>
         public int TileSize { get; set; } = 16;
 
         /// <summary>
@@ -302,8 +305,12 @@ namespace GuxtModdingFramework
             new XDocument(
                 new XElement("GuxtMod",
                     new XElement("DataPath", relativeDataPath),
-                    new XElement("ImagesScrambeled", ImagesScrambeled),
                     new XElement("Stages", StageCount),
+                    new XElement("Images",
+                        new XElement("Scrambeled", ImagesScrambeled),
+                        new XElement("TileSize", TileSize),
+                        new XElement("IconSize", IconSize)                    
+                    ),
                     new XElement("FileNames",
                         new XElement("Map", MapName),
                         new XElement("Entity", EntityName),
@@ -338,16 +345,20 @@ namespace GuxtModdingFramework
                 //TODO don't make me xml edit
                 throw new DirectoryNotFoundException($"The directory \"{dataFolder}\" was not found. Please fix this project file using an xml editor.");
             
-            //Already have a null check earlier
-            #nullable disable
-            Mod m = FromDataFolder(dataFolder);
-            #nullable restore
-            
-            m.ImagesScrambeled = root["ImagesScrambeled"]?.InnerText == "true";
+            Mod m = FromDataFolder(dataFolder!);
             
             string? sc = root["Stages"]?.InnerText;
             if(sc != null)
                 m.StageCount = int.Parse(sc);
+
+            var images = root["Images"];
+            m.ImagesScrambeled = images["Scrambeled"]?.InnerText == "true";
+            var tilesize = images["TileSize"]?.InnerText;
+            if (tilesize != null)
+                m.TileSize = int.Parse(tilesize);
+            var iconsize = images["IconSize"]?.InnerText;
+            if (iconsize != null)
+                m.IconSize = int.Parse(iconsize);
 
             var names = root["FileNames"];
             m.mapName = names["Map"]?.InnerText ?? m.MapName;
