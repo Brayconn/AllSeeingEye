@@ -46,8 +46,6 @@
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.modPropertyGrid = new System.Windows.Forms.PropertyGrid();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.saveModToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
@@ -69,9 +67,7 @@
             this.newToolStripMenuItem,
             this.openToolStripMenuItem,
             this.saveToolStripMenuItem,
-            this.saveAsToolStripMenuItem,
-            this.toolStripSeparator1,
-            this.saveModToolStripMenuItem});
+            this.saveAsToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "File";
@@ -240,19 +236,6 @@
             this.modPropertyGrid.Size = new System.Drawing.Size(314, 420);
             this.modPropertyGrid.TabIndex = 9;
             // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
-            // 
-            // saveModToolStripMenuItem
-            // 
-            this.saveModToolStripMenuItem.Enabled = false;
-            this.saveModToolStripMenuItem.Name = "saveModToolStripMenuItem";
-            this.saveModToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.saveModToolStripMenuItem.Text = "Save Mod";
-            this.saveModToolStripMenuItem.Click += new System.EventHandler(this.saveModToolStripMenuItem_Click);
-            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -292,8 +275,6 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.PropertyGrid modPropertyGrid;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-        private System.Windows.Forms.ToolStripMenuItem saveModToolStripMenuItem;
     }
 }
 

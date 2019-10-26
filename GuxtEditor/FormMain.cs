@@ -69,6 +69,13 @@ namespace GuxtEditor
             saveAsToolStripMenuItem.Enabled = true;
         }
 
+        private void ClearMemory()
+        {
+            foreach (var editor in openStages)
+                editor.Value.Close();
+            openStages.Clear();
+        }
+
         #region File
 
         private void NewToolStripMenuItem_Click(object sender, EventArgs e)
@@ -87,6 +94,7 @@ namespace GuxtEditor
                     var dataDir = Path.Combine(Path.GetDirectoryName(ofd.FileName), "data");
                     if(Directory.Exists(dataDir))
                     {
+                        ClearMemory();
                         LoadedMod = Mod.FromDataFolder(dataDir);
                     }
                     else
@@ -112,6 +120,7 @@ namespace GuxtEditor
             {
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
+                    ClearMemory();
                     LoadedMod = Mod.Load(savePath = ofd.FileName);
                 }
             }
@@ -202,22 +211,29 @@ namespace GuxtEditor
 
         #region Open editors
 
-        Dictionary<int, Form> openEditors = new Dictionary<int, Form>();
+        Dictionary<int, Form> openStages = new Dictionary<int, Form>();
         private void StagesListBox_DoubleClick(object sender, EventArgs e)
         {
             if (stagesListBox.Items.Count > 0)
             {
                 var selectedStage = stagesListBox.SelectedIndex + 1;
-                if (!openEditors.ContainsKey(selectedStage))
+                if (!openStages.ContainsKey(selectedStage))
                 {
                     //The list of stages will only have entries when LoadedMod != null
                     #nullable disable
                     var editorForm = new FormStageEditor(LoadedMod, selectedStage, tileTypePath);
                     #nullable restore
-                    openEditors.Add(selectedStage, editorForm);
+                    editorForm.FormClosed += EditorForm_FormClosed;
+                    openStages.Add(selectedStage, editorForm);
                 }
-                openEditors[selectedStage].Show();
+                openStages[selectedStage].Show();
             }
+        }
+
+        private void EditorForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            if (sender is FormStageEditor fse)
+                openStages.Remove(fse.StageNumber);
         }
 
         private void ImagesListBox_DoubleClick(object sender, EventArgs e)
@@ -236,10 +252,5 @@ namespace GuxtEditor
         }
 
         #endregion
-
-        private void saveModToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
     }
 }

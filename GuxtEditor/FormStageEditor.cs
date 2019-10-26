@@ -378,29 +378,30 @@ namespace GuxtEditor
         }
 
         #endregion
-
-        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            map.Save(mapPath);
-            //attributes.Save();
-            PXEVE.Write(entities, entityPath);
-        }
-
+        
         private void RefreshDisplay(object sender, EventArgs e)
         {
             DisplayTileset();
             DisplayMap();
         }
 
+        private void Save()
+        {
+            map.Save(mapPath);
+            //attributes.Save();
+            PXEVE.Write(entities, entityPath);
+        }
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Save();
+        }
+
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            if(e.CloseReason == CloseReason.UserClosing)
-            {
-                e.Cancel = true;
-                Hide();
-            }
-            else
-                base.OnFormClosing(e);
+            if (e.CloseReason == CloseReason.UserClosing)
+                Save();
+            base.OnFormClosing(e);
         }
     }
 }
