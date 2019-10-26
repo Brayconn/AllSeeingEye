@@ -67,24 +67,22 @@ namespace GuxtModdingFramework.StageProjects
                 }
             }
             //Load in valid ones
-            #nullable disable
             if (!string.IsNullOrWhiteSpace(MapPath))
-                Map = new Map(MapPath);
+                Map = new Map(MapPath!);
 
             if (!string.IsNullOrWhiteSpace(EntityPath))
-                Entity = PXEVE.Read(EntityPath);
+                Entity = PXEVE.Read(EntityPath!);
 
             if (!string.IsNullOrWhiteSpace(TilesetPath))
                 using (Bitmap b = new Bitmap(TilesetPath))
                     Tileset = imagesScrambled ? Scrambler.Unscramble(b) : new Bitmap(b);
 
             if (!string.IsNullOrWhiteSpace(TilesetPropertiesPath))
-                TilesetProperties = new Map(TilesetPropertiesPath);
+                TilesetProperties = new Map(TilesetPropertiesPath!);
 
             if (!string.IsNullOrWhiteSpace(SpritesheetPath))
                 using (Bitmap b = new Bitmap(SpritesheetPath))
                     Spritesheet = imagesScrambled ? Scrambler.Unscramble(b) : new Bitmap(b);
-            #nullable restore
         }
 
         public override string ToString()
@@ -111,11 +109,10 @@ namespace GuxtModdingFramework.StageProjects
         public void SaveAll(bool imagesScrambled = true)
         {
             //These have all been checked
-            #nullable disable
-            Map?.Save(MapPath);
+            Map?.Save(MapPath!);
 
             if(Entity != null)
-                PXEVE.Write(Entity, EntityPath);
+                PXEVE.Write(Entity, EntityPath!);
 
             if (Tileset != null)
             {
@@ -125,7 +122,7 @@ namespace GuxtModdingFramework.StageProjects
                 else Tileset.Save(TilesetPath);
             }
             
-            TilesetProperties?.Save(TilesetPropertiesPath);
+            TilesetProperties?.Save(TilesetPropertiesPath!);
 
             if (Spritesheet != null)
             {
@@ -135,7 +132,6 @@ namespace GuxtModdingFramework.StageProjects
                 else
                     Spritesheet.Save(SpritesheetPath);
             }
-            #nullable restore
         }
     }
 }

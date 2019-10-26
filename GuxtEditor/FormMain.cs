@@ -56,14 +56,12 @@ namespace GuxtEditor
         private void InitialiseUI()
         {
             //Loaded mod can't be null here, because this method is only run once LoadedMod is set to something other than null
-            #nullable disable
-            stagesListBox.DataSource = LoadedMod.Stages;
+            stagesListBox.DataSource = LoadedMod!.Stages;
             imagesListBox.DataSource = LoadedMod.Images;
             attributesListBox.DataSource = LoadedMod.Attributes;
             projectListBox.DataSource = LoadedMod.Projects;
 
             modPropertyGrid.SelectedObject = LoadedMod;
-            #nullable restore
 
             saveToolStripMenuItem.Enabled = true;
             saveAsToolStripMenuItem.Enabled = true;
@@ -126,11 +124,10 @@ namespace GuxtEditor
             }
         }
         //Save and Save As are only enabled once LoadedMod has been set to non-null
-        #nullable disable
         private void SaveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (savePath != null)
-                LoadedMod.Save(savePath);
+                LoadedMod!.Save(savePath);
             else
                 SaveAsToolStripMenuItem_Click(sender, e);
         }
@@ -145,11 +142,10 @@ namespace GuxtEditor
             {
                 if (sfd.ShowDialog() == DialogResult.OK)
                 {
-                    LoadedMod.Save(savePath = sfd.FileName);
+                    LoadedMod!.Save(savePath = sfd.FileName);
                 }
             }
         }
-        #nullable restore
 
         #endregion
 
@@ -220,9 +216,7 @@ namespace GuxtEditor
                 if (!openStages.ContainsKey(selectedStage))
                 {
                     //The list of stages will only have entries when LoadedMod != null
-                    #nullable disable
-                    var editorForm = new FormStageEditor(LoadedMod, selectedStage, tileTypePath);
-                    #nullable restore
+                    var editorForm = new FormStageEditor(LoadedMod!, selectedStage, tileTypePath);
                     editorForm.FormClosed += EditorForm_FormClosed;
                     openStages.Add(selectedStage, editorForm);
                 }
