@@ -400,7 +400,18 @@ namespace GuxtEditor
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             if (e.CloseReason == CloseReason.UserClosing)
-                Save();
+            {
+                switch(MessageBox.Show("Would you like to save?", "Warning", MessageBoxButtons.YesNoCancel))
+                {
+                    case DialogResult.Yes:
+                        Save();
+                        break;
+                    case DialogResult.No:
+                        break;
+                    default:
+                        return;
+                }                
+            }                
             base.OnFormClosing(e);
         }
     }
