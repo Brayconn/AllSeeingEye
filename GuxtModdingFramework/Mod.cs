@@ -84,16 +84,19 @@ namespace GuxtModdingFramework
 
         #endregion
 
+        [Browsable(false)]
         public ImageList EntityIcons { get; private set; } = new ImageList();
 
         /// <summary>
         /// Size of each tile (pixels)
         /// </summary>
+        [Category("Images"), DefaultValue(16), Description("The size of each tile.")]
         public int TileSize { get; set; } = 16;
 
         /// <summary>
         /// Size of each icon (pixels)
         /// </summary>
+        [Category("Images"), DefaultValue(16), Description("The size of each editor icon.")]
         public int IconSize { get; set; } = 16;
 
         void UpdateEntityIcons()
@@ -215,7 +218,7 @@ namespace GuxtModdingFramework
 
         #endregion
 
-        [Category("General"), DefaultValue(true), Description("Whether or not the images are scrambeled or not. Only turn this off if you've patched your exe and converted the images.")]
+        [Category("Images"), DefaultValue(true), Description("Whether or not the images are scrambeled or not. Only turn this off if you've patched your exe and converted the images.")]
         public bool ImagesScrambeled { get; set; } = true;
 
         [Category("General"), ReadOnly(true), Description("Path to the data folder of your mod. This should only be changed in the event something gets desynced.")]
