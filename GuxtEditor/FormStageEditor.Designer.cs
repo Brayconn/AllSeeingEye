@@ -108,7 +108,7 @@
             // 
             this.tileTypesToolStripMenuItem.CheckOnClick = true;
             this.tileTypesToolStripMenuItem.Name = "tileTypesToolStripMenuItem";
-            this.tileTypesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.tileTypesToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.tileTypesToolStripMenuItem.Text = "Tile Types";
             this.tileTypesToolStripMenuItem.CheckedChanged += new System.EventHandler(this.RefreshDisplay);
             // 
@@ -118,7 +118,7 @@
             this.entitiesToolStripMenuItem.CheckOnClick = true;
             this.entitiesToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.entitiesToolStripMenuItem.Name = "entitiesToolStripMenuItem";
-            this.entitiesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.entitiesToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.entitiesToolStripMenuItem.Text = "Entities";
             this.entitiesToolStripMenuItem.CheckedChanged += new System.EventHandler(this.RefreshDisplay);
             // 
@@ -270,9 +270,11 @@
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.menuStrip1);
+            this.KeyPreview = true;
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "FormStageEditor";
             this.Text = "FormStageEditor";
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FormStageEditor_KeyDown);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.splitContainer1.Panel1.ResumeLayout(false);

@@ -48,6 +48,8 @@ namespace GuxtEditor
             //Tool strip menu items init
             createEntityToolStripMenuItem = new ToolStripMenuItem("Insert Entity");
             createEntityToolStripMenuItem.Click += CreateNewEntity;
+            deleteEntityToolStripMenuItem = new ToolStripMenuItem();
+            deleteEntityToolStripMenuItem.Click += DeleteEntities;
 
             //entities
             entityPath = Path.Combine(parentMod.DataPath, parentMod.EntityName + StageNumber + "." + parentMod.EntityExtension);
@@ -180,6 +182,7 @@ namespace GuxtEditor
         }
 
         ToolStripMenuItem createEntityToolStripMenuItem;
+        ToolStripMenuItem deleteEntityToolStripMenuItem;
         private void CreateNewEntity(object sender, EventArgs e)
         {
             if (entityListView.SelectedIndices.Count > 0)
@@ -188,6 +191,13 @@ namespace GuxtEditor
                 DisplayMap(MousePositionOnGrid);
             }
         }
+        private void DeleteEntities(object sender, EventArgs e)
+        {
+            foreach (var ent in selectedEntities)
+                entities.Remove(ent);
+            selectedEntities.Clear();
+        }
+
         private void SetSelectedEntity(IEnumerable<Entity> entities)
         {
             selectedEntities = new HashSet<Entity>(entities);
@@ -261,12 +271,16 @@ namespace GuxtEditor
                                 EntitySelectionStart = p;
                             }                            
                             break;
+                        //Context menu
                         case MouseButtons.Right:
-                            ContextMenuStrip entityContextMenu = new ContextMenuStrip();
-                            entityContextMenu.Items.Add(createEntityToolStripMenuItem);
-
+                            //basic init
                             var c = hoveredEntities.Count();
+                            ContextMenuStrip entityContextMenu = new ContextMenuStrip();
                             
+                            //Insert
+                            entityContextMenu.Items.Add(createEntityToolStripMenuItem);
+                                                        
+                            //Copy
                             //TODO expand on copy/paste functionality
                             var copy = new ToolStripMenuItem("Copy");
                             //copy enabled if only one entity selected, other stuff only initiallized then too
@@ -277,11 +291,18 @@ namespace GuxtEditor
                             }
                             entityContextMenu.Items.Add(copy);
 
+                            //Paste
                             var paste = new ToolStripMenuItem("Paste");
                             //paste enabled if you have something on the clipboard
                             paste.Enabled = entityClipboard != null;
                             paste.Click += PasteEntity;
                             entityContextMenu.Items.Add(paste);
+
+                            //Delete
+                            deleteEntityToolStripMenuItem.Text = $"Delete Entit{(c > 1 ? "ies" : "y")}";
+                            deleteEntityToolStripMenuItem.Enabled = c >= 1;
+                            entityContextMenu.Items.Add(deleteEntityToolStripMenuItem);
+
 
                             //anything else is bigger, so we gotta check what entity to select
                             if (c > 1)
@@ -397,6 +418,22 @@ namespace GuxtEditor
             Save();
         }
 
+        private void FormStageEditor_KeyDown(object sender, KeyEventArgs e)
+        {
+            //Kinda hacky way of checking if the user is editing something in a property grid
+            if (entityPropertyGrid.ActiveControl?.GetType().Name == "GridViewEdit" ||
+                mapPropertyGrid.ActiveControl?.GetType().Name == "GridViewEdit")
+                return;
+
+            switch(e.KeyCode)
+            {
+                case Keys.Delete when editModeTabControl.SelectedIndex == 1 && selectedEntities.Count > 0:
+                    DeleteEntities(sender, e);
+                    DisplayMap(MousePositionOnGrid);
+                    break;
+            }
+        }
+
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             if (e.CloseReason == CloseReason.UserClosing)
@@ -409,6 +446,7 @@ namespace GuxtEditor
                     case DialogResult.No:
                         break;
                     default:
+                        e.Cancel = true;
                         return;
                 }                
             }                
