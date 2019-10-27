@@ -70,15 +70,19 @@ namespace GuxtEditor
             //base map setup
             mapPath = Path.Combine(parentMod.DataPath, parentMod.MapName + StageNumber + "." + parentMod.MapExtension);
             map = new Map(mapPath);
+            map.MapResized += () => InitMapAndDisplay();
             mapPropertyGrid.SelectedObject = map;
 
             //display everything
             DisplayTileset();
-            
+
+            InitMapAndDisplay();
+        }
+        void InitMapAndDisplay()
+        {
             InitMap();
             InitMapTileTypes();
             DisplayMap();
-
         }
 
         void InitEntityList()

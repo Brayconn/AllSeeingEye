@@ -1,13 +1,44 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace GuxtModdingFramework.Maps
 {
     public class Map
     {
-        public ushort Width { get; set; }
+        public event Action MapResized = new Action(() => { });
+        public int Size { get => Width * Height; }
 
-        public ushort Height { get; set; }
+        private ushort width;
+        public ushort Width
+        {
+            get => width;
+            set
+            {
+                if (width != value)
+                {
+                    width = value;
+                    Resize();
+                    MapResized();
+                }
+            }
+        }
+
+        private ushort height;
+        public ushort Height
+        {
+            get => height;
+            set
+            {
+                if (height != value)
+                {
+                    height = value;
+                    Resize();
+                    MapResized();
+                }
+            }
+        }
 
         public List<byte> Tiles { get; set; }
 
@@ -17,8 +48,17 @@ namespace GuxtModdingFramework.Maps
         public void Init()
         {
             Tiles.Clear();
-            while (Tiles.Count < Width * Height)
-                Tiles.Add(0x00);
+            Resize();
+        }
+        public void Resize()
+        {
+            while (Tiles.Count != Size)
+            {
+                if (Tiles.Count < Size)
+                    Tiles.Add(0x00);
+                else
+                    Tiles.RemoveAt(Tiles.Count - 1);
+            }            
         }
 
         /// <summary>
@@ -37,11 +77,12 @@ namespace GuxtModdingFramework.Maps
         {
             using (BinaryReader br = new BinaryReader(new FileStream(path, FileMode.Open, FileAccess.Read)))
             {
-                Width = br.ReadUInt16();
-                Height = br.ReadUInt16();
+                width = br.ReadUInt16();
+                height = br.ReadUInt16();
                 Tiles = new List<byte>(Width * Height);
                 while (br.BaseStream.Position < br.BaseStream.Length)
                     Tiles.Add(br.ReadByte());
+                Resize();
             }
         }
 
