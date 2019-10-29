@@ -205,39 +205,66 @@ namespace GuxtEditor
 
         #endregion
 
-        #region Open editors
+        #region Editors
+
+        enum AvailableEditors
+        {
+            Stage,
+            Attribute,
+            Image,
+            Project
+        }
+        private void RemoveClosedEditor(object sender, FormClosedEventArgs e)
+        {
+            switch (sender)
+            {
+                case FormStageEditor fse:
+                    openStages.Remove(fse.StageNumber);
+                    break;
+                case FormAttributeEditor fae:
+                    openAttributes.Remove(fae.AttributeNumber);
+                    break;
+            }
+        }
+
+        private void AddOrOpenEditor(ListBox editorList, Dictionary<int,Form> openEditors, AvailableEditors editorType)
+        {
+            if(editorList.Items.Count > 0)
+            {
+                var sel = editorList.SelectedIndex + 1;
+                if(!openEditors.ContainsKey(sel))
+                {
+                    Form? f = editorType switch
+                    {
+                        AvailableEditors.Stage => new FormStageEditor(LoadedMod!, sel, tileTypePath),
+                        AvailableEditors.Attribute => new FormAttributeEditor(LoadedMod!, sel, tileTypePath),
+                        _ => null
+                    };
+                    if (f == null)
+                        return;
+                    f.FormClosed += RemoveClosedEditor;
+                    openEditors.Add(sel, f);
+                }
+                openEditors[sel].Show();
+            }
+        }
 
         Dictionary<int, Form> openStages = new Dictionary<int, Form>();
         private void StagesListBox_DoubleClick(object sender, EventArgs e)
         {
-            if (stagesListBox.Items.Count > 0)
-            {
-                var selectedStage = stagesListBox.SelectedIndex + 1;
-                if (!openStages.ContainsKey(selectedStage))
-                {
-                    //The list of stages will only have entries when LoadedMod != null
-                    var editorForm = new FormStageEditor(LoadedMod!, selectedStage, tileTypePath);
-                    editorForm.FormClosed += EditorForm_FormClosed;
-                    openStages.Add(selectedStage, editorForm);
-                }
-                openStages[selectedStage].Show();
-            }
+            AddOrOpenEditor(stagesListBox, openStages, AvailableEditors.Stage);
         }
 
-        private void EditorForm_FormClosed(object sender, FormClosedEventArgs e)
+        
+        Dictionary<int, Form> openAttributes = new Dictionary<int, Form>();
+        private void AttributesListBox_DoubleClick(object sender, EventArgs e)
         {
-            if (sender is FormStageEditor fse)
-                openStages.Remove(fse.StageNumber);
+            AddOrOpenEditor(attributesListBox, openAttributes, AvailableEditors.Attribute);
         }
 
         private void ImagesListBox_DoubleClick(object sender, EventArgs e)
         {
             //TODO open image editor
-        }
-
-        private void AttributesListBox_DoubleClick(object sender, EventArgs e)
-        {
-            //TODO open attribute editor
         }
 
         private void ProjectListBox_DoubleClick(object sender, EventArgs e)
