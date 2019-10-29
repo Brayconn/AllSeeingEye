@@ -24,7 +24,13 @@ namespace GuxtEditor
         List<Entity> entities;
 
         readonly string mapPath, entityPath;
+        /// <summary>
+        /// The map object this is editing
+        /// </summary>
         Map map { get; set; }
+        /// <summary>
+        /// The attributes for this map's tiles
+        /// </summary>
         Map attributes { get; set; }
         
         /// <summary>
