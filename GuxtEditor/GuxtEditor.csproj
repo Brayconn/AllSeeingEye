@@ -16,6 +16,14 @@
     <DebugType>pdbonly</DebugType>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="tiletypes.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="tiletypes.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Deployment" />
@@ -53,10 +61,5 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GuxtModdingFramework\GuxtModdingFramework.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="tiletypes.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 </Project>

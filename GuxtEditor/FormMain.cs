@@ -170,7 +170,7 @@ namespace GuxtEditor
                         if (sfd.ShowDialog() == DialogResult.OK)
                         {
                             using (Bitmap b = Scrambler.Scramble(new Bitmap(ofd.FileName)))
-                                b.Save(sfd.FileName);
+                                b.Save(sfd.FileName,ImageFormat.Bmp);
                         }
                     }
                 }
@@ -196,7 +196,7 @@ namespace GuxtEditor
                         if (sfd.ShowDialog() == DialogResult.OK)
                         {
                             using (Bitmap b = Scrambler.Unscramble(new Bitmap(ofd.FileName)))
-                                b.Save(sfd.FileName);
+                                b.Save(sfd.FileName, ImageFormat.Bmp);
                         }
                     }
                 }
