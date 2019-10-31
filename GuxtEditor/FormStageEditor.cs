@@ -462,6 +462,17 @@ namespace GuxtEditor
             }
         }
 
+        private void deleteAllEntitiesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if(MessageBox.Show("Are you sure you want to delete EVERY entity?\nIf you save after this, there's no coming back.", "Warning", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            {
+                entityPropertyGrid.SelectedObject = null;
+                selectedEntities.Clear();
+                entities.Clear();
+                DisplayMap();
+            }
+        }
+
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             if (e.CloseReason == CloseReason.UserClosing)
