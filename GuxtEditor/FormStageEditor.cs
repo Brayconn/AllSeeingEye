@@ -335,14 +335,32 @@ namespace GuxtEditor
                     break;
             }
         }
-
+        bool InRange = false;
         private void mapPictureBox_MouseMove(object sender, MouseEventArgs e)
         {
             var p = GetMousePointOnGrid(e.Location);
             //if we're still on the same grid space, stop
             if (p == MousePositionOnGrid)
                 return;
-            
+
+            var ir = (0 <= p.X && p.X < map.Width) && (0 <= p.Y && p.Y < map.Height);                        
+            //If mouse is not in range, but it was in range last time...
+            if(!ir && InRange)
+            {
+                //that means the mouse has left. I don't know why it couldn't figure this out, but...
+                mapPictureBox_MouseLeave(sender, e);
+            }
+            //If these two aren't equal, that means the mouse is either leaving or entering, and we need to update
+            if (ir != InRange)
+            {
+                InRange = ir;
+            }
+            //If both are false the mouse is just off the map entirely, so stop
+            if (!ir && !InRange)
+            {
+                return;
+            }
+
             switch (HoldAction)
             {
                 case HoldActions.DrawTiles:

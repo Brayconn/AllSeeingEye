@@ -204,7 +204,7 @@ namespace GuxtEditor
         {
             Draw = false;
         }
-
+        bool InRange = false;
         Point MousePositionOnGrid = new Point(-1, -1);
         private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
         {
@@ -213,7 +213,26 @@ namespace GuxtEditor
             if (p == MousePositionOnGrid)
                 return;
 
-            if(Draw)
+            var ir = (0 <= p.X && p.X < 16) && (0 <= p.Y && p.Y < 16);
+            //If mouse is not in range, but it was in range last time...
+            if (!ir && InRange)
+            {
+                //that means the mouse has left. I don't know why it couldn't figure this out, but...
+                tilesetPictureBox_MouseLeave(sender, e);
+            }
+            //If these two aren't equal, that means the mouse is either leaving or entering, and we need to update
+            if (ir != InRange)
+            {
+                InRange = ir;
+            }
+            //If both are false the mouse is just off the map entirely, so stop
+            if (!ir && !InRange)
+            {
+                return;
+            }
+
+
+            if (Draw)
                 SetTile(p);
 
             MousePositionOnGrid = p;
