@@ -67,11 +67,16 @@ namespace GuxtEditor
             saveAsToolStripMenuItem.Enabled = true;
         }
 
+        private void ClearEditorDict(Dictionary<int, Form> dict)
+        {
+            foreach (var editor in dict)
+                editor.Value.Close();
+            dict.Clear();
+        }
         private void ClearMemory()
         {
-            foreach (var editor in openStages)
-                editor.Value.Close();
-            openStages.Clear();
+            ClearEditorDict(openStages);
+            ClearEditorDict(openAttributes);
         }
 
         #region File
