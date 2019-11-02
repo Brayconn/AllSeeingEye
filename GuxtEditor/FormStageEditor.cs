@@ -343,7 +343,8 @@ namespace GuxtEditor
             if (p == MousePositionOnGrid)
                 return;
 
-            var ir = (0 <= p.X && p.X < map.Width) && (0 <= p.Y && p.Y < map.Height);                        
+            var ir = (0 <= p.X && p.X < map.Width * (editModeTabControl.SelectedIndex + 1))
+                  && (0 <= p.Y && p.Y < map.Height * (editModeTabControl.SelectedIndex + 1));                        
             //If mouse is not in range, but it was in range last time...
             if(!ir && InRange)
             {

@@ -213,7 +213,8 @@ namespace GuxtEditor
             if (p == MousePositionOnGrid)
                 return;
 
-            var ir = (0 <= p.X && p.X < 16) && (0 <= p.Y && p.Y < 16);
+            var ir = (0 <= p.X && p.X < 16)
+                  && (0 <= p.Y && p.Y < 16);
             //If mouse is not in range, but it was in range last time...
             if (!ir && InRange)
             {
