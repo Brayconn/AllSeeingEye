@@ -87,6 +87,101 @@ namespace GuxtModdingFramework
         [Browsable(false)]
         public ImageList EntityIcons { get; private set; } = new ImageList();
 
+        public Dictionary<int, string> EntityNames = new Dictionary<int, string>()
+        {
+            {001, "Explode"},
+            {002, "CloudL"},
+            {003, "CloudS"},
+            {004, "Puff"},
+            {005, "Hanger"},
+            {006, "CloudGen"},
+            {007, "Powerup"},
+            {008, "Climber"},
+            {009, "Kagome"},
+            {011, "Wing"},
+            {013, "Bullet"},
+            {014, "BulletSlow"},
+            {015, "Boss1"},
+            {018, "BulletLong"},
+            {019, "BGM"},
+            {020, "Asteroid L"},
+            {021, "Asteroid S"},
+            {022, "ScrollSpdSet"},
+            {023, "Asteroid SGravity"},
+            {024, "Hanger Wave"},
+            {025, "Hanger Shoot"},
+            {026, "RockHugger"},
+            {027, "RHAsteroidL"},
+            {028, "RHAsteroidS"},
+            {030, "Elka"},
+            {031, "Sodi"},
+            {032, "Boss2"},
+            {035, "B2Rocket"},
+            {037, "Stars?"},
+            {038, "StarGen"},
+            {039, "Elka2"},
+            {040, "GuxtFort"},
+            {041, "CatEye"},
+            {042, "Slider"},
+            {043, "Cycloid"},
+            {044, "Chester"},
+            {045, "Bonus"},
+            {046, "BonusGen"},
+            {047, "CloudXL"},
+            {048, "Gimmick"},
+            {049, "Boss3"},
+            {050, "62"},
+            {054, "BulletBlocker?"},
+            {056, "Checkpoint"},
+            {058, "B3Turret"},
+            {059, "PowerupSpinnerShield"},
+            {060, "PowerupBox"},
+            {061, "PowerupStatic"},
+            {063, "BulletWhite"},
+            {064, "PowerupSpinner"},
+            {065, "ClimberShoot"},
+            {066, "Tri"},
+            {067, "GuxtTank"},
+            {068, "MedusaEye"},
+            {069, "GuxtMine"},
+            {070, "Blendy"},
+            {072, "Cycloid2"},
+            {073, "Cycloid2Gen"},
+            {074, "PowerupHidden"},
+            {075, "PowerupAsteroid"},
+            {076, "Boss4"},
+            {081, "SpaceAmeba"},
+            {083, "B4Bullet"},
+            {084, "Square"},
+            {085, "CloudDarkL"},
+            {086, "CloudDarkS"},
+            {087, "CloudDarkGen"},
+            {088, "MissilePot"},
+            {090, "Missile"},
+            {092, "BGRock"},
+            {093, "ClearRockCloudGen"},
+            {094, "SandStamper"},
+            {096, "Stamp"},
+            {097, "Brick"},
+            {098, "BulletSquare"},
+            {099, "BulletSquareGen"},
+            {100, "Boss5"},
+            {102, "B5Bullet"},
+            {104, "B5Laser"},
+            {105, "B5LaserTrail"},
+            {106, "AzaBonusSpawner?"},
+            {108, "Boss6"},
+            {111, "B6Laser"},
+            {114, "B6Ball"},
+            {115, "B6Caret"},
+            {116, "CreditText"},
+            {117, "CreditReplace"},
+            {118, "CreditLoadImg"},
+            {119, "CPhoto"},
+            {120, "CreditGimmick"},
+            {121, "BonusHidden"},
+        };
+
         /// <summary>
         /// Size of each tile (pixels)
         /// </summary>
@@ -119,7 +214,7 @@ namespace GuxtModdingFramework
                         iconX, iconY, IconSize, IconSize
                         ), PixelFormat.DontCare);
 
-                    EntityIcons.Images.Add(entityIcon);
+                    EntityIcons.Images.Add(EntityNames.ContainsKey(i) ? EntityNames[i] : i.ToString(), entityIcon);
                 }
             }
             //Clone() likes to throw this when you do most things wrong
@@ -334,12 +429,14 @@ namespace GuxtModdingFramework
 
         public static Mod Load(string path)
         {
+            //Basic init/check that this is actually a guxt project
             var doc = new XmlDocument();
             doc.Load(path);
             var root = doc["GuxtMod"];
             if (root == null)
                 throw new FileLoadException("The given file wasn't a Guxt project. Make sure it has the root XML tag as \"GuxtMod\".", path);
 
+            //Datapath check
             string? dataFolder = root["DataPath"]?.InnerText;
             if(string.IsNullOrWhiteSpace(dataFolder))
                 throw new ArgumentNullException("DataPath","The selected Guxt Mod doesn't have a data folder.");

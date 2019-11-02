@@ -16,11 +16,13 @@ namespace GuxtEditor
 {
     public partial class FormMain : Form
     {
-        private string tileTypePath;
+        private string tileTypePath;//, entityNamesPath;
         public FormMain()
         {
             InitializeComponent();
-            tileTypePath = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "tiletypes.png");
+            var baseDir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            tileTypePath = Path.Combine(baseDir, "tiletypes.png");
+            //entityNamesPath = Path.Combine(baseDir, "entitynames.txt");
         }
 
         private const string ImgFilter = "Pixel Images (*.pximg)|*.pximg";

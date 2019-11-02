@@ -97,7 +97,7 @@ namespace GuxtEditor
             entityListView.LargeImageList = parentMod.EntityIcons;
             for (int i = 0; i < parentMod.EntityIcons.Images.Count; i++)
             {
-                entityListView.Items.Add(i.ToString(), i);
+                entityListView.Items.Add(parentMod.EntityNames.ContainsKey(i) ? parentMod.EntityNames[i] : i.ToString() , i);
             }
         }
 
