@@ -211,7 +211,11 @@ namespace GuxtEditor
         private void SetSelectedEntity(IEnumerable<Entity> entities)
         {
             selectedEntities = new HashSet<Entity>(entities);
-            entityPropertyGrid.SelectedObject = entities.Any() ? entities.First() : null;
+            var ent = entities.Any() ? entities.First() : null;
+            if(ent != null && EntityList.ClassDictionary.ContainsKey(ent.EntityID))
+                entityPropertyGrid.SelectedObject = EntityList.ClassDictionary[ent.EntityID](ent);
+            else
+                entityPropertyGrid.SelectedObject = ent;
         }
         private void SelectEntity(object sender, EventArgs e)
         {

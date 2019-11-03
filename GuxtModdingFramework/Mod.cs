@@ -95,10 +95,11 @@ namespace GuxtModdingFramework
             {004, "Puff"},
             {005, "Hanger"},
             {006, "CloudGen"},
-            {007, "Powerup"},
+            {007, "Powerup"}, //what powerup you get
             {008, "Climber"},
             {009, "Kagome"},
-            {011, "Wing"},
+            {011, "Wing"}, //if extra info != 0 falls twice as fast
+            {012, "WingsDead"}, //same as above
             {013, "Bullet"},
             {014, "BulletSlow"},
             {015, "Boss1"},
@@ -169,7 +170,7 @@ namespace GuxtModdingFramework
             {102, "B5Bullet"},
             {104, "B5Laser"},
             {105, "B5LaserTrail"},
-            {106, "AzaBonusSpawner?"},
+            {106, "AzaBonusSpawner"},
             {108, "Boss6"},
             {111, "B6Laser"},
             {114, "B6Ball"},
