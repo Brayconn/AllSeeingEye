@@ -55,6 +55,19 @@ namespace GuxtModdingFramework.Entities
             public Wing(Entity e) : base(e) { }
         }
 
+        //22
+        public class ScrollSpeed : EntityShell
+        {
+            [Description("How fast the screen scrolls in pixels per frame(?)")]
+            public int ScreenScrollingSpeed
+            {
+                get => base.ExtraInfo;
+                set => base.ExtraInfo = value;
+            }
+
+            public ScrollSpeed(Entity e) : base(e) { }
+        }
+
         //19
         public class BGM : EntityShell
         {
