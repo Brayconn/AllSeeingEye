@@ -405,9 +405,10 @@ namespace GuxtEditor
 
                     var sel = GetEntitiesAtLocation(x, y, xd, yd);
                     SetSelectedEntity(sel);
+                    DisplayMap(MousePositionOnGrid);
                     break;
             }
-            HoldAction = null;            
+            HoldAction = null;
         }
 
         private void mapPictureBox_MouseLeave(object sender, EventArgs e)

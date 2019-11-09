@@ -46,6 +46,11 @@ namespace GuxtEditor
                 var x = (entities[i].X * parentMod.TileSize) / 2;
 
                 g.DrawImage(entityIcon, x, y, parentMod.IconSize, parentMod.IconSize);
+
+                var isSelected = selectedEntities.Contains(entities[i]);
+                if (entityBoxesToolStripMenuItem.Checked || isSelected)
+                    g.DrawRectangle(isSelected ? Pens.Aqua : Pens.Lime,
+                        x, y, (parentMod.TileSize / 2) - 1, (parentMod.TileSize / 2) - 1);
             }
         }
         private void DrawMouseOverlay(Graphics g, Point p)
@@ -65,7 +70,7 @@ namespace GuxtEditor
             {
                 if (tileTypesToolStripMenuItem.Checked)
                     g.DrawImage(mapTileTypes,0,0,mapTileTypes.Width,mapTileTypes.Height);
-                if (entitiesToolStripMenuItem.Checked)
+                if (entitySpritesToolStripMenuItem.Checked)
                     DrawEntities(g);
                 if (p != null)
                     DrawMouseOverlay(g, (Point)p);
