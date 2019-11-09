@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using GuxtModdingFramework.Entities;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
@@ -19,19 +15,19 @@ namespace GuxtModdingFramework.Entities
         {
             Entity host;
 
-            [Description("Unused variable")]
+            [Description(Entity.UnusedDescription)]
             public int Unused { get => host.Unused; set => host.Unused = value; }
 
-            [Description("Horizontal position of the entity")]
+            [Description(Entity.XDescription)]
             public int X { get => host.X; set => host.X = value; }
 
-            [Description("Vertical position of the entity")]
+            [Description(Entity.YDescription)]
             public int Y { get => host.Y; set => host.Y = value; }
 
-            [Description("What entity this is")]
+            [Description(Entity.EntityIDDescription)]
             public int EntityID { get => host.EntityID; set => host.EntityID = value; }
 
-            [Description("The entity's properties. Contents/interpretation depends on the entity")]
+            [Description(Entity.ExtraInfoDescription)]
             public int ExtraInfo { get => host.ExtraInfo; set => host.ExtraInfo = value; }
 
             public EntityShell(Entity e)

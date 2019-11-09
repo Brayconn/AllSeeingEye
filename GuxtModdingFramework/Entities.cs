@@ -9,25 +9,36 @@ namespace GuxtModdingFramework.Entities
     /// </summary>
     public class Entity
     {
+        internal const string UnusedDescription = "Unused variable.";
+        internal const string XDescription = "Horizontal position of the entity.";
+        internal const string YDescription = "Vertical position of the entity";
+        internal const string EntityIDDescription = "ID of this entity";
+        internal const string ExtraInfoDescription = "The entity's properties. Contents/interpretation depends on the entity";
+
         /// <summary>
         /// Unused variable
         /// </summary>
+        [Description(UnusedDescription)]
         public int Unused { get; set; }
         /// <summary>
         /// X position of the entity (in tiles)
         /// </summary>
+        [Description(XDescription)]
         public int X { get; set; }
         /// <summary>
         /// Y position of the entity (in ???)
         /// </summary>
+        [Description(YDescription)]
         public int Y { get; set; }
         /// <summary>
         /// The entity's type
         /// </summary>
+        [Description(EntityIDDescription)]
         public int EntityID { get; set; }
         /// <summary>
         /// Extra info (music for music switcher)
         /// </summary>
+        [Description(ExtraInfoDescription)]
         public int ExtraInfo { get; set; }
 
         public Entity(Entity e) : this(e.Unused, e.X, e.Y, e.EntityID, e.ExtraInfo) { }
