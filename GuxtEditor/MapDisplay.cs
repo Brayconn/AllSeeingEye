@@ -40,12 +40,12 @@ namespace GuxtEditor
         {
             for (int i = 0; i < entities.Count; i++)
             {
-                var entityIcon = parentMod.EntityIcons.Images[entities[i].EntityID];
-
                 var y = (entities[i].Y * parentMod.TileSize) / 2;
                 var x = (entities[i].X * parentMod.TileSize) / 2;
 
-                g.DrawImage(entityIcon, x, y, parentMod.IconSize, parentMod.IconSize);
+                if(entitySpritesToolStripMenuItem.Checked)
+                    g.DrawImage(parentMod.EntityIcons.Images[entities[i].EntityID],
+                        x, y, parentMod.IconSize, parentMod.IconSize);
 
                 var isSelected = selectedEntities.Contains(entities[i]);
                 if (entityBoxesToolStripMenuItem.Checked || isSelected)
@@ -70,7 +70,7 @@ namespace GuxtEditor
             {
                 if (tileTypesToolStripMenuItem.Checked)
                     g.DrawImage(mapTileTypes,0,0,mapTileTypes.Width,mapTileTypes.Height);
-                if (entitySpritesToolStripMenuItem.Checked)
+                if (entitySpritesToolStripMenuItem.Checked || entityBoxesToolStripMenuItem.Checked || selectedEntities.Count > 0)
                     DrawEntities(g);
                 if (p != null)
                     DrawMouseOverlay(g, (Point)p);
