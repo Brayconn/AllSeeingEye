@@ -53,17 +53,37 @@ namespace GuxtEditor
                         x, y, (parentMod.TileSize / 2) - 1, (parentMod.TileSize / 2) - 1);
             }
         }
-        private void DrawMouseOverlay(Graphics g, Point p)
+        /// <summary>
+        /// Draws the mouse selection overlay from grid spaces p to p2 (or p to p, if nothing is provided for p2)
+        /// </summary>
+        /// <param name="g">Graphics to draw to</param>
+        /// <param name="p">Start grid space</param>
+        /// <param name="p2">End grid space</param>
+        private void DrawMouseOverlay(Graphics g, Point p, Point? p2 = null)
         {
-            int x = p.X * gridSize;
-            int y = p.Y * gridSize;
-
-            int width = gridSize - 1;
-            int height = gridSize - 1;
+            int x,y, width, height;
+            if(p2 != null)
+            {
+                x = Math.Min(p.X, ((Point)p2).X);
+                y = Math.Min(p.Y, ((Point)p2).Y);                               
+                width = Math.Max(p.X, ((Point)p2).X) - x + 1;
+                height = Math.Max(p.Y, ((Point)p2).Y) - y + 1;
+            }
+            else
+            {
+                x = p.X;
+                y = p.Y;
+                width = 1;
+                height = 1;
+            }
+            x *= gridSize;
+            y *= gridSize;
+            width = (width * gridSize) - 1;
+            height = (height * gridSize) - 1;
 
             g.DrawRectangle(new Pen(Color.LightGray), x, y, width, height);
         }
-        void DisplayMap(Point? p = null)
+        void DisplayMap(Point? p = null, Point? p2 = null)
         {
             Bitmap mapImage = new Bitmap(baseMap);
             using (Graphics g = Graphics.FromImage(mapImage))
@@ -73,7 +93,7 @@ namespace GuxtEditor
                 if (entitySpritesToolStripMenuItem.Checked || entityBoxesToolStripMenuItem.Checked || selectedEntities.Count > 0)
                     DrawEntities(g);
                 if (p != null)
-                    DrawMouseOverlay(g, (Point)p);
+                    DrawMouseOverlay(g, (Point)p, p2);
             }
             mapPictureBox.Image?.Dispose();
             mapPictureBox.Image = mapImage;

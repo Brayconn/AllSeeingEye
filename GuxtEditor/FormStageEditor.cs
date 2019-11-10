@@ -177,6 +177,7 @@ namespace GuxtEditor
         Entity? entityClipboard;
         Point MousePositionOnGrid = new Point(-1, -1);
         Point EntitySelectionStart = new Point(-1, -1);
+        Point EntitySelectionEnd = new Point(-1, -1);
 
         #region Map interaction
 
@@ -282,7 +283,7 @@ namespace GuxtEditor
                             else
                             {
                                 HoldAction = HoldActions.SelectEntities;
-                                EntitySelectionStart = p;
+                                EntitySelectionStart = EntitySelectionEnd = p;
                             }                            
                             break;
                         //Context menu
@@ -370,6 +371,7 @@ namespace GuxtEditor
             {
                 case HoldActions.DrawTiles:
                     SetTile(p);
+                    DisplayMap();
                     break;
                 case HoldActions.MoveEntities:
                     int xd = MousePositionOnGrid.X - p.X;
@@ -379,16 +381,17 @@ namespace GuxtEditor
                         ent.X -= xd;
                         ent.Y -= yd;
                     }
+                    DisplayMap();
                     break;
-            }
+                case HoldActions.SelectEntities:
+                    DisplayMap(EntitySelectionStart, EntitySelectionEnd = p);
+                    break;
+                default:
+                    DisplayMap(p);
+                    break;
 
+            }
             MousePositionOnGrid = p;
-            //TODO this won't work for an expanding selection square
-            //display map not matter what, but only display cursor if not doing something already
-            if (HoldAction == null)
-                DisplayMap(p);
-            else
-                DisplayMap();
         }
 
         private void mapPictureBox_MouseUp(object sender, MouseEventArgs e)
@@ -396,7 +399,7 @@ namespace GuxtEditor
             switch(HoldAction)
             {
                 case HoldActions.SelectEntities:
-                    var EntitySelectionEnd = GetMousePointOnGrid(e.Location);
+                    
                     //TODO M E S S Y
                     int x = Math.Min(EntitySelectionStart.X, EntitySelectionEnd.X);
                     int y = Math.Min(EntitySelectionStart.Y, EntitySelectionEnd.Y);
