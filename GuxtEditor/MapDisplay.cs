@@ -95,8 +95,15 @@ namespace GuxtEditor
                 if (p != null)
                     DrawMouseOverlay(g, (Point)p, p2);
             }
+            Bitmap zoomedMap = new Bitmap(mapImage.Width * ZoomLevel, mapImage.Height * ZoomLevel);
+            using (Graphics g = Graphics.FromImage(zoomedMap))
+            {
+                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+                g.DrawImage(mapImage, 0, 0, zoomedMap.Width, zoomedMap.Height);
+            }
+            mapImage.Dispose();
             mapPictureBox.Image?.Dispose();
-            mapPictureBox.Image = mapImage;
+            mapPictureBox.Image = zoomedMap;            
         }
     }
 }

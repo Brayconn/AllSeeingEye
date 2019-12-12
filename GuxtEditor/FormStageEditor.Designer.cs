@@ -35,7 +35,9 @@
             this.deleteAllEntitiesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tileTypesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.entitySpritesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.entityBoxesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.editModeTabControl = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
@@ -48,8 +50,6 @@
             this.entityListView = new System.Windows.Forms.ListView();
             this.panel1 = new System.Windows.Forms.Panel();
             this.mapPictureBox = new System.Windows.Forms.PictureBox();
-            this.entityBoxesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -122,9 +122,14 @@
             // 
             this.tileTypesToolStripMenuItem.CheckOnClick = true;
             this.tileTypesToolStripMenuItem.Name = "tileTypesToolStripMenuItem";
-            this.tileTypesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.tileTypesToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
             this.tileTypesToolStripMenuItem.Text = "Tile Types";
             this.tileTypesToolStripMenuItem.CheckedChanged += new System.EventHandler(this.RefreshDisplay);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(142, 6);
             // 
             // entitySpritesToolStripMenuItem
             // 
@@ -132,9 +137,19 @@
             this.entitySpritesToolStripMenuItem.CheckOnClick = true;
             this.entitySpritesToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.entitySpritesToolStripMenuItem.Name = "entitySpritesToolStripMenuItem";
-            this.entitySpritesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.entitySpritesToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
             this.entitySpritesToolStripMenuItem.Text = "Entitiy Sprites";
             this.entitySpritesToolStripMenuItem.CheckedChanged += new System.EventHandler(this.RefreshDisplay);
+            // 
+            // entityBoxesToolStripMenuItem
+            // 
+            this.entityBoxesToolStripMenuItem.Checked = true;
+            this.entityBoxesToolStripMenuItem.CheckOnClick = true;
+            this.entityBoxesToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.entityBoxesToolStripMenuItem.Name = "entityBoxesToolStripMenuItem";
+            this.entityBoxesToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
+            this.entityBoxesToolStripMenuItem.Text = "Entity Boxes";
+            this.entityBoxesToolStripMenuItem.CheckedChanged += new System.EventHandler(this.RefreshDisplay);
             // 
             // splitContainer1
             // 
@@ -277,21 +292,6 @@
             this.mapPictureBox.MouseMove += new System.Windows.Forms.MouseEventHandler(this.mapPictureBox_MouseMove);
             this.mapPictureBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.mapPictureBox_MouseUp);
             // 
-            // entityBoxesToolStripMenuItem
-            // 
-            this.entityBoxesToolStripMenuItem.Checked = true;
-            this.entityBoxesToolStripMenuItem.CheckOnClick = true;
-            this.entityBoxesToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.entityBoxesToolStripMenuItem.Name = "entityBoxesToolStripMenuItem";
-            this.entityBoxesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.entityBoxesToolStripMenuItem.Text = "Entity Boxes";
-            this.entityBoxesToolStripMenuItem.CheckedChanged += new System.EventHandler(this.RefreshDisplay);
-            // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
-            // 
             // FormStageEditor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -299,6 +299,7 @@
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.menuStrip1);
+            this.DoubleBuffered = true;
             this.KeyPreview = true;
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "FormStageEditor";

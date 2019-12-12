@@ -50,6 +50,7 @@ namespace GuxtEditor
             //UI init
             InitializeComponent();       
             InitEntityList();
+            mapPictureBox.MouseWheel += ZoomMap;
 
             //Tool strip menu items init
             createEntityToolStripMenuItem = new ToolStripMenuItem("Insert Entity");
@@ -84,6 +85,26 @@ namespace GuxtEditor
 
             InitMapAndDisplay();
         }
+
+        int zoomLevel = 1;
+        int ZoomLevel
+        {
+            get => zoomLevel;
+            set
+            {
+                if (1 <= value && value <= 10)
+                {
+                    zoomLevel = value;
+                    DisplayMap();
+                }
+            }
+        }
+        private void ZoomMap(object sender, MouseEventArgs e)
+        {
+            if(ModifierKeys == Keys.Control)
+                ZoomLevel += (e.Delta > 0) ? 1 : -1;
+        }
+
         void InitMapAndDisplay()
         {
             InitMap();
@@ -103,9 +124,13 @@ namespace GuxtEditor
 
         int gridSize { get => parentMod.TileSize / (editModeTabControl.SelectedIndex + 1); }
 
-        private Point GetMousePointOnGrid(Point p)
+        private Point GetMousePointOnTileset(Point p)
         {
             return new Point(p.X / gridSize, p.Y / gridSize);
+        }
+        private Point GetMousePointOnMap(Point p)
+        {
+            return new Point(p.X / (gridSize * ZoomLevel), p.Y / (gridSize * ZoomLevel));
         }
 
         /// <summary>
@@ -243,7 +268,7 @@ namespace GuxtEditor
 
         private void mapPictureBox_MouseDown(object sender, MouseEventArgs e)
         {
-            Point p = GetMousePointOnGrid(e.Location);
+            Point p = GetMousePointOnMap(e.Location);
 
             switch (editModeTabControl.SelectedIndex)
             {
@@ -343,7 +368,7 @@ namespace GuxtEditor
         bool InRange = false;
         private void mapPictureBox_MouseMove(object sender, MouseEventArgs e)
         {
-            var p = GetMousePointOnGrid(e.Location);
+            var p = GetMousePointOnMap(e.Location);
             //if we're still on the same grid space, stop
             if (p == MousePositionOnGrid)
                 return;
@@ -426,7 +451,7 @@ namespace GuxtEditor
 
         private void tilesetPictureBox_MouseClick(object sender, MouseEventArgs e)
         {
-            var p = GetMousePointOnGrid(e.Location);
+            var p = GetMousePointOnTileset(e.Location);
             var value = (p.Y * 16) + p.X;
             if (value <= byte.MaxValue && value != SelectedTile)
             {
@@ -462,8 +487,19 @@ namespace GuxtEditor
                 mapPropertyGrid.ActiveControl?.GetType().Name == "GridViewEdit")
                 return;
 
-            switch(e.KeyCode)
+            var controlHeld = ModifierKeys == Keys.Control;
+
+            switch (e.KeyCode)
             {
+                case Keys.Oemplus when controlHeld:
+                case Keys.Add when controlHeld:
+                    ZoomLevel++;
+                    break;
+                case Keys.OemMinus when controlHeld:
+                case Keys.Subtract when controlHeld:
+                    ZoomLevel--;
+                    break;
+
                 case Keys.Delete when editModeTabControl.SelectedIndex == 1 && selectedEntities.Count > 0:
                     DeleteEntities(sender, e);
                     DisplayMap(MousePositionOnGrid);
