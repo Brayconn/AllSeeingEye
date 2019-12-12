@@ -79,7 +79,7 @@ namespace GuxtModdingFramework.Entities
         }
     }
     
-    class Powerup : EntityShell
+    public class Powerup : EntityShell
     {
         class PowerUpTypeConverter : StringTypeConverter
         {
@@ -167,6 +167,15 @@ namespace GuxtModdingFramework.Entities
         public ScrollSpeed(Entity e) : base(e) { }
     }
 
+    //45
+    public class Bonus : EntityShell
+    {
+        public Bonus(Entity e) : base(e)
+        {
+
+        }
+    }
+
     public static class EntityList
     {
         public readonly static ReadOnlyDictionary<int, Func<Entity, EntityShell>> ClassDictionary =
@@ -176,6 +185,7 @@ namespace GuxtModdingFramework.Entities
             {011, (Entity e) => new Wing(e) },
             {012, (Entity e) => new Wing(e) },
             {019, (Entity e) => new BGM(e) },
+            {022, (Entity e) => new ScrollSpeed(e) },
             {059, (Entity e) => new Powerup(e) },
             {060, (Entity e) => new Powerup(e) },
             {061, (Entity e) => new Powerup(e) },
