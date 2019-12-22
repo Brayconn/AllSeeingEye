@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using GuxtModdingFramework.Maps;
 
 namespace GuxtEditor
@@ -19,6 +20,7 @@ namespace GuxtEditor
         /// </summary>
         Bitmap tilesetTileTypes;
 
+        #region Display
 
         #region Initialise
         void InitTileset(Image t)
@@ -58,5 +60,21 @@ namespace GuxtEditor
             tilesetPictureBox.Image?.Dispose();
             tilesetPictureBox.Image = workingTileset;
         }
+
+        #endregion
+
+
+        #region Tileset Interaction
+
+        private void tilesetPictureBox_MouseClick(object sender, MouseEventArgs e)
+        {
+            var p = GetMousePointOnTileset(e.Location);
+            var value = (p.Y * 16) + p.X;
+            if (value <= byte.MaxValue && value != SelectedTile)
+                SelectedTile = (byte)value;
+        }
+
+        #endregion
+
     }
 }

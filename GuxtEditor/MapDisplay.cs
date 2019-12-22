@@ -11,6 +11,8 @@ namespace GuxtEditor
 {
     partial class FormStageEditor
     {
+        #region Display
+
         /// <summary>
         /// Image of the loaded map
         /// </summary>
@@ -83,6 +85,11 @@ namespace GuxtEditor
 
             g.DrawRectangle(new Pen(Color.LightGray), x, y, width, height);
         }
+        /// <summary>
+        /// Displays the map to the user, with the selection box at point p to p2
+        /// </summary>
+        /// <param name="p">Start grid space</param>
+        /// <param name="p2">End grid space</param>
         void DisplayMap(Point? p = null, Point? p2 = null)
         {
             Bitmap mapImage = new Bitmap(baseMap);
@@ -105,5 +112,9 @@ namespace GuxtEditor
             mapPictureBox.Image?.Dispose();
             mapPictureBox.Image = zoomedMap;            
         }
+
+        #endregion
+
+
     }
 }

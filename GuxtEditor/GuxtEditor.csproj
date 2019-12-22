@@ -37,6 +37,11 @@
     <Compile Update="FormMain.Designer.cs">
       <DependentUpon>FormMain.cs</DependentUpon>
     </Compile>
+    <Compile Update="Keybinds.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Keybinds.settings</DependentUpon>
+    </Compile>
     <EmbeddedResource Update="FormMain.resx">
       <DependentUpon>FormMain.cs</DependentUpon>
     </EmbeddedResource>
@@ -60,6 +65,13 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\WinFormsKeybinds\WinFormsKeybinds\WinFormsKeybinds.csproj" />
     <ProjectReference Include="..\GuxtModdingFramework\GuxtModdingFramework.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Keybinds.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Keybinds.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
 </Project>

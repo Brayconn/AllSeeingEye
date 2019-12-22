@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29102.190
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GuxtEditor", "GuxtEditor\GuxtEditor.csproj", "{9835D0CF-6129-4EA6-8CD0-92078C639795}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GuxtEditor", "GuxtEditor\GuxtEditor.csproj", "{9835D0CF-6129-4EA6-8CD0-92078C639795}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GuxtModdingFramework", "GuxtModdingFramework\GuxtModdingFramework.csproj", "{35FE244C-51A2-462E-B3C0-676235E2A891}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GuxtModdingFramework", "GuxtModdingFramework\GuxtModdingFramework.csproj", "{35FE244C-51A2-462E-B3C0-676235E2A891}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormsKeybinds", "..\WinFormsKeybinds\WinFormsKeybinds\WinFormsKeybinds.csproj", "{01D4486A-D72A-421D-842F-AB35EF1CDFBB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{35FE244C-51A2-462E-B3C0-676235E2A891}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{35FE244C-51A2-462E-B3C0-676235E2A891}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{35FE244C-51A2-462E-B3C0-676235E2A891}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01D4486A-D72A-421D-842F-AB35EF1CDFBB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01D4486A-D72A-421D-842F-AB35EF1CDFBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01D4486A-D72A-421D-842F-AB35EF1CDFBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01D4486A-D72A-421D-842F-AB35EF1CDFBB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

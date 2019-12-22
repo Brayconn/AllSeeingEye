@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
@@ -16,13 +17,23 @@ namespace GuxtEditor
 {
     public partial class FormMain : Form
     {
-        private string tileTypePath;//, entityNamesPath;
+        private readonly ReadOnlyDictionary<WinFormsKeybinds.KeyInput, string> stageEditorKeybinds;
+        private readonly string tileTypePath;//, entityNamesPath;
         public FormMain()
         {
             InitializeComponent();
             var baseDir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             tileTypePath = Path.Combine(baseDir, "tiletypes.png");
             //entityNamesPath = Path.Combine(baseDir, "entitynames.txt");
+            try
+            {
+                stageEditorKeybinds = new ReadOnlyDictionary<WinFormsKeybinds.KeyInput, string>(Keybinds.Default.StageEditor.ToDictionary());
+            }
+            catch (ArgumentException e)
+            {
+                MessageBox.Show(e.Message + e.ParamName, "Error");
+                this.Close();
+            }
         }
 
         private const string ImgFilter = "Pixel Images (*.pximg)|*.pximg";
@@ -238,21 +249,21 @@ namespace GuxtEditor
         {
             if(editorList.Items.Count > 0)
             {
-                var sel = editorList.SelectedIndex + 1;
-                if(!openEditors.ContainsKey(sel))
+                var selectedMap = editorList.SelectedIndex + 1;
+                if(!openEditors.ContainsKey(selectedMap))
                 {
                     Form? f = editorType switch
                     {
-                        AvailableEditors.Stage => new FormStageEditor(LoadedMod!, sel, tileTypePath),
-                        AvailableEditors.Attribute => new FormAttributeEditor(LoadedMod!, sel, tileTypePath),
+                        AvailableEditors.Stage => new FormStageEditor(LoadedMod!, selectedMap, tileTypePath, stageEditorKeybinds),
+                        AvailableEditors.Attribute => new FormAttributeEditor(LoadedMod!, selectedMap, tileTypePath),
                         _ => null
                     };
                     if (f == null)
                         return;
                     f.FormClosed += RemoveClosedEditor;
-                    openEditors.Add(sel, f);
+                    openEditors.Add(selectedMap, f);
                 }
-                openEditors[sel].Show();
+                openEditors[selectedMap].Show();
             }
         }
 
