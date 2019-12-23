@@ -42,6 +42,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Keybinds.settings</DependentUpon>
     </Compile>
+    <Compile Update="UI.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>UI.settings</DependentUpon>
+    </Compile>
     <EmbeddedResource Update="FormMain.resx">
       <DependentUpon>FormMain.cs</DependentUpon>
     </EmbeddedResource>
@@ -72,6 +77,10 @@
     <None Update="Keybinds.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Keybinds.Designer.cs</LastGenOutput>
+    </None>
+    <None Update="UI.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>UI.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
 </Project>

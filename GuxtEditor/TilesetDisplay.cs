@@ -42,7 +42,7 @@ namespace GuxtEditor
         #endregion
         void DrawSelectedTile(Graphics g)
         {
-            g.DrawRectangle(new Pen(Color.LightGray),
+            g.DrawRectangle(new Pen(UI.Default.SelectedTileColor),
                 (SelectedTile % 16) * parentMod.TileSize,
                 (SelectedTile / 16) * parentMod.TileSize,
                 parentMod.TileSize - 1,

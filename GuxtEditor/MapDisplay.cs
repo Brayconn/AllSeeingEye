@@ -51,7 +51,7 @@ namespace GuxtEditor
 
                 var isSelected = selectedEntities.Contains(entities[i]);
                 if (entityBoxesToolStripMenuItem.Checked || isSelected)
-                    g.DrawRectangle(isSelected ? Pens.Aqua : Pens.Lime,
+                    g.DrawRectangle(new Pen(isSelected ? UI.Default.SelectedEntityBoxColor : UI.Default.EntityBoxColor),
                         x, y, (parentMod.TileSize / 2) - 1, (parentMod.TileSize / 2) - 1);
             }
         }
@@ -83,7 +83,7 @@ namespace GuxtEditor
             width = (width * gridSize) - 1;
             height = (height * gridSize) - 1;
 
-            g.DrawRectangle(new Pen(Color.LightGray), x, y, width, height);
+            g.DrawRectangle(new Pen(UI.Default.CursorColor), x, y, width, height);
         }
         /// <summary>
         /// Displays the map to the user, with the selection box at point p to p2
