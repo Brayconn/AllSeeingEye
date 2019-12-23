@@ -24,7 +24,7 @@ namespace GuxtEditor
         /// </summary>
         public int StageNumber { get; private set; }
 
-        Mod parentMod;
+        readonly Mod parentMod;
         readonly IDictionary<WinFormsKeybinds.KeyInput, string> Keybinds;
 
         readonly string mapPath, entityPath;
@@ -32,19 +32,19 @@ namespace GuxtEditor
         /// <summary>
         /// List of loaded entities
         /// </summary>
-        List<Entity> entities;        
+        readonly List<Entity> entities;        
         /// <summary>
         /// The map object this is editing
         /// </summary>
-        Map map;
+        readonly Map map;
         /// <summary>
         /// The attributes for this map's tiles
         /// </summary>
-        Map attributes;
+        readonly Map attributes;
         /// <summary>
         /// Image for all tile types
         /// </summary>
-        Bitmap tileTypes;
+        readonly Bitmap tileTypes;
 
         //Everything gets set, just not directly in this method
 #nullable disable
@@ -80,7 +80,7 @@ namespace GuxtEditor
             //base map setup
             mapPath = Path.Combine(parentMod.DataPath, parentMod.MapName + StageNumber + "." + parentMod.MapExtension);
             map = new Map(mapPath);
-            map.MapResized += () => InitMapAndDisplay();
+            map.MapResized += delegate { InitMapAndDisplay(); };
             mapPropertyGrid.SelectedObject = map;
 
             //display everything
