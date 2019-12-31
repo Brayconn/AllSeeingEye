@@ -178,20 +178,20 @@ namespace GuxtModdingFramework.Entities
 
     public static class EntityList
     {
-        public readonly static ReadOnlyDictionary<int, Func<Entity, EntityShell>> ClassDictionary =
-        new ReadOnlyDictionary<int, Func<Entity, EntityShell>>(new Dictionary<int, Func<Entity, EntityShell>>()
+        public readonly static ReadOnlyDictionary<int, Type> ClassDictionary =
+        new ReadOnlyDictionary<int, Type>(new Dictionary<int, Type>()
         {
-            {007, (Entity e) => new Powerup(e) },
-            {011, (Entity e) => new Wing(e) },
-            {012, (Entity e) => new Wing(e) },
-            {019, (Entity e) => new BGM(e) },
-            {022, (Entity e) => new ScrollSpeed(e) },
-            {059, (Entity e) => new Powerup(e) },
-            {060, (Entity e) => new Powerup(e) },
-            {061, (Entity e) => new Powerup(e) },
-            {064, (Entity e) => new Powerup(e) },
-            {074, (Entity e) => new Powerup(e) },
-            {075, (Entity e) => new Powerup(e) },
+            {007, typeof(Powerup) },
+            {011, typeof(Wing) },
+            {012, typeof(Wing) },
+            {019, typeof(BGM) },
+            {022, typeof(ScrollSpeed) },
+            {059, typeof(Powerup) },
+            {060, typeof(Powerup) },
+            {061, typeof(Powerup) },
+            {064, typeof(Powerup) },
+            {074, typeof(Powerup) },
+            {075, typeof(Powerup) },
         });
 
         public readonly static ReadOnlyDictionary<int, string> EntityNames =

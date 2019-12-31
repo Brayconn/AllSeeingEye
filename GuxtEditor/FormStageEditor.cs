@@ -270,7 +270,7 @@ namespace GuxtEditor
             selectedEntities = new HashSet<Entity>(entities);
             var ent = entities.Any() ? entities.First() : null;
             if(ent != null && EntityList.ClassDictionary.ContainsKey(ent.EntityID))
-                entityPropertyGrid.SelectedObject = EntityList.ClassDictionary[ent.EntityID](ent);
+                entityPropertyGrid.SelectedObject = Activator.CreateInstance(EntityList.ClassDictionary[ent.EntityID],ent);
             else
                 entityPropertyGrid.SelectedObject = ent;
         }

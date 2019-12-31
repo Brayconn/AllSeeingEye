@@ -87,13 +87,7 @@ namespace GuxtModdingFramework
 
         [Browsable(false)]
         public ImageList EntityIcons { get; private set; } = new ImageList();
-
-        /// <summary>
-        /// Size of each tile (pixels)
-        /// </summary>
-        [Category("Images"), DefaultValue(16), Description("The size of each tile.")]
-        public int TileSize { get; set; } = 16;
-
+        
         /// <summary>
         /// Size of each icon (pixels)
         /// </summary>
@@ -132,6 +126,18 @@ namespace GuxtModdingFramework
 
             iconImage.Dispose();
         }
+
+        [Category("Entities"), Description()]
+        public Dictionary<int, string> EntityNames { get; private set; } = new Dictionary<int, string>();
+
+        [Category("Entities"), Description("The type of each entity. Only edit this if you've applied hacks to the exe")]
+        public Dictionary<int, Type> EntityTypes { get; private set; } = new Dictionary<int, Type>();
+
+        /// <summary>
+        /// Size of each tile (pixels)
+        /// </summary>
+        [Category("Images"), DefaultValue(16), Description("The size of each tile.")]
+        public int TileSize { get; set; } = 16;
 
         #region File Extension stuff
 
@@ -299,13 +305,26 @@ namespace GuxtModdingFramework
             FillWithFileNames(m.Attributes, m.DataPath, m.AttributeExtension);
             FillWithFileNames(m.Projects, m.DataPath, m.ProjectExtension);
             m.UpdateEntityIcons();
+
+            foreach (var val in EntityList.ClassDictionary)
+                m.EntityTypes.Add(val.Key, val.Value);
             
+            foreach (var val in EntityList.EntityNames)
+                m.EntityNames.Add(val.Key, val.Value);
+
             return m;
         }
 
         public void Save(string path)
         {
-            var relativeDataPath = new Uri(path).MakeRelativeUri(new Uri(DataPath));            
+            var relativeDataPath = new Uri(path).MakeRelativeUri(new Uri(DataPath));
+
+            var entityNames = new XElement("EntityNames",
+                EntityNames.Select(x => new XElement("Name", new XAttribute("key", x.Key.ToString()), x.Value)));
+
+            var entityTypes = new XElement("EntityTypes",
+                EntityTypes.Select(x => new XElement("Type", new XAttribute("key", x.Key.ToString()), x.Value.AssemblyQualifiedName)));
+            
             new XDocument(
                 new XElement("GuxtMod",
                     new XElement("DataPath", relativeDataPath),
@@ -328,7 +347,9 @@ namespace GuxtModdingFramework
                         new XElement("Images", ImageExtension),
                         new XElement("Attributes", AttributeExtension),
                         new XElement("Projects", ProjectExtension)
-                   )
+                   ),
+                   entityNames,
+                   entityTypes
                 )
             ).Save(path);
         }
@@ -379,7 +400,23 @@ namespace GuxtModdingFramework
             m.imageExtension = extensions["Image"]?.InnerText ?? m.ImageExtension;
             m.attributeExtension = extensions["Attribute"]?.InnerText ?? m.AttributeExtension;
             m.projectExtension = extensions["Projects"]?.InnerText ?? m.ProjectExtension;
-            
+
+            var entityNames = root["EntityNames"];
+            foreach(XElement element in entityNames)
+            {
+                int key = int.Parse(element.Attribute("key").Value);
+                string value = element.Value;
+                m.EntityNames.Add(key, value);
+            }
+
+            var entityTypes = root["EntityTypes"];
+            foreach (XElement element in entityTypes)
+            {
+                int key = int.Parse(element.Attribute("key").Value);
+                Type value = Type.GetType(element.Value);
+                m.EntityTypes.Add(key, value);
+            }
+
             return m;
         }
     }
