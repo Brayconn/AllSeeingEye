@@ -232,16 +232,8 @@ namespace GuxtModdingFramework
         public string DataPath { get; set; }
 
         #region Stage stuff
-        
-        /// <summary>
-        /// Fills the stage list with all the right numbers
-        /// </summary>
-        private void FillStagesList()
-        {
-            Stages.Clear();
-            for (int i = 1; i <= stageCount; i++)
-                Stages.Add($"Stage {i}");
-        }
+
+        public event Action<int> StageCountChanged = new Action<int>((e) => { });
 
         private int stageCount = 6;
         [Category("General"), DefaultValue(6)]
@@ -253,16 +245,10 @@ namespace GuxtModdingFramework
                 if (stageCount != value)
                 {
                     stageCount = value;
-                    FillStagesList();
+                    StageCountChanged(stageCount);
                 }
             }
         }
-
-        /// <summary>
-        /// Used for editing "stages" (collection of map + entites + backgrounds)
-        /// </summary>
-        [Browsable(false)]
-        public BindingList<string> Stages { get; } = new BindingList<string>();
 
         #endregion
 
@@ -300,7 +286,6 @@ namespace GuxtModdingFramework
                 throw new DirectoryNotFoundException($"The directory \"{path}\" was not found. Please fix this project file using an xml editor.");
             
             var m = new Mod(path);
-            m.FillStagesList();
             FillWithFileNames(m.Images, m.DataPath, m.ImageExtension, m.ImageName);
             FillWithFileNames(m.Attributes, m.DataPath, m.AttributeExtension);
             FillWithFileNames(m.Projects, m.DataPath, m.ProjectExtension);

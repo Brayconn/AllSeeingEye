@@ -64,12 +64,24 @@ namespace GuxtEditor
         }
 
         /// <summary>
+        /// Fills the stage list with all the right numbers
+        /// </summary>
+        private void FillStagesList(int value)
+        {
+            stagesListBox.Items.Clear();
+            for (int i = 1; i <= value; i++)
+                stagesListBox.Items.Add($"Stage {i}");
+        }
+
+        /// <summary>
         /// Initialises all lists/main ui elemets to be hooked up
         /// </summary>
         private void InitialiseUI()
         {
             //Loaded mod can't be null here, because this method is only run once LoadedMod is set to something other than null
-            stagesListBox.DataSource = LoadedMod!.Stages;
+            LoadedMod!.StageCountChanged += FillStagesList;
+            FillStagesList(LoadedMod.StageCount);
+
             imagesListBox.DataSource = LoadedMod.Images;
             attributesListBox.DataSource = LoadedMod.Attributes;
             projectListBox.DataSource = LoadedMod.Projects;
