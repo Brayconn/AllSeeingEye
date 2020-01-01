@@ -28,7 +28,7 @@ namespace GuxtModdingFramework.Entities
         [Description(Entity.ExtraInfoDescription)]
         public int ExtraInfo { get => host.ExtraInfo; set => host.ExtraInfo = value; }
 
-        public EntityShell(Entity e)
+        protected EntityShell(Entity e)
         {
             host = e;
         }
