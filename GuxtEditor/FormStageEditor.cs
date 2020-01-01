@@ -653,6 +653,9 @@ namespace GuxtEditor
                     case "Paste" when editMode == EditModes.Entity && entitiesCopied && mouseOnMap:
                         PasteEntity(MousePositionOnGrid);
                         break;
+                    case "Save":
+                        Save();
+                        break;
                 }
             }
         }

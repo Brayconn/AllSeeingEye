@@ -51,8 +51,11 @@ namespace GuxtEditor {
             "</Alt>\r\n        <KeyValue>C</KeyValue>\r\n      </Input>\r\n      <Action>Copy</Acti" +
             "on>\r\n    </Keybind>\r\n    <Keybind>\r\n      <Input>\r\n        <Shift>false</Shift>\r" +
             "\n        <Control>true</Control>\r\n        <Alt>false</Alt>\r\n        <KeyValue>V<" +
-            "/KeyValue>\r\n      </Input>\r\n      <Action>Paste</Action>\r\n    </Keybind>\r\n  </Ke" +
-            "ybinds>\r\n</KeybindCollection>")]
+            "/KeyValue>\r\n      </Input>\r\n      <Action>Paste</Action>\r\n    </Keybind>\r\n    <K" +
+            "eybind>\r\n      <Input>\r\n        <Shift>false</Shift>\r\n        <Control>true</Con" +
+            "trol>\r\n        <Alt>false</Alt>\r\n        <KeyValue>S</KeyValue>\r\n      </Input>\r" +
+            "\n      <Action>Save</Action>\r\n    </Keybind>\r\n  </Keybinds>\r\n</KeybindCollection" +
+            ">")]
         public global::WinFormsKeybinds.KeybindCollection StageEditor {
             get {
                 return ((global::WinFormsKeybinds.KeybindCollection)(this["StageEditor"]));
