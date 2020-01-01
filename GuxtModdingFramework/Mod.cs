@@ -3,12 +3,8 @@ using GuxtModdingFramework.Entities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
-using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Linq;
 
@@ -90,55 +86,18 @@ namespace GuxtModdingFramework
                 if(File.Exists(value))
                 {
                     editorIconName = value;
-                    UpdateEntityIcons();
                 }
             }
         }
 
         #endregion
-
-        [Browsable(false)]
-        public ImageList EntityIcons { get; private set; } = new ImageList();
         
         /// <summary>
         /// Size of each icon (pixels)
         /// </summary>
         [Category("Images"), DefaultValue(16), Description("The size of each editor icon.")]
         public int IconSize { get; set; } = 16;
-
-        void UpdateEntityIcons()
-        {
-            var iconImage = new Bitmap(Path.Combine(DataPath, EditorIconName + "." + ImageExtension));
-            if(ImagesScrambeled)
-                iconImage = Scrambler.Unscramble(iconImage);
-            iconImage.MakeTransparent(Color.Black);
-
-            EntityIcons.Images.Clear();
-            var IconsPerRow = iconImage.Width / IconSize;
-            try
-            {
-                for (int i = 0; i < (iconImage.Width * iconImage.Height) / (IconSize * IconSize); i++)
-                {
-                    var iconX = (i % IconsPerRow) * IconSize;
-                    var iconY = (i / IconsPerRow) * IconSize;
-
-                    var entityIcon = iconImage.Clone(new Rectangle(
-                        iconX, iconY, IconSize, IconSize
-                        ), PixelFormat.DontCare);
-
-                    EntityIcons.Images.Add(EntityList.EntityNames.ContainsKey(i) ? EntityList.EntityNames[i] : i.ToString(), entityIcon);
-                }
-            }
-            //Clone() likes to throw this when you do most things wrong
-            //but here it's most likley that the image isn't big enough
-            catch(OutOfMemoryException)
-            {
-                //TODO uh...
-            }
-
-            iconImage.Dispose();
-        }
-
+        
         [Category("Entities"), Description()]
         public Dictionary<int, string> EntityNames { get; private set; } = new Dictionary<int, string>();
 
@@ -276,7 +235,6 @@ namespace GuxtModdingFramework
                 throw new DirectoryNotFoundException($"The directory \"{path}\" was not found. Please fix this project file using an xml editor.");
             
             var m = new Mod(path);
-            m.UpdateEntityIcons();
 
             foreach (var val in EntityList.ClassDictionary)
                 m.EntityTypes.Add(val.Key, val.Value);

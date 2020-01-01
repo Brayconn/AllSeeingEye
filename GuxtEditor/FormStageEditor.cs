@@ -24,6 +24,8 @@ namespace GuxtEditor
         /// </summary>
         public int StageNumber { get; private set; }
 
+        private readonly ImageList EntityIcons = new ImageList();
+
         readonly Mod parentMod;
         readonly IDictionary<WinFormsKeybinds.KeyInput, string> Keybinds;
 
@@ -137,14 +139,48 @@ namespace GuxtEditor
             DisplayMap();
         }
 
+        void UpdateEntityIcons()
+        {
+            var iconImage = new Bitmap(Path.Combine(parentMod.DataPath, parentMod.EditorIconName + "." + parentMod.ImageExtension));
+            if (parentMod.ImagesScrambeled)
+                iconImage = Scrambler.Unscramble(iconImage);
+            iconImage.MakeTransparent(Color.Black);
+
+            EntityIcons.Images.Clear();
+            var IconsPerRow = iconImage.Width / parentMod.IconSize;
+            try
+            {
+                for (int i = 0; i < (iconImage.Width * iconImage.Height) / (parentMod.IconSize * parentMod.IconSize); i++)
+                {
+                    var iconX = (i % IconsPerRow) * parentMod.IconSize;
+                    var iconY = (i / IconsPerRow) * parentMod.IconSize;
+
+                    var entityIcon = iconImage.Clone(new Rectangle(
+                        iconX, iconY, parentMod.IconSize, parentMod.IconSize
+                        ), PixelFormat.DontCare);
+
+                    EntityIcons.Images.Add(EntityList.EntityNames.ContainsKey(i) ? EntityList.EntityNames[i] : i.ToString(), entityIcon);
+                }
+            }
+            //Clone() likes to throw this when you do most things wrong
+            //but here it's most likley that the image isn't big enough
+            catch (OutOfMemoryException)
+            {
+                //TODO uh...
+            }
+
+            iconImage.Dispose();
+        }
+
         /// <summary>
         /// Initializes the entity list
         /// </summary>
         void InitEntityList()
         {
+            UpdateEntityIcons();
             entityListView.Clear();
-            entityListView.LargeImageList = parentMod.EntityIcons;
-            for (int i = 0; i < parentMod.EntityIcons.Images.Count; i++)
+            entityListView.LargeImageList = EntityIcons;
+            for (int i = 0; i < EntityIcons.Images.Count; i++)
             {
                 entityListView.Items.Add(EntityList.EntityNames.ContainsKey(i) ? EntityList.EntityNames[i] : i.ToString() , i);
             }

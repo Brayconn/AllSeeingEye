@@ -46,7 +46,7 @@ namespace GuxtEditor
                 var x = (entities[i].X * parentMod.TileSize) / 2;
 
                 if(entitySpritesToolStripMenuItem.Checked)
-                    g.DrawImage(parentMod.EntityIcons.Images[entities[i].EntityID],
+                    g.DrawImage(EntityIcons.Images[entities[i].EntityID],
                         x, y, parentMod.IconSize, parentMod.IconSize);
 
                 var isSelected = selectedEntities.Contains(entities[i]);
