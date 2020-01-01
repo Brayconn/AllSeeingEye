@@ -14,6 +14,18 @@ using System.Xml.Linq;
 
 namespace GuxtModdingFramework
 {
+    public class ExtensionChangedEventArgs : EventArgs
+    {
+        public string Previous { get; set; }
+        public string Current { get; set; }
+
+        public ExtensionChangedEventArgs(string prev, string current)
+        {
+            Previous = prev;
+            Current = current;
+        }
+    }
+
     public class Mod
     {
         #region File Name stuff
@@ -152,6 +164,9 @@ namespace GuxtModdingFramework
         private string imageExtension = DefaultImageExtension;
         private string attributeExtension = DefaultAttributeExtension;
         private string projectExtension = DefaultProjectExtension;
+        
+        public event EventHandler<ExtensionChangedEventArgs> MapExtensionChanged =
+            new EventHandler<ExtensionChangedEventArgs>((p, c) => { });
 
         [Category("File Extensions"), DefaultValue(DefaultMapExtension)]
         public string MapExtension
@@ -159,10 +174,13 @@ namespace GuxtModdingFramework
             get => mapExtension;
             set
             {
-                mapExtension = value;
-                //FillStagesList();
+                if (mapExtension != value)
+                    MapExtensionChanged(this, new ExtensionChangedEventArgs(mapExtension, mapExtension = value));                
             }
         }
+
+        public event EventHandler<ExtensionChangedEventArgs> EntityExtensionChanged =
+            new EventHandler<ExtensionChangedEventArgs>((p, c) => { });
 
         [Category("File Extensions"), DefaultValue(DefaultEntityExtension)]
         public string EntityExtension
@@ -170,25 +188,13 @@ namespace GuxtModdingFramework
             get => entityExtension;
             set
             {
-                entityExtension = value;
-                //FillStagesList();
+                if (entityExtension != value)
+                    EntityExtensionChanged(this, new ExtensionChangedEventArgs(entityExtension, entityExtension = value));                
             }
         }
 
-        /// <summary>
-        /// Fills up the given list with the file names from the given directory, that match the given extension, but don't match the given filter
-        /// </summary>
-        /// <param name="list">The list to fill</param>
-        /// <param name="dir">Directory to search</param>
-        /// <param name="ext">Extension the files must have</param>
-        /// <param name="filter">Filter the files must NOT meet</param>
-        private static void FillWithFileNames(IList<string> list, string dir, string ext, string? filter = null)
-        {
-            list.Clear();
-            foreach (var f in Directory.EnumerateFiles(dir, "*." + ext))
-                if (filter == null || !Regex.Match(f, $@"^{filter}\d+\.{ext}$").Success)
-                    list.Add(Path.GetFileName(f));
-        }
+        public event EventHandler<ExtensionChangedEventArgs> ImageExtensionChanged =
+            new EventHandler<ExtensionChangedEventArgs>((p, c) => { });
 
         [Category("File Extensions"), DefaultValue(DefaultImageExtension)]
         public string ImageExtension
@@ -196,30 +202,36 @@ namespace GuxtModdingFramework
             get => imageExtension;
             set
             {
-                imageExtension = value;
-                FillWithFileNames(Images, DataPath, ImageExtension);
+                if(imageExtension != value)
+                    ImageExtensionChanged(this, new ExtensionChangedEventArgs(imageExtension, imageExtension = value));
             }
         }
-        
+
+        public event EventHandler<ExtensionChangedEventArgs> AttributeExtensionChanged =
+            new EventHandler<ExtensionChangedEventArgs>((p, c) => { });
+
         [Category("File Extensions"), DefaultValue(DefaultAttributeExtension)]
         public string AttributeExtension
         {
             get => attributeExtension;
             set
             {
-                attributeExtension = value;
-                FillWithFileNames(Attributes, DataPath, AttributeExtension);
+                if (attributeExtension != value)
+                    AttributeExtensionChanged(this, new ExtensionChangedEventArgs(attributeExtension, attributeExtension = value));
             }
         }
-        
+
+        public event EventHandler<ExtensionChangedEventArgs> ProjectExtensionChanged =
+            new EventHandler<ExtensionChangedEventArgs>((p, c) => { });
+
         [Category("File Extensions"), DefaultValue(DefaultProjectExtension)]
         public string ProjectExtension
         {
             get => projectExtension;
             set
             {
-                projectExtension = value;
-                FillWithFileNames(Projects, DataPath, ProjectExtension);
+                if(projectExtension != value)
+                    ProjectExtensionChanged(this, new ExtensionChangedEventArgs(projectExtension, projectExtension = value));
             }
         }
 
@@ -252,28 +264,6 @@ namespace GuxtModdingFramework
 
         #endregion
 
-        #region Internal lists
-
-        /// <summary>
-        /// Images (spritesheets + backgrounds)
-        /// </summary>
-        [Browsable(false)]
-        public BindingList<string> Images { get; } = new BindingList<string>();
-        
-        /// <summary>
-        /// Tileset/backgroud tile attributes
-        /// </summary>
-        [Browsable(false)]
-        public BindingList<string> Attributes { get; } = new BindingList<string>();
-        
-        /// <summary>
-        /// Project files (kinda useless to edit...)
-        /// </summary>
-        [Browsable(false)]
-        public BindingList<string> Projects { get; } = new BindingList<string>();
-
-        #endregion
-
         private Mod(string path)
         {
             DataPath = path;
@@ -286,9 +276,6 @@ namespace GuxtModdingFramework
                 throw new DirectoryNotFoundException($"The directory \"{path}\" was not found. Please fix this project file using an xml editor.");
             
             var m = new Mod(path);
-            FillWithFileNames(m.Images, m.DataPath, m.ImageExtension, m.ImageName);
-            FillWithFileNames(m.Attributes, m.DataPath, m.AttributeExtension);
-            FillWithFileNames(m.Projects, m.DataPath, m.ProjectExtension);
             m.UpdateEntityIcons();
 
             foreach (var val in EntityList.ClassDictionary)

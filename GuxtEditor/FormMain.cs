@@ -74,6 +74,22 @@ namespace GuxtEditor
         }
 
         /// <summary>
+        /// Fills up the given list with the file names from the given directory, that match the given extension, but don't match the given filter
+        /// </summary>
+        /// <param name="list">The list to fill</param>
+        /// <param name="dir">Directory to search</param>
+        /// <param name="ext">Extension the files must have</param>
+        private void FillWithFileNames(ListBox.ObjectCollection list, string ext)//, string? filter = null)
+        {
+            if (LoadedMod == null)
+                return;
+            list.Clear();
+            foreach (var f in Directory.EnumerateFiles(LoadedMod.DataPath, "*." + ext))
+                //if (filter == null || !Regex.Match(f, $@"^{filter}\d+\.{ext}$").Success)
+                    list.Add(Path.GetFileName(f));
+        }
+
+        /// <summary>
         /// Initialises all lists/main ui elemets to be hooked up
         /// </summary>
         private void InitialiseUI()
@@ -82,9 +98,14 @@ namespace GuxtEditor
             LoadedMod!.StageCountChanged += FillStagesList;
             FillStagesList(LoadedMod.StageCount);
 
-            imagesListBox.DataSource = LoadedMod.Images;
-            attributesListBox.DataSource = LoadedMod.Attributes;
-            projectListBox.DataSource = LoadedMod.Projects;
+            LoadedMod.ImageExtensionChanged += (o, e) => { FillWithFileNames(imagesListBox.Items, e.Current); };
+            FillWithFileNames(imagesListBox.Items, LoadedMod.ImageExtension);
+
+            LoadedMod.AttributeExtensionChanged += (o, e) => { FillWithFileNames(attributesListBox.Items, e.Current); };
+            FillWithFileNames(attributesListBox.Items, LoadedMod.AttributeExtension);
+
+            LoadedMod.ProjectExtensionChanged += (o, e) => { FillWithFileNames(projectListBox.Items, e.Current); };
+            FillWithFileNames(projectListBox.Items, LoadedMod.ProjectExtension);
 
             modPropertyGrid.SelectedObject = LoadedMod;
 
