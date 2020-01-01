@@ -95,7 +95,7 @@ namespace GuxtEditor
         private void InitialiseUI()
         {
             //Loaded mod can't be null here, because this method is only run once LoadedMod is set to something other than null
-            LoadedMod!.StageCountChanged += FillStagesList;
+            LoadedMod!.StageCountChanged += (o,e) => { FillStagesList(e.Current); };
             FillStagesList(LoadedMod.StageCount);
 
             LoadedMod.ImageExtensionChanged += (o, e) => { FillWithFileNames(imagesListBox.Items, e.Current); };

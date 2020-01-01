@@ -15,10 +15,22 @@ namespace GuxtModdingFramework
         public string Previous { get; set; }
         public string Current { get; set; }
 
-        public ExtensionChangedEventArgs(string prev, string current)
+        public ExtensionChangedEventArgs(string prev, string curr)
         {
             Previous = prev;
-            Current = current;
+            Current = curr;
+        }
+    }
+
+    public class StageCountChangedEventArgs : EventArgs
+    {
+        public int Previous { get; set; }
+        public int Current { get; set; }
+
+        public StageCountChangedEventArgs(int prev, int curr)
+        {
+            Previous = prev;
+            Current = curr;
         }
     }
 
@@ -204,7 +216,8 @@ namespace GuxtModdingFramework
 
         #region Stage stuff
 
-        public event Action<int> StageCountChanged = new Action<int>((e) => { });
+        public event EventHandler<StageCountChangedEventArgs> StageCountChanged =
+            new EventHandler<StageCountChangedEventArgs>((o, e) => { });
 
         private int stageCount = 6;
         [Category("General"), DefaultValue(6)]
@@ -214,10 +227,7 @@ namespace GuxtModdingFramework
             set
             {
                 if (stageCount != value)
-                {
-                    stageCount = value;
-                    StageCountChanged(stageCount);
-                }
+                    StageCountChanged(this, new StageCountChangedEventArgs(stageCount, stageCount = value));
             }
         }
 
