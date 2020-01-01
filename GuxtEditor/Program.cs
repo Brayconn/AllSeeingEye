@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -16,7 +17,16 @@ namespace GuxtEditor
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new FormMain());
+            try
+            {
+                var baseDir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+                var tileTypePath = Path.Combine(baseDir, "tiletypes.png");
+                Application.Run(FormMain.Create(tileTypePath, Keybinds.Default.StageEditor));
+            }
+            catch (ArgumentException e)
+            {
+                MessageBox.Show(e.Message, "Error");
+            }            
         }
     }
 }

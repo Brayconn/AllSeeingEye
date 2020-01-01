@@ -12,28 +12,25 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using GuxtModdingFramework;
 using GuxtModdingFramework.Images;
+using WinFormsKeybinds;
 
 namespace GuxtEditor
 {
     public partial class FormMain : Form
     {
-        private readonly ReadOnlyDictionary<WinFormsKeybinds.KeyInput, string> stageEditorKeybinds;
+        private readonly ReadOnlyDictionary<KeyInput, string> stageEditorKeybinds;
         private readonly string tileTypePath;//, entityNamesPath;
-        public FormMain()
+        private FormMain(string ttp, IDictionary<KeyInput, string> kb)
         {
+            tileTypePath = ttp;
+            stageEditorKeybinds = new ReadOnlyDictionary<KeyInput, string>(kb);
             InitializeComponent();
-            var baseDir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            tileTypePath = Path.Combine(baseDir, "tiletypes.png");
-            //entityNamesPath = Path.Combine(baseDir, "entitynames.txt");
-            try
-            {
-                stageEditorKeybinds = new ReadOnlyDictionary<WinFormsKeybinds.KeyInput, string>(Keybinds.Default.StageEditor.ToDictionary());
-            }
-            catch (ArgumentException e)
-            {
-                MessageBox.Show(e.Message + e.ParamName, "Error");
-                this.Close();
-            }
+        }
+
+        public static FormMain Create(string tileTypePath, KeybindCollection kc)
+        {
+            var kb = Keybinds.Default.StageEditor.ToDictionary();
+            return new FormMain(tileTypePath, kb);
         }
 
         private const string ImgFilter = "Pixel Images (*.pximg)|*.pximg";
