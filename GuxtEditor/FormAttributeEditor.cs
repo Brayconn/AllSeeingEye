@@ -24,6 +24,27 @@ namespace GuxtEditor
         Mod parentMod;
         public int AttributeNumber { get; private set; }
 
+        bool unsavedEdits = false;
+        public bool UnsavedEdits
+        {
+            get => unsavedEdits;
+            private set
+            {
+                if (unsavedEdits != value)
+                {
+                    unsavedEdits = value;
+                    UpdateTitle();
+                }
+            }
+        }
+
+        private void UpdateTitle()
+        {
+            this.Text = $"Attribute {AttributeNumber}";
+            if (UnsavedEdits)
+                this.Text += "*";
+        }
+
         /// <summary>
         /// Location to save this attribute to
         /// </summary>
@@ -147,6 +168,7 @@ namespace GuxtEditor
         byte SelectedTile = 0;
         void SetTile(Point p)
         {
+            UnsavedEdits = true;
             if(p.X >= attributes.Width)
             {
                 attributes.Width = (ushort)(p.X + 1);
@@ -287,6 +309,7 @@ namespace GuxtEditor
 
         private void Save()
         {
+            UnsavedEdits = false;
             attributes.Save(attributePath);
         }
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
@@ -295,9 +318,9 @@ namespace GuxtEditor
         }
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            if (e.CloseReason == CloseReason.UserClosing)
+            if (e.CloseReason == CloseReason.UserClosing && UnsavedEdits)
             {
-                switch (MessageBox.Show("Would you like to save?", "Warning", MessageBoxButtons.YesNoCancel))
+                switch (MessageBox.Show("You have unsaved changes! Would you like to save?", "Warning", MessageBoxButtons.YesNoCancel))
                 {
                     case DialogResult.Yes:
                         Save();
@@ -309,7 +332,6 @@ namespace GuxtEditor
                         return;
                 }
             }
-            base.OnFormClosing(e);
         }
 
         private void tileTypesToolStripMenuItem_CheckedChanged(object sender, EventArgs e)

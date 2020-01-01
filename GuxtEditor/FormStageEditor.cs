@@ -24,6 +24,27 @@ namespace GuxtEditor
         /// </summary>
         public int StageNumber { get; private set; }
 
+        bool unsavedEdits = false;
+        public bool UnsavedEdits
+        {
+            get => unsavedEdits;
+            private set
+            {
+                if(unsavedEdits != value)
+                {
+                    unsavedEdits = value;
+                    UpdateTitle();
+                }
+            }
+        }
+
+        private void UpdateTitle()
+        {
+            this.Text = $"Stage {StageNumber}";
+            if (UnsavedEdits)
+                this.Text += "*";
+        }
+
         private readonly ImageList EntityIcons = new ImageList();
 
         readonly Mod parentMod;
@@ -60,6 +81,7 @@ namespace GuxtEditor
 
             //UI init
             InitializeComponent();
+            UpdateTitle();
             mapPictureBox.MouseWheel += mapPictureBox_MouseWheel;
             InitEntityList();
 
@@ -96,6 +118,7 @@ namespace GuxtEditor
         /// </summary>
         private void Save()
         {
+            UnsavedEdits = false;
             map.Save(mapPath);
             //attributes.Save();
             PXEVE.Write(entities, entityPath);
@@ -266,6 +289,7 @@ namespace GuxtEditor
         }
         void SetTile(int tileNum, byte tileValue)
         {
+            UnsavedEdits = true;
             map.Tiles[tileNum] = tileValue;
             DrawTile(baseMap, map, tileNum, baseTileset);
             DrawTile(mapTileTypes, map, tileNum, tilesetTileTypes);
@@ -291,11 +315,13 @@ namespace GuxtEditor
         }                
         void CreateNewEntity(Point pos)
         {
+            UnsavedEdits = true;
             entities.Add(new Entity(0, pos.X, pos.Y, entityListView.SelectedIndices[0], 0));
             DisplayMap(MousePositionOnGrid);
         }
         void DeleteSelectedEntities()
         {
+            UnsavedEdits = true;
             foreach (var ent in selectedEntities)
                 entities.Remove(ent);
             selectedEntities.Clear();
@@ -329,6 +355,7 @@ namespace GuxtEditor
         {
             if (!entitiesCopied)
                 return;
+            UnsavedEdits = true;
             entities.Add(new Entity(entityClipboard!) //what do you think the above check was for >:(
             {
                 X = pos.X,
@@ -497,7 +524,7 @@ namespace GuxtEditor
                                 delete = new ToolStripMenuItem();
                                 delete.Click += delegate { DeleteSelectedEntities(); };
                             }                            
-                            delete.Text = $"Delete Entit{(userHasSelectedEntities ? "ies" : "y")}";
+                            delete.Text = $"Delete Entit{(selectedEntities.Count > 1 ? "ies" : "y")}";
                             delete.Enabled = userHasSelectedEntities;
                             entityContextMenu.Items.Add(delete);
 
@@ -665,9 +692,9 @@ namespace GuxtEditor
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            if (e.CloseReason == CloseReason.UserClosing)
+            if (e.CloseReason == CloseReason.UserClosing && UnsavedEdits)
             {
-                switch(MessageBox.Show("Would you like to save?", "Warning", MessageBoxButtons.YesNoCancel))
+                switch(MessageBox.Show("You have unsaved changes! Would you like to save?", "Warning", MessageBoxButtons.YesNoCancel))
                 {
                     case DialogResult.Yes:
                         Save();
@@ -678,8 +705,7 @@ namespace GuxtEditor
                         e.Cancel = true;
                         return;
                 }                
-            }                
-            base.OnFormClosing(e);
+            }
         }
     }
 }

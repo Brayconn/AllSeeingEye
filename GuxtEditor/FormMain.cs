@@ -110,7 +110,7 @@ namespace GuxtEditor
             saveAsToolStripMenuItem.Enabled = true;
         }
 
-        private void ClearEditorDict(Dictionary<int, Form> dict)
+        private static void ClearEditorDict(Dictionary<int, Form> dict)
         {
             foreach (var editor in dict)
                 editor.Value.Close();
@@ -321,5 +321,16 @@ namespace GuxtEditor
         }
 
         #endregion
+
+        private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if(e.CloseReason == CloseReason.UserClosing
+                && (openStages.Any(x => ((FormStageEditor)x.Value).UnsavedEdits)
+                || openAttributes.Any(x => ((FormAttributeEditor)x.Value).UnsavedEdits)))
+            {
+                if(MessageBox.Show("You still have editors open! Are you sure you want to close without saving them?", "Warning", MessageBoxButtons.YesNo) != DialogResult.Yes)
+                        e.Cancel = true;
+            }
+        }
     }
 }
