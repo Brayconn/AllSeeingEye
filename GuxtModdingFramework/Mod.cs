@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
+using System.Reflection;
 
 namespace GuxtModdingFramework
 {
@@ -262,8 +263,18 @@ namespace GuxtModdingFramework
             var entityNames = new XElement("EntityNames",
                 EntityNames.Select(x => new XElement("Name", new XAttribute("key", x.Key.ToString()), x.Value)));
 
-            var entityTypes = new XElement("EntityTypes",
-                EntityTypes.Select(x => new XElement("Type", new XAttribute("key", x.Key.ToString()), x.Value.AssemblyQualifiedName)));
+            var entityTypes = new XElement("EntityTypes");
+            var baseAssembly = Assembly.GetAssembly(typeof(Mod));
+            foreach (var ent in EntityTypes)
+            {
+                var item = new XElement("Type", new XAttribute("key", ent.Key.ToString()), ent.Value.FullName);
+                //If this is a custom type (IE, not a part of GuxtModdingFramework), store the dll it's a part of
+                Assembly a = Assembly.GetAssembly(ent.Value);
+                if (a != baseAssembly)
+                    item.Add(new XAttribute("dll", a.GetName()));
+
+                entityTypes.Add(item);                
+            }
             
             new XDocument(
                 new XElement("GuxtMod",
@@ -312,7 +323,7 @@ namespace GuxtModdingFramework
                 //TODO don't make me xml edit
                 throw new DirectoryNotFoundException($"The directory \"{dataFolder}\" was not found. Please fix this project file using an xml editor.");
             
-            Mod m = FromDataFolder(dataFolder!);
+            Mod m = new Mod(dataFolder);
             
             string? sc = root["Stages"]?.InnerText;
             if(sc != null)
@@ -327,12 +338,18 @@ namespace GuxtModdingFramework
             if (iconsize != null)
                 m.IconSize = int.Parse(iconsize);
 
+            #region Filenames
+
             var names = root["FileNames"];
             m.mapName = names["Map"]?.InnerText ?? m.MapName;
             m.entityName = names["Entity"]?.InnerText ?? m.EntityName;
             m.imageName = names["Image"]?.InnerText ?? m.ImageName;
             m.attributeName = names["Attribute"]?.InnerText ?? m.AttributeName;
             m.editorIconName = names["IconName"]?.InnerText ?? m.editorIconName;
+
+            #endregion
+
+            #region File extensions
 
             var extensions = root["FileExtensions"];
             m.mapExtension = extensions["Map"]?.InnerText ?? m.MapExtension;
@@ -341,21 +358,51 @@ namespace GuxtModdingFramework
             m.attributeExtension = extensions["Attribute"]?.InnerText ?? m.AttributeExtension;
             m.projectExtension = extensions["Projects"]?.InnerText ?? m.ProjectExtension;
 
+            #endregion
+
+            #region Entity names
+
             var entityNames = root["EntityNames"];
-            foreach(XElement element in entityNames)
+            foreach(XmlElement element in entityNames)
             {
-                int key = int.Parse(element.Attribute("key").Value);
+                int key = int.Parse(element.Attributes["key"].Value);
                 string value = element.Value;
                 m.EntityNames.Add(key, value);
             }
 
+            #endregion
+
+            #region Entity Types
+
+            Dictionary<string, Assembly>? externalTypes = null;
+            string? dllSearchDir = null;
+
             var entityTypes = root["EntityTypes"];
-            foreach (XElement element in entityTypes)
+            foreach (XmlElement element in entityTypes)
             {
-                int key = int.Parse(element.Attribute("key").Value);
-                Type value = Type.GetType(element.Value);
+                int key = int.Parse(element.Attributes["key"].Value);
+                Type value;
+                string? dll = element.Attributes["dll"]?.Value;
+                if (!string.IsNullOrWhiteSpace(dll))
+                {
+                    externalTypes ??= new Dictionary<string, Assembly>();
+                    dllSearchDir ??= Path.GetDirectoryName(path);
+
+                    if (!externalTypes.ContainsKey(dll!))
+                        externalTypes.Add(dll!, Assembly.LoadFile(Path.Combine(dllSearchDir, dll!)));
+
+                    value = externalTypes[dll!].GetType(element.InnerText);
+                }
+                else
+                    value = Type.GetType(element.InnerText);
+
+                if (!typeof(EntityShell).IsAssignableFrom(value))
+                    throw new ArgumentException("All types must inherit from the EntityShell class.", element.InnerText);
+
                 m.EntityTypes.Add(key, value);
             }
+
+            #endregion
 
             return m;
         }
