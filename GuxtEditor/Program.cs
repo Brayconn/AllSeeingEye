@@ -17,16 +17,19 @@ namespace GuxtEditor
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            Form mainWindow;
+            var baseDir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            var tileTypePath = Path.Combine(baseDir, "tiletypes.png");
             try
-            {
-                var baseDir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-                var tileTypePath = Path.Combine(baseDir, "tiletypes.png");
-                Application.Run(FormMain.Create(tileTypePath, Keybinds.Default.StageEditor));
+            { 
+                mainWindow = FormMain.Create(tileTypePath, Keybinds.Default.StageEditor);
             }
             catch (ArgumentException e)
             {
                 MessageBox.Show(e.Message, "Error");
-            }            
+                return;
+            }
+            Application.Run(mainWindow);
         }
     }
 }
