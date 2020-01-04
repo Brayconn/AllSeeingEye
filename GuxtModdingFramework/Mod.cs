@@ -389,8 +389,12 @@ namespace GuxtModdingFramework
                     dllSearchDir ??= Path.GetDirectoryName(path);
 
                     if (!externalTypes.ContainsKey(dll!))
-                        externalTypes.Add(dll!, Assembly.LoadFile(Path.Combine(dllSearchDir, dll!)));
-
+                    {
+                        string dllFullPath = Path.Combine(dllSearchDir, dll!);
+                        if (!File.Exists(dllFullPath))
+                            throw new FileNotFoundException($"The required library {dll!} could not be found. Make sure it exists in the same directory as the project file.", dllFullPath);
+                        externalTypes.Add(dll!, Assembly.LoadFile(dllFullPath));
+                    }
                     value = externalTypes[dll!].GetType(element.InnerText);
                 }
                 else
