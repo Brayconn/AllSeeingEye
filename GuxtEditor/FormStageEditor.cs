@@ -299,9 +299,17 @@ namespace GuxtEditor
 
         #region entity stuff
 
+        /// <summary>
+        /// Whether or not the user has any entities selected
+        /// </summary>
+        bool userHasSelectedEntities { get => selectedEntities.Count > 0; }
         HashSet<Entity> selectedEntities = new HashSet<Entity>();
-        bool entitiesCopied { get => entityClipboard != null; }
-        Entity? entityClipboard = null;
+
+        /// <summary>
+        /// Whether or not the user as copied any entities
+        /// </summary>
+        bool entitiesInClipboard { get => entityClipboard.Count > 0; }
+        HashSet<Entity> entityClipboard = new HashSet<Entity>();
                      
         private IEnumerable<Entity> GetEntitiesAtLocation(int x, int y)
         {
@@ -343,24 +351,35 @@ namespace GuxtEditor
                 SetEditingEntity(new[] { entities[int.Parse(tsmi.Name)] });
             }
         }
-        void CopyEntity(int index)
+        void CopyEntities(int index)
         {
-            CopyEntity(entities[index]);
+            CopyEntities(entities[index]);
         }
-        void CopyEntity(Entity e)
+        void CopyEntities(params Entity[] ents)
         {
-            entityClipboard = new Entity(e);
+            Point topLeft = new Point(ents.Select(x => x.X).Min(), ents.Select(x => x.Y).Min());
+            entityClipboard.Clear();
+            foreach (var e in ents)
+            {
+                entityClipboard.Add(new Entity(e) {
+                X = e.X - topLeft.X,
+                Y = e.Y - topLeft.Y
+                });
+            }
         }
-        void PasteEntity(Point pos)
+        void PasteEntities(Point pos)
         {
-            if (!entitiesCopied)
+            if (!entitiesInClipboard)
                 return;
             UnsavedEdits = true;
-            entities.Add(new Entity(entityClipboard!) //what do you think the above check was for >:(
+            foreach (var e in entityClipboard)
             {
-                X = pos.X,
-                Y = pos.Y
-            });
+                entities.Add(new Entity(e)
+                {
+                    X = pos.X + e.X,
+                    Y = pos.Y + e.Y
+                });
+            }
             DisplayMap(MousePositionOnGrid); //Yes, this is on purpose
         }
         #endregion
@@ -428,11 +447,6 @@ namespace GuxtEditor
         /// Whether or not the user has selected an entity from the list of all entities
         /// </summary>
         bool entitySelected { get => entityListView.SelectedIndices.Count > 0; }
-
-        /// <summary>
-        /// Whether or not the user has any entities selected
-        /// </summary>
-        bool userHasSelectedEntities { get => selectedEntities.Count > 0; }
 
         enum HoldActions
         {
@@ -508,14 +522,14 @@ namespace GuxtEditor
                             if (copy.Enabled = hoveredEntitiesCount == 1)
                             {
                                 copy.Name = entities.IndexOf(entitiesWhereClicked.First()).ToString();
-                                copy.Click += (o,e) => { CopyEntity(int.Parse(((ToolStripMenuItem)o).Name)); };
+                                copy.Click += (o,e) => { CopyEntities(int.Parse(((ToolStripMenuItem)o).Name)); };
                             }
                             entityContextMenu.Items.Add(copy);
 
                             //Paste
                             var paste = new ToolStripMenuItem("Paste");
-                            paste.Enabled = entitiesCopied;
-                            paste.Click += delegate { PasteEntity(p); };
+                            paste.Enabled = entitiesInClipboard;
+                            paste.Click += delegate { PasteEntities(p); };
                             entityContextMenu.Items.Add(paste);
 
                             //Delete
@@ -648,10 +662,10 @@ namespace GuxtEditor
                         CreateNewEntity(MousePositionOnGrid);
                         break;
                     case "Copy" when editMode == EditModes.Entity && userHasSelectedEntities:
-                        CopyEntity(selectedEntities.First());
+                        CopyEntities(selectedEntities.ToArray());
                         break;
-                    case "Paste" when editMode == EditModes.Entity && entitiesCopied && mouseOnMap:
-                        PasteEntity(MousePositionOnGrid);
+                    case "Paste" when editMode == EditModes.Entity && entitiesInClipboard && mouseOnMap:
+                        PasteEntities(MousePositionOnGrid);
                         break;
                     case "Save":
                         Save();
