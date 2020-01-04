@@ -29,7 +29,7 @@ namespace GuxtEditor
 
         public static FormMain Create(string tileTypePath, KeybindCollection kc)
         {
-            var kb = Keybinds.Default.StageEditor.ToDictionary();
+            var kb = kc.ToDictionary();
             return new FormMain(tileTypePath, kb);
         }
 
@@ -297,14 +297,14 @@ namespace GuxtEditor
             }
         }
 
-        Dictionary<int, Form> openStages = new Dictionary<int, Form>();
+        readonly Dictionary<int, Form> openStages = new Dictionary<int, Form>();
         private void StagesListBox_DoubleClick(object sender, EventArgs e)
         {
             AddOrOpenEditor(stagesListBox, openStages, AvailableEditors.Stage);
         }
 
         
-        Dictionary<int, Form> openAttributes = new Dictionary<int, Form>();
+        readonly Dictionary<int, Form> openAttributes = new Dictionary<int, Form>();
         private void AttributesListBox_DoubleClick(object sender, EventArgs e)
         {
             AddOrOpenEditor(attributesListBox, openAttributes, AvailableEditors.Attribute);

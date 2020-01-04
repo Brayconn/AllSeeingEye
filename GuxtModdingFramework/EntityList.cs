@@ -11,7 +11,7 @@ namespace GuxtModdingFramework.Entities
     /// </summary>
     public abstract class EntityShell
     {
-        Entity host;
+        readonly Entity host;
 
         [Description(Entity.UnusedDescription)]
         public int Unused { get => host.Unused; set => host.Unused = value; }
@@ -36,9 +36,9 @@ namespace GuxtModdingFramework.Entities
 
     abstract class StringTypeConverter : TypeConverter
     {
-        List<string> text;
-        StandardValuesCollection svc;
-        string errorText;
+        readonly List<string> text;
+        readonly StandardValuesCollection svc;
+        readonly string errorText;
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context) => true;
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
