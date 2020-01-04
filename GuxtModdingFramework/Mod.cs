@@ -247,7 +247,7 @@ namespace GuxtModdingFramework
             
             var m = new Mod(path);
 
-            foreach (var val in EntityList.ClassDictionary)
+            foreach (var val in EntityList.EntityTypes)
                 m.EntityTypes.Add(val.Key, val.Value);
             
             foreach (var val in EntityList.EntityNames)

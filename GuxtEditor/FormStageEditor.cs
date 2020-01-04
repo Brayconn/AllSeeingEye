@@ -182,7 +182,7 @@ namespace GuxtEditor
                         iconX, iconY, parentMod.IconSize, parentMod.IconSize
                         ), PixelFormat.DontCare);
 
-                    EntityIcons.Images.Add(EntityList.EntityNames.ContainsKey(i) ? EntityList.EntityNames[i] : i.ToString(), entityIcon);
+                    EntityIcons.Images.Add(parentMod.EntityNames.ContainsKey(i) ? parentMod.EntityNames[i] : i.ToString(), entityIcon);
                 }
             }
             //Clone() likes to throw this when you do most things wrong
@@ -205,7 +205,7 @@ namespace GuxtEditor
             entityListView.LargeImageList = EntityIcons;
             for (int i = 0; i < EntityIcons.Images.Count; i++)
             {
-                entityListView.Items.Add(EntityList.EntityNames.ContainsKey(i) ? EntityList.EntityNames[i] : i.ToString() , i);
+                entityListView.Items.Add(parentMod.EntityNames.ContainsKey(i) ? parentMod.EntityNames[i] : i.ToString() , i);
             }
         }
 
@@ -339,8 +339,8 @@ namespace GuxtEditor
         {
             selectedEntities = new HashSet<Entity>(entities);
             var ent = entities.Any() ? entities.First() : null;
-            if(ent != null && EntityList.ClassDictionary.ContainsKey(ent.EntityID))
-                entityPropertyGrid.SelectedObject = Activator.CreateInstance(EntityList.ClassDictionary[ent.EntityID],ent);
+            if(ent != null && parentMod.EntityTypes.ContainsKey(ent.EntityID))
+                entityPropertyGrid.SelectedObject = Activator.CreateInstance(parentMod.EntityTypes[ent.EntityID],ent);
             else
                 entityPropertyGrid.SelectedObject = ent;
         }
@@ -552,7 +552,7 @@ namespace GuxtEditor
 
                                     //TODO temp text
                                     string entityName = "<no name>";
-                                    EntityList.EntityNames.TryGetValue(entities[index].EntityID, out entityName);
+                                    parentMod.EntityNames.TryGetValue(entities[index].EntityID, out entityName);
                                     var tsmi = new ToolStripMenuItem(index.ToString() + " - " + entityName);
                                     tsmi.Name = index.ToString();
                                     tsmi.Click += SelectEntity;

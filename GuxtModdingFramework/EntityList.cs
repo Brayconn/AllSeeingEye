@@ -178,7 +178,7 @@ namespace GuxtModdingFramework.Entities
 
     public static class EntityList
     {
-        public readonly static ReadOnlyDictionary<int, Type> ClassDictionary =
+        public readonly static ReadOnlyDictionary<int, Type> EntityTypes =
         new ReadOnlyDictionary<int, Type>(new Dictionary<int, Type>()
         {
             {007, typeof(Powerup) },
