@@ -170,9 +170,10 @@
             this.imagesListBox.Location = new System.Drawing.Point(163, 29);
             this.imagesListBox.Name = "imagesListBox";
             this.tableLayoutPanel1.SetRowSpan(this.imagesListBox, 2);
+            this.imagesListBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
             this.imagesListBox.Size = new System.Drawing.Size(154, 394);
             this.imagesListBox.TabIndex = 2;
-            this.imagesListBox.DoubleClick += new System.EventHandler(this.ImagesListBox_DoubleClick);
+            this.imagesListBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.imagesListBox_MouseDown);
             // 
             // attributesListBox
             // 

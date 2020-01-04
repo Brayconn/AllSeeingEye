@@ -24,6 +24,7 @@ namespace GuxtEditor
         {
             tileTypePath = ttp;
             stageEditorKeybinds = new ReadOnlyDictionary<KeyInput, string>(kb);
+
             InitializeComponent();
         }
 
@@ -197,6 +198,31 @@ namespace GuxtEditor
 
         #endregion
 
+        private void MassUnscrambleInPlace(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("Are you sure you want to unscramble all selected images to <filename>.bmp?", "Warning", MessageBoxButtons.YesNo) != DialogResult.Yes)
+                return;
+            foreach(string item in imagesListBox.SelectedItems)
+            {
+                //this method can only run when images are in the list which means loadedmod is not null
+                string filepath = Path.Combine(LoadedMod!.DataPath, item);
+                Scrambler.Unscramble(new Bitmap(filepath)).Save(Path.ChangeExtension(filepath,"bmp"),ImageFormat.Bmp);
+            }
+        }
+
+        private void MassReplaceWithBMP(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("Are you sure you want to replace all selected images with the version from <filename>.bmp?", "Warning", MessageBoxButtons.YesNo) != DialogResult.Yes)
+                return;
+            foreach(string item in imagesListBox.SelectedItems)
+            {
+                //see a few lines above about the LoadedMod!
+                string pximg = Path.Combine(LoadedMod!.DataPath, item);
+                string bmp = Path.ChangeExtension(pximg, "bmp");
+                Scrambler.Scramble(new Bitmap(bmp)).Save(pximg, ImageFormat.Bmp);
+            }
+        }
+
         #region Edit
 
         private void ScrambleImageToolStripMenuItem_Click(object sender, EventArgs e)
@@ -309,10 +335,26 @@ namespace GuxtEditor
         {
             AddOrOpenEditor(attributesListBox, openAttributes, AvailableEditors.Attribute);
         }
-
-        private void ImagesListBox_DoubleClick(object sender, EventArgs e)
+        private void imagesListBox_MouseDown(object sender, MouseEventArgs e)
         {
-            //TODO open image editor
+            if (e.Button == MouseButtons.Right)
+            {
+                ContextMenuStrip imagesCMS = new ContextMenuStrip();
+
+                var enabled = imagesListBox.SelectedIndices.Count > 0;
+
+                ToolStripMenuItem unscramble = new ToolStripMenuItem("Unscramble in place...");
+                unscramble.Click += MassUnscrambleInPlace;
+                unscramble.Enabled = enabled;
+                imagesCMS.Items.Add(unscramble);
+
+                ToolStripMenuItem replace = new ToolStripMenuItem("Replace with bmp...");
+                replace.Click += MassReplaceWithBMP;
+                replace.Enabled = enabled;
+                imagesCMS.Items.Add(replace);
+
+                imagesCMS.Show(imagesListBox, e.Location);
+            }
         }
 
         private void ProjectListBox_DoubleClick(object sender, EventArgs e)
