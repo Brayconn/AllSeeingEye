@@ -198,7 +198,7 @@ namespace GuxtEditor
 
         #endregion
 
-        private void MassUnscrambleInPlace(object sender, EventArgs e)
+        private void MassUnscrambleToBMP(object sender, EventArgs e)
         {
             if (MessageBox.Show("Are you sure you want to unscramble all selected images to <filename>.bmp?", "Warning", MessageBoxButtons.YesNo) != DialogResult.Yes)
                 return;
@@ -343,8 +343,8 @@ namespace GuxtEditor
 
                 var enabled = imagesListBox.SelectedIndices.Count > 0;
 
-                ToolStripMenuItem unscramble = new ToolStripMenuItem("Unscramble in place...");
-                unscramble.Click += MassUnscrambleInPlace;
+                ToolStripMenuItem unscramble = new ToolStripMenuItem("Unscramble to bmp...");
+                unscramble.Click += MassUnscrambleToBMP;
                 unscramble.Enabled = enabled;
                 imagesCMS.Items.Add(unscramble);
 
