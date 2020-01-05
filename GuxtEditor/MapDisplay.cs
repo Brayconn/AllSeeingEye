@@ -97,7 +97,7 @@ namespace GuxtEditor
             {
                 if (tileTypesToolStripMenuItem.Checked)
                     g.DrawImage(mapTileTypes,0,0,mapTileTypes.Width,mapTileTypes.Height);
-                if (entitySpritesToolStripMenuItem.Checked || entityBoxesToolStripMenuItem.Checked || selectedEntities.Count > 0)
+                if (entitySpritesToolStripMenuItem.Checked || entityBoxesToolStripMenuItem.Checked || userHasSelectedEntities)
                     DrawEntities(g);
                 if (p != null)
                     DrawMouseOverlay(g, (Point)p, p2);
