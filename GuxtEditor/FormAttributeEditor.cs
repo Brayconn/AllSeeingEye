@@ -21,8 +21,10 @@ namespace GuxtEditor
     //Really should merge the two
     public partial class FormAttributeEditor : Form
     {
-        Mod parentMod;
+        readonly Mod parentMod;
         public int AttributeNumber { get; private set; }
+
+        readonly IDictionary<WinFormsKeybinds.KeyInput, string> Keybinds;
 
         bool unsavedEdits = false;
         public bool UnsavedEdits
@@ -53,12 +55,12 @@ namespace GuxtEditor
         /// <summary>
         /// The loaded attributes
         /// </summary>
-        Map attributes { get; set; }
+        readonly Map attributes;
 
         /// <summary>
         /// All tile types
         /// </summary>
-        Bitmap tileTypes;
+        readonly Bitmap tileTypes;
 
         /// <summary>
         /// The current tileset (image)
@@ -71,12 +73,13 @@ namespace GuxtEditor
 
         //everything get initialised, just not in this method
         #nullable disable
-        public FormAttributeEditor(Mod m, int attributeNumber, string tileTypePath)
+        public FormAttributeEditor(Mod m, int attributeNumber, string tileTypePath, IDictionary<WinFormsKeybinds.KeyInput,string> keybinds)
         #nullable restore
         {
             parentMod = m;
             AttributeNumber = attributeNumber;
-            
+            Keybinds = keybinds;
+
             InitializeComponent();
                         
             //attributes
@@ -99,6 +102,8 @@ namespace GuxtEditor
 
         }
 
+        #region init images
+
         void InitTileset(Image t)
         {
             baseTileset?.Dispose();
@@ -115,6 +120,11 @@ namespace GuxtEditor
             tilesetTileTypes = new Bitmap(16 * parentMod.TileSize, 16 * parentMod.TileSize);
             DrawTiles(tilesetTileTypes, attributes, tileTypes);
         }
+
+        #endregion
+
+        #region generic draw
+
         /// <summary>
         /// Draws all the tiles from the given map onto the given image, using the given tileset
         /// </summary>
@@ -165,46 +175,9 @@ namespace GuxtEditor
             }
         }
 
-        byte SelectedTile = 0;
-        void SetTile(Point p)
-        {
-            UnsavedEdits = true;
-            if(p.X >= attributes.Width)
-            {
-                attributes.Width = (ushort)(p.X + 1);
-            }
-            if(p.Y >= attributes.Height)
-            {
-                attributes.Height = (ushort)(p.Y + 1);
-            }
-
-            var tile = (p.Y * attributes.Width) + p.X;
-            attributes.Tiles[tile] = SelectedTile;
-
-            DrawTile(tilesetTileTypes, attributes, tile, tileTypes);
-        }
-
-
-        #region Tileset Interaction
-        
-        private Point GetMousePointOnGrid(Point p)
-        {
-            return new Point(p.X / parentMod.TileSize, p.Y / parentMod.TileSize);
-        }
-        private void tileTypesPictureBox_MouseClick(object sender, MouseEventArgs e)
-        {
-            var p = GetMousePointOnGrid(e.Location);
-            var value = (p.Y * 16) + p.X;
-            if (value <= byte.MaxValue && value != SelectedTile)
-            {
-                SelectedTile = (byte)value;
-                DisplayTileTypes();
-            }
-        }
-
         #endregion
 
-
+        #region Drawing tile types
         void DrawSelectedTile(Graphics g)
         {
             g.DrawRectangle(new Pen(Color.LightGray),
@@ -213,55 +186,6 @@ namespace GuxtEditor
                 parentMod.TileSize - 1,
                 parentMod.TileSize - 1);
         }
-
-        bool Draw = false;
-
-        private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
-        {
-            Draw = e.Button == MouseButtons.Left;
-            SetTile(GetMousePointOnGrid(e.Location));
-        }
-
-        private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
-        {
-            Draw = false;
-        }
-        bool InRange = false;
-        Point MousePositionOnGrid = new Point(-1, -1);
-        private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
-        {
-            var p = GetMousePointOnGrid(e.Location);
-            //if we're still on the same grid space, stop
-            if (p == MousePositionOnGrid)
-                return;
-
-            var ir = (0 <= p.X && p.X < 16)
-                  && (0 <= p.Y && p.Y < 16);
-            //If mouse is not in range, but it was in range last time...
-            if (!ir && InRange)
-            {
-                //that means the mouse has left. I don't know why it couldn't figure this out, but...
-                tilesetPictureBox_MouseLeave(sender, e);
-            }
-            //If these two aren't equal, that means the mouse is either leaving or entering, and we need to update
-            if (ir != InRange)
-            {
-                InRange = ir;
-            }
-            //If both are false the mouse is just off the map entirely, so stop
-            if (!ir && !InRange)
-            {
-                return;
-            }
-
-
-            if (Draw)
-                SetTile(p);
-
-            MousePositionOnGrid = p;
-            DisplayTileset(p);
-        }
-
         void DisplayTileTypes()
         {
             var workingTileTypes = new Bitmap(tileTypes.Width, tileTypes.Height);
@@ -274,6 +198,11 @@ namespace GuxtEditor
             tileTypesPictureBox.Image?.Dispose();
             tileTypesPictureBox.Image = workingTileTypes;
         }
+
+        #endregion
+
+        #region draw tileset
+
         private void DrawMouseOverlay(Graphics g, Point p)
         {
             int x = p.X * parentMod.TileSize;
@@ -287,11 +216,11 @@ namespace GuxtEditor
         void DisplayTileset(Point? p = null)
         {
             Bitmap tilesetImage = new Bitmap(baseTileset);
-            if(tileTypesToolStripMenuItem.Checked)
+            if (tileTypesToolStripMenuItem.Checked)
             {
                 using (Graphics g = Graphics.FromImage(tilesetImage))
                 {
-                    if(tileTypesToolStripMenuItem.Checked)
+                    if (tileTypesToolStripMenuItem.Checked)
                         g.DrawImage(tilesetTileTypes, 0, 0, tilesetTileTypes.Width, tilesetTileTypes.Height);
                     if (p != null)
                         DrawMouseOverlay(g, (Point)p);
@@ -301,11 +230,111 @@ namespace GuxtEditor
             tilesetPictureBox.Image = tilesetImage;
         }
 
+        #endregion
+
+        #region edit tileset
+
+        byte SelectedTile = 0;
+        void SetTile(Point p)
+        {
+            UnsavedEdits = true;
+            //auto-resize
+            if(p.X >= attributes.Width)
+                attributes.Width = (ushort)(p.X + 1);
+            if(p.Y >= attributes.Height)
+                attributes.Height = (ushort)(p.Y + 1);
+            
+            var tile = (p.Y * attributes.Width) + p.X;
+            attributes.Tiles[tile] = SelectedTile;
+
+            DrawTile(tilesetTileTypes, attributes, tile, tileTypes);
+        }
+
+        #endregion
+
+        #region Mouse
+
+        Point MousePositionOnGrid = new Point(-1, -1);
+
+        /// <summary>
+        /// The bottom right point of the map
+        /// </summary>
+        Point maxGridPoint { get => new Point(attributes.Width - 1, attributes.Height - 1); }
+
+        bool Draw = false;
+
+        private Point GetMousePointOnGrid(Point p)
+        {
+            return new Point(p.X / parentMod.TileSize, p.Y / parentMod.TileSize);
+        }
+
+        private void tileTypesPictureBox_MouseClick(object sender, MouseEventArgs e)
+        {
+            var p = GetMousePointOnGrid(e.Location);
+            var value = (p.Y * 16) + p.X;
+            if (value <= byte.MaxValue && value != SelectedTile)
+            {
+                SelectedTile = (byte)value;
+                DisplayTileTypes();
+            }
+        }
+
+        private void tilesetPictureBox_MouseDown(object sender, MouseEventArgs e)
+        {
+            Draw = e.Button == MouseButtons.Left;
+            SetTile(GetMousePointOnGrid(e.Location));
+        }
+
+        private void tilesetPictureBox_MouseMove(object sender, MouseEventArgs e)
+        {
+            var p = GetMousePointOnGrid(e.Location);
+            //TODO make clamp?
+            p.X = Math.Max(0, Math.Min(p.X, maxGridPoint.X));
+            p.Y = Math.Max(0, Math.Min(p.Y, maxGridPoint.Y));
+            //if we're still on the same grid space, stop
+            if (p == MousePositionOnGrid)
+                return;
+
+            if (Draw)
+                SetTile(p);
+
+            MousePositionOnGrid = p;
+            DisplayTileset(p);
+        }
+
+        private void tilesetPictureBox_MouseUp(object sender, MouseEventArgs e)
+        {
+            Draw = false;
+        }
+
         private void tilesetPictureBox_MouseLeave(object sender, EventArgs e)
         {
             Draw = false;
             DisplayTileset();
         }
+
+        #endregion
+
+        #region Keyboard
+
+        private void FormAttributeEditor_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (attributePropertyGrid.ActiveControl?.GetType().Name == "GridViewEdit")
+                return;
+
+            var input = new WinFormsKeybinds.KeyInput(e.KeyData);
+            if(Keybinds.ContainsKey(input))
+            {
+                switch(Keybinds[input])
+                {
+                    case "Save":
+                        Save();
+                        break;
+                }
+            }
+        }
+
+        #endregion
 
         private void Save()
         {
@@ -315,6 +344,11 @@ namespace GuxtEditor
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Save();
+        }
+
+        private void tileTypesToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
+        {
+            DisplayTileset();
         }
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
@@ -332,11 +366,6 @@ namespace GuxtEditor
                         return;
                 }
             }
-        }
-
-        private void tileTypesToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
-        {
-            DisplayTileset();
         }
     }
 }

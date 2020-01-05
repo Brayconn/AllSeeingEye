@@ -169,10 +169,10 @@
             this.tilesetPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.tilesetPictureBox.TabIndex = 0;
             this.tilesetPictureBox.TabStop = false;
-            this.tilesetPictureBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseDown);
+            this.tilesetPictureBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.tilesetPictureBox_MouseDown);
             this.tilesetPictureBox.MouseLeave += new System.EventHandler(this.tilesetPictureBox_MouseLeave);
-            this.tilesetPictureBox.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseMove);
-            this.tilesetPictureBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseUp);
+            this.tilesetPictureBox.MouseMove += new System.Windows.Forms.MouseEventHandler(this.tilesetPictureBox_MouseMove);
+            this.tilesetPictureBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.tilesetPictureBox_MouseUp);
             // 
             // FormAttributeEditor
             // 
@@ -181,9 +181,11 @@
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.menuStrip1);
+            this.KeyPreview = true;
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "FormAttributeEditor";
             this.Text = "FormAttributeEditor";
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FormAttributeEditor_KeyDown);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.splitContainer1.Panel1.ResumeLayout(false);

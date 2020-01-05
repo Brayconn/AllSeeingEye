@@ -311,7 +311,7 @@ namespace GuxtEditor
                     Form? f = editorType switch
                     {
                         AvailableEditors.Stage => new FormStageEditor(LoadedMod!, selectedMap, tileTypePath, stageEditorKeybinds),
-                        AvailableEditors.Attribute => new FormAttributeEditor(LoadedMod!, selectedMap, tileTypePath),
+                        AvailableEditors.Attribute => new FormAttributeEditor(LoadedMod!, selectedMap, tileTypePath, stageEditorKeybinds),
                         _ => null
                     };
                     if (f == null)
