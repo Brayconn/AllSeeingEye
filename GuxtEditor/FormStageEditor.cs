@@ -303,13 +303,13 @@ namespace GuxtEditor
         /// Whether or not the user has any entities selected
         /// </summary>
         bool userHasSelectedEntities { get => selectedEntities.Count > 0; }
-        HashSet<Entity> selectedEntities = new HashSet<Entity>();
+        readonly HashSet<Entity> selectedEntities = new HashSet<Entity>();
 
         /// <summary>
         /// Whether or not the user as copied any entities
         /// </summary>
         bool entitiesInClipboard { get => entityClipboard.Count > 0; }
-        HashSet<Entity> entityClipboard = new HashSet<Entity>();
+        readonly HashSet<Entity> entityClipboard = new HashSet<Entity>();
                      
         private IEnumerable<Entity> GetEntitiesAtLocation(int x, int y)
         {
@@ -332,23 +332,40 @@ namespace GuxtEditor
             UnsavedEdits = true;
             foreach (var ent in selectedEntities)
                 entities.Remove(ent);
-            selectedEntities.Clear();
+            SelectEntities();
         }
 
-        private void SetEditingEntity(IEnumerable<Entity> entities)
+        private void SetEditingEntity(Entity? ent)
         {
-            selectedEntities = new HashSet<Entity>(entities);
-            var ent = entities.Any() ? entities.First() : null;
             if(ent != null && parentMod.EntityTypes.ContainsKey(ent.EntityID))
                 entityPropertyGrid.SelectedObject = Activator.CreateInstance(parentMod.EntityTypes[ent.EntityID],ent);
             else
                 entityPropertyGrid.SelectedObject = ent;
         }
+        /// <summary>
+        /// Sets the given entities as selected. Passing no args will deselect
+        /// </summary>
+        /// <param name="ents"></param>
+        private void SelectEntities(params Entity[] ents)
+        {
+            //clear everything
+            selectedEntities.Clear();
+            SetEditingEntity(null);
+
+            //if nothing was passed, this will be skipped
+            foreach (var e in ents)
+                selectedEntities.Add(e);
+            //and this check would fail
+            if(userHasSelectedEntities)
+                SetEditingEntity(selectedEntities.First());
+
+            //so there would be nothing selected for editing, or in the selection list
+        }
         private void SelectEntity(object sender, EventArgs e)
         {
             if (sender is ToolStripMenuItem tsmi)
             {
-                SetEditingEntity(new[] { entities[int.Parse(tsmi.Name)] });
+                SelectEntities(entities[int.Parse(tsmi.Name)]);
             }
         }
         void CopyEntities(int index)
@@ -536,7 +553,7 @@ namespace GuxtEditor
                             if(delete == null)
                             {
                                 delete = new ToolStripMenuItem();
-                                delete.Click += delegate { DeleteSelectedEntities(); };
+                                delete.Click += delegate { DeleteSelectedEntities(); DisplayMap(MousePositionOnGrid); };
                             }                            
                             delete.Text = $"Delete Entit{(selectedEntities.Count > 1 ? "ies" : "y")}";
                             delete.Enabled = userHasSelectedEntities;
@@ -615,8 +632,7 @@ namespace GuxtEditor
                     int xd = Math.Max(EntitySelectionStart.X, EntitySelectionEnd.X);
                     int yd = Math.Max(EntitySelectionStart.Y, EntitySelectionEnd.Y);
 
-                    var sel = GetEntitiesAtLocation(x, y, xd, yd);
-                    SetEditingEntity(sel);
+                    SelectEntities(GetEntitiesAtLocation(x, y, xd, yd).ToArray());
                     DisplayMap(MousePositionOnGrid);
                     break;
             }
@@ -693,8 +709,7 @@ namespace GuxtEditor
         {
             if (MessageBox.Show("Are you sure you want to delete EVERY entity?\nIf you save after this, there's no coming back.", "Warning", MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
-                entityPropertyGrid.SelectedObject = null;
-                selectedEntities.Clear();
+                SelectEntities();
                 entities.Clear();
                 DisplayMap();
             }
