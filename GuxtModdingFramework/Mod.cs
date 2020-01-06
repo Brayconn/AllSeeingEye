@@ -366,7 +366,7 @@ namespace GuxtModdingFramework
             foreach(XmlElement element in entityNames)
             {
                 int key = int.Parse(element.Attributes["key"].Value);
-                string value = element.Value;
+                string value = element.InnerText;
                 m.EntityNames.Add(key, value);
             }
 
