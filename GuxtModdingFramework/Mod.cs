@@ -111,10 +111,10 @@ namespace GuxtModdingFramework
         [Category("Images"), DefaultValue(16), Description("The size of each editor icon.")]
         public int IconSize { get; set; } = 16;
         
-        [Category("Entities"), Description()]
+        [Browsable(false)]
         public Dictionary<int, string> EntityNames { get; private set; } = new Dictionary<int, string>();
 
-        [Category("Entities"), Description("The type of each entity. Only edit this if you've applied hacks to the exe")]
+        [Browsable(false)]
         public Dictionary<int, Type> EntityTypes { get; private set; } = new Dictionary<int, Type>();
 
         /// <summary>
