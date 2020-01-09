@@ -356,9 +356,14 @@ namespace GuxtEditor
             foreach (var e in ents)
                 selectedEntities.Add(e);
             //and this check would fail
-            if(userHasSelectedEntities)
-                SetEditingEntity(selectedEntities.First());
-
+            if (userHasSelectedEntities)
+            {
+                var e = selectedEntities.First();
+                entityListView.SelectedIndices.Clear();
+                entityListView.SelectedIndices.Add(e.EntityID);
+                entityListView.EnsureVisible(e.EntityID);
+                SetEditingEntity(e);
+            }
             //so there would be nothing selected for editing, or in the selection list
         }
         private void SelectEntity(object sender, EventArgs e)
