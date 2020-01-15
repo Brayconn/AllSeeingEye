@@ -65,6 +65,15 @@
         &lt;Shift&gt;false&lt;/Shift&gt;
         &lt;Control&gt;false&lt;/Control&gt;
         &lt;Alt&gt;false&lt;/Alt&gt;
+        &lt;KeyValue&gt;I&lt;/KeyValue&gt;
+      &lt;/Input&gt;
+      &lt;Action&gt;InsertEntity&lt;/Action&gt;
+    &lt;/Keybind&gt;
+    &lt;Keybind&gt;
+      &lt;Input&gt;
+        &lt;Shift&gt;false&lt;/Shift&gt;
+        &lt;Control&gt;false&lt;/Control&gt;
+        &lt;Alt&gt;false&lt;/Alt&gt;
         &lt;KeyValue&gt;Delete&lt;/KeyValue&gt;
       &lt;/Input&gt;
       &lt;Action&gt;DeleteEntities&lt;/Action&gt;
