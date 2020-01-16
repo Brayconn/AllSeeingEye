@@ -23,47 +23,78 @@ namespace GuxtEditor {
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<KeybindCollection xmlns:xsi=\"http://www" +
-            ".w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\r\n" +
-            "  <Keybinds>\r\n    <Keybind>\r\n      <Input>\r\n        <Shift>false</Shift>\r\n      " +
-            "  <Control>false</Control>\r\n        <Alt>false</Alt>\r\n        <KeyValue>Oemplus<" +
-            "/KeyValue>\r\n      </Input>\r\n      <Action>ZoomIn</Action>\r\n    </Keybind>\r\n    <" +
-            "Keybind>\r\n      <Input>\r\n        <Shift>false</Shift>\r\n        <Control>false</C" +
-            "ontrol>\r\n        <Alt>false</Alt>\r\n        <KeyValue>Add</KeyValue>\r\n      </Inp" +
-            "ut>\r\n      <Action>ZoomIn</Action>\r\n    </Keybind>\r\n    <Keybind>\r\n      <Input>" +
-            "\r\n        <Shift>false</Shift>\r\n        <Control>false</Control>\r\n        <Alt>f" +
-            "alse</Alt>\r\n        <KeyValue>OemMinus</KeyValue>\r\n      </Input>\r\n      <Action" +
-            ">ZoomOut</Action>\r\n    </Keybind>\r\n    <Keybind>\r\n      <Input>\r\n        <Shift>" +
-            "false</Shift>\r\n        <Control>false</Control>\r\n        <Alt>false</Alt>\r\n     " +
-            "   <KeyValue>Subtract</KeyValue>\r\n      </Input>\r\n      <Action>ZoomOut</Action>" +
-            "\r\n    </Keybind>\r\n    <Keybind>\r\n      <Input>\r\n        <Shift>false</Shift>\r\n  " +
-            "      <Control>false</Control>\r\n        <Alt>false</Alt>\r\n        <KeyValue>P</K" +
-            "eyValue>\r\n      </Input>\r\n      <Action>PickTile</Action>\r\n    </Keybind>\r\n    <" +
-            "Keybind>\r\n      <Input>\r\n        <Shift>false</Shift>\r\n        <Control>false</C" +
-            "ontrol>\r\n        <Alt>false</Alt>\r\n        <KeyValue>Insert</KeyValue>\r\n      </" +
-            "Input>\r\n      <Action>InsertEntity</Action>\r\n    </Keybind>\r\n    <Keybind>\r\n    " +
-            "  <Input>\r\n        <Shift>false</Shift>\r\n        <Control>false</Control>\r\n     " +
-            "   <Alt>false</Alt>\r\n        <KeyValue>I</KeyValue>\r\n      </Input>\r\n      <Acti" +
-            "on>InsertEntity</Action>\r\n    </Keybind>\r\n    <Keybind>\r\n      <Input>\r\n        " +
-            "<Shift>false</Shift>\r\n        <Control>false</Control>\r\n        <Alt>false</Alt>" +
-            "\r\n        <KeyValue>Delete</KeyValue>\r\n      </Input>\r\n      <Action>DeleteEntit" +
-            "ies</Action>\r\n    </Keybind>\r\n    <Keybind>\r\n      <Input>\r\n        <Shift>false" +
-            "</Shift>\r\n        <Control>true</Control>\r\n        <Alt>false</Alt>\r\n        <Ke" +
-            "yValue>C</KeyValue>\r\n      </Input>\r\n      <Action>Copy</Action>\r\n    </Keybind>" +
-            "\r\n    <Keybind>\r\n      <Input>\r\n        <Shift>false</Shift>\r\n        <Control>t" +
-            "rue</Control>\r\n        <Alt>false</Alt>\r\n        <KeyValue>V</KeyValue>\r\n      <" +
-            "/Input>\r\n      <Action>Paste</Action>\r\n    </Keybind>\r\n    <Keybind>\r\n      <Inp" +
-            "ut>\r\n        <Shift>false</Shift>\r\n        <Control>true</Control>\r\n        <Alt" +
-            ">false</Alt>\r\n        <KeyValue>S</KeyValue>\r\n      </Input>\r\n      <Action>Save" +
-            "</Action>\r\n    </Keybind>\r\n  </Keybinds>\r\n</KeybindCollection>")]
+        [global::System.Configuration.DefaultSettingValueAttribute("\r\n                    <KeybindCollection xmlns:xsi=\"http://www.w3.org/2001/XMLSch" +
+            "ema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\r\n                   " +
+            "     <Keybinds>\r\n                            <Keybind>\r\n                        " +
+            "        <Input>\r\n                                    <Shift>false</Shift>\r\n     " +
+            "                               <Control>false</Control>\r\n                       " +
+            "             <Alt>false</Alt>\r\n                                    <KeyValue>Oem" +
+            "plus</KeyValue>\r\n                                </Input>\r\n                     " +
+            "           <Action>ZoomIn</Action>\r\n                            </Keybind>\r\n    " +
+            "                        <Keybind>\r\n                                <Input>\r\n    " +
+            "                                <Shift>false</Shift>\r\n                          " +
+            "          <Control>false</Control>\r\n                                    <Alt>fal" +
+            "se</Alt>\r\n                                    <KeyValue>Add</KeyValue>\r\n        " +
+            "                        </Input>\r\n                                <Action>ZoomIn" +
+            "</Action>\r\n                            </Keybind>\r\n                            <" +
+            "Keybind>\r\n                                <Input>\r\n                             " +
+            "       <Shift>false</Shift>\r\n                                    <Control>false<" +
+            "/Control>\r\n                                    <Alt>false</Alt>\r\n               " +
+            "                     <KeyValue>OemMinus</KeyValue>\r\n                            " +
+            "    </Input>\r\n                                <Action>ZoomOut</Action>\r\n        " +
+            "                    </Keybind>\r\n                            <Keybind>\r\n         " +
+            "                       <Input>\r\n                                    <Shift>false" +
+            "</Shift>\r\n                                    <Control>false</Control>\r\n        " +
+            "                            <Alt>false</Alt>\r\n                                  " +
+            "  <KeyValue>Subtract</KeyValue>\r\n                                </Input>\r\n     " +
+            "                           <Action>ZoomOut</Action>\r\n                           " +
+            " </Keybind>\r\n                            <Keybind>\r\n                            " +
+            "    <Input>\r\n                                    <Shift>false</Shift>\r\n         " +
+            "                           <Control>false</Control>\r\n                           " +
+            "         <Alt>false</Alt>\r\n                                    <KeyValue>P</KeyV" +
+            "alue>\r\n                                </Input>\r\n                               " +
+            " <Action>PickTile</Action>\r\n                            </Keybind>\r\n            " +
+            "                <Keybind>\r\n                                <Input>\r\n            " +
+            "                        <Shift>false</Shift>\r\n                                  " +
+            "  <Control>false</Control>\r\n                                    <Alt>false</Alt>" +
+            "\r\n                                    <KeyValue>Insert</KeyValue>\r\n             " +
+            "                   </Input>\r\n                                <Action>InsertEntit" +
+            "y</Action>\r\n                            </Keybind>\r\n                            " +
+            "<Keybind>\r\n                                <Input>\r\n                            " +
+            "        <Shift>false</Shift>\r\n                                    <Control>false" +
+            "</Control>\r\n                                    <Alt>false</Alt>\r\n              " +
+            "                      <KeyValue>I</KeyValue>\r\n                                </" +
+            "Input>\r\n                                <Action>InsertEntity</Action>\r\n         " +
+            "                   </Keybind>\r\n                            <Keybind>\r\n          " +
+            "                      <Input>\r\n                                    <Shift>false<" +
+            "/Shift>\r\n                                    <Control>false</Control>\r\n         " +
+            "                           <Alt>false</Alt>\r\n                                   " +
+            " <KeyValue>Delete</KeyValue>\r\n                                </Input>\r\n        " +
+            "                        <Action>DeleteEntities</Action>\r\n                       " +
+            "     </Keybind>\r\n                            <Keybind>\r\n                        " +
+            "        <Input>\r\n                                    <Shift>false</Shift>\r\n     " +
+            "                               <Control>true</Control>\r\n                        " +
+            "            <Alt>false</Alt>\r\n                                    <KeyValue>C</K" +
+            "eyValue>\r\n                                </Input>\r\n                            " +
+            "    <Action>Copy</Action>\r\n                            </Keybind>\r\n             " +
+            "               <Keybind>\r\n                                <Input>\r\n             " +
+            "                       <Shift>false</Shift>\r\n                                   " +
+            " <Control>true</Control>\r\n                                    <Alt>false</Alt>\r\n" +
+            "                                    <KeyValue>V</KeyValue>\r\n                    " +
+            "            </Input>\r\n                                <Action>Paste</Action>\r\n  " +
+            "                          </Keybind>\r\n                            <Keybind>\r\n   " +
+            "                             <Input>\r\n                                    <Shift" +
+            ">false</Shift>\r\n                                    <Control>true</Control>\r\n   " +
+            "                                 <Alt>false</Alt>\r\n                             " +
+            "       <KeyValue>S</KeyValue>\r\n                                </Input>\r\n       " +
+            "                         <Action>Save</Action>\r\n                            </Ke" +
+            "ybind>\r\n                        </Keybinds>\r\n                    </KeybindCollec" +
+            "tion>\r\n                ")]
         public global::WinFormsKeybinds.KeybindCollection StageEditor {
             get {
                 return ((global::WinFormsKeybinds.KeybindCollection)(this["StageEditor"]));
-            }
-            set {
-                this["StageEditor"] = value;
             }
         }
     }

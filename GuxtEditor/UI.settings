@@ -2,16 +2,16 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="GuxtEditor" GeneratedClassName="UI">
   <Profiles />
   <Settings>
-    <Setting Name="CursorColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="CursorColor" Type="System.Drawing.Color" Scope="Application">
       <Value Profile="(Default)">LightGray</Value>
     </Setting>
-    <Setting Name="EntityBoxColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="EntityBoxColor" Type="System.Drawing.Color" Scope="Application">
       <Value Profile="(Default)">Lime</Value>
     </Setting>
-    <Setting Name="SelectedEntityBoxColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="SelectedEntityBoxColor" Type="System.Drawing.Color" Scope="Application">
       <Value Profile="(Default)">Aqua</Value>
     </Setting>
-    <Setting Name="SelectedTileColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="SelectedTileColor" Type="System.Drawing.Color" Scope="Application">
       <Value Profile="(Default)">LightGray</Value>
     </Setting>
   </Settings>

@@ -23,51 +23,39 @@ namespace GuxtEditor {
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("LightGray")]
         public global::System.Drawing.Color CursorColor {
             get {
                 return ((global::System.Drawing.Color)(this["CursorColor"]));
             }
-            set {
-                this["CursorColor"] = value;
-            }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Lime")]
         public global::System.Drawing.Color EntityBoxColor {
             get {
                 return ((global::System.Drawing.Color)(this["EntityBoxColor"]));
             }
-            set {
-                this["EntityBoxColor"] = value;
-            }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Aqua")]
         public global::System.Drawing.Color SelectedEntityBoxColor {
             get {
                 return ((global::System.Drawing.Color)(this["SelectedEntityBoxColor"]));
             }
-            set {
-                this["SelectedEntityBoxColor"] = value;
-            }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("LightGray")]
         public global::System.Drawing.Color SelectedTileColor {
             get {
                 return ((global::System.Drawing.Color)(this["SelectedTileColor"]));
-            }
-            set {
-                this["SelectedTileColor"] = value;
             }
         }
     }
