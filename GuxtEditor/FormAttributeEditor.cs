@@ -81,7 +81,8 @@ namespace GuxtEditor
             Keybinds = keybinds;
 
             InitializeComponent();
-                        
+            UpdateTitle();            
+
             //attributes
             attributePath = Path.Combine(parentMod.DataPath, parentMod.AttributeName + AttributeNumber + "." + parentMod.AttributeExtension);
             attributes = new Map(attributePath);
