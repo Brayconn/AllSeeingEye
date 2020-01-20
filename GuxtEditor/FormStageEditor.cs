@@ -325,6 +325,7 @@ namespace GuxtEditor
         {
             UnsavedEdits = true;
             entities.Add(new Entity(0, pos.X, pos.Y, entityListView.SelectedIndices[0], 0));
+            SelectEntities(entities[entities.Count - 1]);
             DisplayMap(MousePositionOnGrid);
         }
         void DeleteSelectedEntities()
