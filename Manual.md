@@ -2,7 +2,8 @@
 
 ## Overall structure
 The struture of ASE is very different from any other pixel editor, namely Booster's Lab and Cave Editor.
-On the contrary, ASE works off of a "project file", an XML file with the extension `.gux`, that holds all the info about your exe.
+Whereas those editors regularly make changes to the exe, ASE does not.
+Instead, it works off of a "project file", an XML file with the extension `.gux`, that holds all the info about your exe.
 
 Because of this, you will need to save your project file in a safe place if you're going to patch your exe.
 If you aren't going to patch your exe, you *can* survive without saving, but it's still not recommended.
@@ -20,7 +21,7 @@ The Stage Editor and Attribute Editor function exactly the same, except that the
 ## Buttons
 - `File`
   - `New...` - Creates a new Guxt project from the given Guxt executable
-  - `Open...` - Opens an existing 
+  - `Open...` - Opens an existing Guxt project
   - `Save Project` - Saves the current project to the disk
   - `Save Project As...` - Saves the current project
 - `Edit`
@@ -33,20 +34,20 @@ The Stage Editor and Attribute Editor function exactly the same, except that the
 Click on a stage to open the Stage Editor
 
 ### Images
-Right click on any number of images to get quick acces to scrambling/unscrambling
+Right click on any number of images to get quick access to scrambling/unscrambling
 
 ### Attributes
 Click on an attribute file to open the Attribute Editor
 
 ### Projects
 This panel doesn't actually do anything...
-The .stgrpj files seem to be leftovers from pixel's own guxt editor.
+The `*.stgrpj` files seem to be leftovers from Pixel's Guxt editor.
 They are simply listed here for complete-ness
 
 ### Properties
 This panel lets you change all the properties about your mod.
-Should be pretty obivous what things do
 
+As stated earlier, ASE does not make any changes to your exe. If you see something that looks like it would affect the exe, it doesn't, it's just for display.
 
 # Stage/Attribute Editor
 
@@ -97,12 +98,14 @@ You can also use Pick Tile to quickly select whatever tile you're hovering over 
 ## Entity Tab
 The top panel lets you edit the currently selected npc. If you have multiple npcs selected, it will edit the first one.
 
-The lower panel lets you select what npc you would like to place. It will change to reflect the type of the first selected npc.
+The lower panel lets you select what NPC you would like to place. It will change to reflect the type of the first selected NPC.
+You can also type while the lower panel is selected to quickly select an NPC.
+
 
 # Advanced features
 
 ## Custom entities
-As a hack developer, you can get ASE to recognise your custom NPCs.
+As a hack developer, you can get ASE to recognize your custom NPCs.
 
 Simply make a .net framework class library, that has a class that inherits from `GuxtModdingFramework.Entities.EntityShell`.
 

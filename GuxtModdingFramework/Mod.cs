@@ -108,7 +108,7 @@ namespace GuxtModdingFramework
         /// <summary>
         /// Size of each icon (pixels)
         /// </summary>
-        [Category("Images"), DefaultValue(16), Description("The size of each editor icon.")]
+        [Category("Images"), DefaultValue(16), Description("The size of each editor icon (pixels).")]
         public int IconSize { get; set; } = 16;
         
         [Browsable(false)]
@@ -120,7 +120,7 @@ namespace GuxtModdingFramework
         /// <summary>
         /// Size of each tile (pixels)
         /// </summary>
-        [Category("Images"), DefaultValue(16), Description("The size of each tile.")]
+        [Category("Images"), DefaultValue(16), Description("The size of each tile (pixels).")]
         public int TileSize { get; set; } = 16;
 
         #region File Extension stuff
@@ -221,7 +221,7 @@ namespace GuxtModdingFramework
             new EventHandler<StageCountChangedEventArgs>((o, e) => { });
 
         private int stageCount = 6;
-        [Category("General"), DefaultValue(6)]
+        [Category("General"), DefaultValue(6), Description("How many stages are in the exe. (This is for display purposes only; You need to apply a patch to actually change the number of stages.)")]
         public int StageCount
         {
             get => stageCount;
