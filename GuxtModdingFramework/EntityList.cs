@@ -167,6 +167,31 @@ namespace GuxtModdingFramework.Entities
         public ScrollSpeed(Entity e) : base(e) { }
     }
 
+    //35
+    public class B2Rocket : EntityShell
+    {
+        class RocketBehaviorTypeConverter : StringTypeConverter
+        {
+            RocketBehaviorTypeConverter() : base("(Invalid/Frozen In Place)",
+                "Down",
+                "45° Down Left, Down",
+                "45° Down Right, Down",
+                "Down, Bounce Up",
+                "Down, Bounce 45° Up Left, Up",
+                "Down, Bounce 45° Up Right, Up")
+            { }
+        }
+
+        [TypeConverter(typeof(RocketBehaviorTypeConverter)), Description("How the rocket will behave on appearence")]
+        public int RocketBehavior
+        {
+            get => base.ExtraInfo;
+            set => base.ExtraInfo = value;
+        }
+
+        public B2Rocket(Entity e) : base(e) { }
+    }
+
     //45
     public class Bonus : EntityShell
     {
@@ -186,6 +211,7 @@ namespace GuxtModdingFramework.Entities
             {012, typeof(Wing) },
             {019, typeof(BGM) },
             {022, typeof(ScrollSpeed) },
+            {035, typeof(B2Rocket) },
             {059, typeof(Powerup) },
             {060, typeof(Powerup) },
             {061, typeof(Powerup) },
