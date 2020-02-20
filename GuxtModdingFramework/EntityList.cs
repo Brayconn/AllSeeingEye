@@ -201,6 +201,55 @@ namespace GuxtModdingFramework.Entities
         }
     }
 
+    //117
+    public class CreditDelete : EntityShell
+    {
+        [Description("What entity ID to delete")]
+        public int SelectedID
+        {
+            get => base.ExtraInfo;
+            set => base.ExtraInfo = value;
+        }
+        public CreditDelete(Entity e) : base(e) { }
+    }
+
+    //118
+    public class CreditLoadImg : EntityShell
+    {
+        [Description("What spritesheet to load")]
+        public int SpriteSheetNumber
+        {
+            get => base.ExtraInfo;
+            set => base.ExtraInfo = value;
+        }
+        public CreditLoadImg(Entity e) : base(e) { }
+    }
+
+    //119
+    public class CreditPhoto : EntityShell
+    {
+        [Description("What photo to display")]
+        public int PhotoNumber
+        {
+            get => base.ExtraInfo;
+            set => base.ExtraInfo = value;
+        }
+        public enum Direction
+        {
+            Right = 0,
+            Left = 1
+        }
+        [Description("What direction the photo will slide in")]
+        public Direction PhotoDirection
+        {
+            //Every second photo goes left
+            get => (Direction)(base.ExtraInfo & 1);
+        }
+
+        public CreditPhoto(Entity e) : base(e) { }
+    }
+
+
     public static class EntityList
     {
         public readonly static ReadOnlyDictionary<int, Type> EntityTypes =
@@ -218,6 +267,9 @@ namespace GuxtModdingFramework.Entities
             {064, typeof(Powerup) },
             {074, typeof(Powerup) },
             {075, typeof(Powerup) },
+            {117, typeof(CreditDelete) },
+            {118, typeof(CreditLoadImg) },
+            {119, typeof(CreditPhoto) },
         });
 
         public readonly static ReadOnlyDictionary<int, string> EntityNames =
@@ -312,7 +364,7 @@ namespace GuxtModdingFramework.Entities
             {116, "CreditText"},
             {117, "CreditReplace"},
             {118, "CreditLoadImg"},
-            {119, "CPhoto"},
+            {119, "CreditPhoto"},
             {120, "CreditGimmick"},
             {121, "BonusHidden"},
         });
