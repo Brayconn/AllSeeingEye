@@ -201,6 +201,19 @@ namespace GuxtModdingFramework.Entities
         }
     }
 
+    //107
+    public class ToggleShadow : EntityShell
+    {
+        [Description("Whether or not to show a shadow underneath the player's ship")]
+        public bool ShowShadow
+        {
+            get => base.EntityID != 0;
+            set => base.EntityID = value ? 1 : 0;
+        }
+
+        public ToggleShadow(Entity e) : base(e) { }
+    }
+
     //117
     public class CreditDelete : EntityShell
     {
@@ -267,6 +280,7 @@ namespace GuxtModdingFramework.Entities
             {064, typeof(Powerup) },
             {074, typeof(Powerup) },
             {075, typeof(Powerup) },
+            {107, typeof(ToggleShadow) },
             {117, typeof(CreditDelete) },
             {118, typeof(CreditLoadImg) },
             {119, typeof(CreditPhoto) },
@@ -357,6 +371,7 @@ namespace GuxtModdingFramework.Entities
             {104, "B5Laser"},
             {105, "B5LaserTrail"},
             {106, "AzaBonusSpawner"},
+            {107, "ToggleShadow" },
             {108, "Boss6"},
             {111, "B6Laser"},
             {114, "B6Ball"},
