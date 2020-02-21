@@ -360,9 +360,13 @@ namespace GuxtEditor
             if (userHasSelectedEntities)
             {
                 var e = selectedEntities.First();
-                entityListView.SelectedIndices.Clear();
-                entityListView.SelectedIndices.Add(e.EntityID);
-                entityListView.EnsureVisible(e.EntityID);
+                //can't scroll to an entity that doesn't exist
+                if (e.EntityID < entityListView.Items.Count)
+                {
+                    entityListView.SelectedIndices.Clear();
+                    entityListView.SelectedIndices.Add(e.EntityID);
+                    entityListView.EnsureVisible(e.EntityID);
+                }
                 SetEditingEntity(e);
             }
             //so there would be nothing selected for editing, or in the selection list

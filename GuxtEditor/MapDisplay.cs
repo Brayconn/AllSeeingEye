@@ -45,7 +45,7 @@ namespace GuxtEditor
                 var y = (entities[i].Y * parentMod.TileSize) / 2;
                 var x = (entities[i].X * parentMod.TileSize) / 2;
 
-                if(entitySpritesToolStripMenuItem.Checked)
+                if(entitySpritesToolStripMenuItem.Checked && entities[i].EntityID < EntityIcons.Images.Count)
                     g.DrawImage(EntityIcons.Images[entities[i].EntityID],
                         x, y, parentMod.IconSize, parentMod.IconSize);
 
