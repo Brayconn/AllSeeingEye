@@ -201,6 +201,18 @@ namespace GuxtModdingFramework.Entities
         }
     }
 
+    public class GuxtTank : EntityShell
+    {
+        [Description("Offset in the entity grid. Positive values bring them closer to the bottom, negative values closer to the top")]
+        public int Offset
+        {
+            get => base.ExtraInfo;
+            set => base.ExtraInfo = value;
+        }
+
+        public GuxtTank(Entity e) : base(e) { }
+    }
+
     //70
     public class Blendy : EntityShell
     {
@@ -343,6 +355,7 @@ namespace GuxtModdingFramework.Entities
             {060, typeof(Powerup) },
             {061, typeof(Powerup) },
             {064, typeof(Powerup) },
+            {067, typeof(GuxtTank) },
             {070, typeof(Blendy) },
             {074, typeof(Powerup) },
             {075, typeof(Powerup) },
