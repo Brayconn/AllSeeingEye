@@ -201,14 +201,27 @@ namespace GuxtModdingFramework.Entities
         }
     }
 
+    //94
+    public class SandStamper : EntityShell
+    {
+        [Description("Whether or not the Sand Stamper will stamp faster")]
+        public bool StampFaster
+        {
+            get => base.ExtraInfo != 0;
+            set => base.ExtraInfo = value ? 1 : 0;
+        }
+
+        public SandStamper(Entity e) : base(e) { }
+    }
+
     //107
     public class ToggleShadow : EntityShell
     {
         [Description("Whether or not to show a shadow underneath the player's ship")]
         public bool ShowShadow
         {
-            get => base.EntityID != 0;
-            set => base.EntityID = value ? 1 : 0;
+            get => base.ExtraInfo != 0;
+            set => base.ExtraInfo = value ? 1 : 0;
         }
 
         public ToggleShadow(Entity e) : base(e) { }
@@ -280,6 +293,7 @@ namespace GuxtModdingFramework.Entities
             {064, typeof(Powerup) },
             {074, typeof(Powerup) },
             {075, typeof(Powerup) },
+            {094, typeof(SandStamper) },
             {107, typeof(ToggleShadow) },
             {117, typeof(CreditDelete) },
             {118, typeof(CreditLoadImg) },
