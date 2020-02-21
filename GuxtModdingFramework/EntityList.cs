@@ -78,7 +78,7 @@ namespace GuxtModdingFramework.Entities
             svc = new StandardValuesCollection(text);
         }
     }
-    
+
     public class Powerup : EntityShell
     {
         class PowerUpTypeConverter : StringTypeConverter
@@ -201,6 +201,58 @@ namespace GuxtModdingFramework.Entities
         }
     }
 
+    //70
+    public class Blendy : EntityShell
+    {
+        [Description("What position for the arm to start in, in 1/8ths")]
+        public byte Rotation
+        {
+            get => (byte)(base.ExtraInfo & 7);
+            set
+            {
+                if (value >= 8)
+                    return;
+                base.ExtraInfo = (base.ExtraInfo & ~7) | value;
+            }
+        }
+
+        public enum SpinDirections
+        {
+            Clockwise = 0,
+            Counterclockwise = 8,
+        }
+
+        [Description("What direction to spin in")]
+        public SpinDirections SpinDirection
+        {
+            get => (SpinDirections)(base.ExtraInfo & (int)SpinDirections.Counterclockwise);
+            set
+            {
+                base.ExtraInfo = value switch
+                {
+                    SpinDirections.Clockwise => base.ExtraInfo &= ~(int)SpinDirections.Counterclockwise,
+                    SpinDirections.Counterclockwise => base.ExtraInfo |= (int)SpinDirections.Counterclockwise,
+                    _ => base.ExtraInfo
+                };
+            }
+        }
+
+        [Description("Makes the enemy go faster")]
+        public bool MoveFaster
+        {
+            get => (base.ExtraInfo & 256) != 0;
+            set
+            {
+                if (value)
+                    base.ExtraInfo |= 256;
+                else
+                    base.ExtraInfo &= ~256;
+            }
+        }
+
+        public Blendy(Entity e) : base(e) { }
+    }
+
     //94
     public class SandStamper : EntityShell
     {
@@ -291,6 +343,7 @@ namespace GuxtModdingFramework.Entities
             {060, typeof(Powerup) },
             {061, typeof(Powerup) },
             {064, typeof(Powerup) },
+            {070, typeof(Blendy) },
             {074, typeof(Powerup) },
             {075, typeof(Powerup) },
             {094, typeof(SandStamper) },
