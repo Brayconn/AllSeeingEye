@@ -125,7 +125,7 @@ namespace GuxtModdingFramework.Entities
     }
 
     //13, 14
-    public class Bullet : EntityShell
+    public class AngleEntity : EntityShell
     {
         [Description("Angle, in 1/256th of a circle. 0 = Right, 64 = Down, 128 = Left, 192 = Up, etc.")]
         public int Angle
@@ -134,7 +134,7 @@ namespace GuxtModdingFramework.Entities
             set => base.ExtraInfo = value;
         }
 
-        public Bullet(Entity e) : base(e) { }
+        public AngleEntity(Entity e) : base(e) { }
     }
 
     //19
@@ -372,8 +372,8 @@ namespace GuxtModdingFramework.Entities
         {
             {007, typeof(Powerup) },
             {011, typeof(Wing) },
-            {013, typeof(Bullet) },
-            {014, typeof(Bullet) },
+            {013, typeof(AngleEntity) },
+            {014, typeof(AngleEntity) },
             {019, typeof(BGM) },
             {022, typeof(ScrollSpeed) },
             {035, typeof(B2Rocket) },
@@ -387,6 +387,8 @@ namespace GuxtModdingFramework.Entities
             {075, typeof(Powerup) },
             {084, typeof(Square) },
             {094, typeof(SandStamper) },
+            {102, typeof(AngleEntity) },
+            {105, typeof(AngleEntity) },
             {107, typeof(ToggleShadow) },
             {117, typeof(CreditDelete) },
             {118, typeof(CreditLoadImg) },
