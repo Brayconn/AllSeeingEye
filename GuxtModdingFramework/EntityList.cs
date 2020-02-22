@@ -143,6 +143,26 @@ namespace GuxtModdingFramework.Entities
         public AngleEntity(Entity e) : base(e) { }
     }
 
+    //18
+    public class BulletLong : EntityShell
+    {
+        class SpawnDirectionTypeConverter : StringTypeConverter
+        {
+            public SpawnDirectionTypeConverter() : base("Right with glitchy graphics",
+                "Straight",
+                "Left",
+                "Right")
+            { }
+        }
+        [TypeConverter(typeof(SpawnDirectionTypeConverter)), Description("What direction to spawn in")]
+        public int SpawnDirection
+        {
+            get => base.ExtraInfo;
+            set => base.ExtraInfo = value;
+        }
+        public BulletLong(Entity e) : base(e) { }
+    }
+
     //19
     public class BGM : EntityShell
     {
@@ -401,6 +421,7 @@ namespace GuxtModdingFramework.Entities
             {011, typeof(Wing) },
             {013, typeof(AngleEntity) },
             {014, typeof(AngleEntity) },
+            {018, typeof(BulletLong) },
             {019, typeof(BGM) },
             {022, typeof(ScrollSpeed) },
             {035, typeof(B2Rocket) },
