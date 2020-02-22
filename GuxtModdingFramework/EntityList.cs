@@ -387,6 +387,7 @@ namespace GuxtModdingFramework.Entities
             {075, typeof(Powerup) },
             {084, typeof(Square) },
             {094, typeof(SandStamper) },
+            {098, typeof(AngleEntity) },
             {102, typeof(AngleEntity) },
             {105, typeof(AngleEntity) },
             {107, typeof(ToggleShadow) },
