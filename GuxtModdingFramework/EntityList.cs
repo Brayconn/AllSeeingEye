@@ -112,7 +112,7 @@ namespace GuxtModdingFramework.Entities
         public Powerup(Entity e) : base(e) { }
     }
 
-    //11, 12
+    //11
     public class Wing : EntityShell
     {
         [Description("If set, falls twice as fast")]
@@ -372,7 +372,6 @@ namespace GuxtModdingFramework.Entities
         {
             {007, typeof(Powerup) },
             {011, typeof(Wing) },
-            {012, typeof(Wing) },
             {013, typeof(Bullet) },
             {014, typeof(Bullet) },
             {019, typeof(BGM) },
