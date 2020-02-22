@@ -6,6 +6,8 @@ using System.Globalization;
 
 namespace GuxtModdingFramework.Entities
 {
+    #region Common
+
     /// <summary>
     /// Shell over an entity to allow for adding entity specific interfaces
     /// </summary>
@@ -78,6 +80,10 @@ namespace GuxtModdingFramework.Entities
             svc = new StandardValuesCollection(text);
         }
     }
+
+    #endregion
+
+    #region Entities
 
     public class Powerup : EntityShell
     {
@@ -203,6 +209,26 @@ namespace GuxtModdingFramework.Entities
         }
 
         public B2Rocket(Entity e) : base(e) { }
+    }
+    
+    public class CatEye : EntityShell
+    {
+        [Description("How many frames to wait before activating. ExtraInfo * 50")]
+        public string Delay
+        {
+            get => base.ExtraInfo > 0 ? (base.ExtraInfo * 50).ToString() : "Disabled";
+        }
+        public CatEye(Entity e) : base(e) { }
+    }
+
+    public class DelayActivate : EntityShell
+    {
+        [Description("How many frames to wait before activating. ExtraInfo * 25")]
+        public string Delay
+        {
+            get => base.ExtraInfo > 0 ? (base.ExtraInfo * 25).ToString() : "Disabled";
+        }
+        public DelayActivate(Entity e) : base(e) { }
     }
 
     //45
@@ -364,6 +390,7 @@ namespace GuxtModdingFramework.Entities
         public CreditPhoto(Entity e) : base(e) { }
     }
 
+    #endregion
 
     public static class EntityList
     {
@@ -377,17 +404,20 @@ namespace GuxtModdingFramework.Entities
             {019, typeof(BGM) },
             {022, typeof(ScrollSpeed) },
             {035, typeof(B2Rocket) },
+            {041, typeof(CatEye) },
             {059, typeof(Powerup) },
             {060, typeof(Powerup) },
             {061, typeof(Powerup) },
             {064, typeof(Powerup) },
             {067, typeof(GuxtTank) },
+            {068, typeof(DelayActivate) },
             {070, typeof(Blendy) },
             {074, typeof(Powerup) },
             {075, typeof(Powerup) },
             {084, typeof(Square) },
             {094, typeof(SandStamper) },
             {098, typeof(AngleEntity) },
+            {099, typeof(DelayActivate) },
             {102, typeof(AngleEntity) },
             {105, typeof(AngleEntity) },
             {107, typeof(ToggleShadow) },
