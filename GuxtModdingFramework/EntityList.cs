@@ -419,7 +419,7 @@ namespace GuxtModdingFramework.Entities
             {098, typeof(AngleEntity) },
             {099, typeof(DelayActivate) },
             {102, typeof(AngleEntity) },
-            {105, typeof(AngleEntity) },
+            {104, typeof(AngleEntity) },
             {107, typeof(ToggleShadow) },
             {117, typeof(CreditDelete) },
             {118, typeof(CreditLoadImg) },
