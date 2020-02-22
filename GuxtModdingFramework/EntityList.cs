@@ -265,6 +265,18 @@ namespace GuxtModdingFramework.Entities
         public Blendy(Entity e) : base(e) { }
     }
 
+    //84
+    public class Square : EntityShell
+    {
+        [Description("Spawn offset from the top of the screen in tiles")]
+        public int Offset
+        {
+            get => base.ExtraInfo;
+            set => base.ExtraInfo = value;
+        }
+        public Square(Entity e) : base(e) { }
+    }
+
     //94
     public class SandStamper : EntityShell
     {
@@ -359,6 +371,7 @@ namespace GuxtModdingFramework.Entities
             {070, typeof(Blendy) },
             {074, typeof(Powerup) },
             {075, typeof(Powerup) },
+            {084, typeof(Square) },
             {094, typeof(SandStamper) },
             {107, typeof(ToggleShadow) },
             {117, typeof(CreditDelete) },
