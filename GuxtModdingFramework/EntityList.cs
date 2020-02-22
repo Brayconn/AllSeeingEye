@@ -124,6 +124,19 @@ namespace GuxtModdingFramework.Entities
         public Wing(Entity e) : base(e) { }
     }
 
+    //13, 14
+    public class Bullet : EntityShell
+    {
+        [Description("Angle, in 1/256th of a circle. 0 = Right, 64 = Down, 128 = Left, 192 = Up, etc.")]
+        public int Angle
+        {
+            get => base.ExtraInfo;
+            set => base.ExtraInfo = value;
+        }
+
+        public Bullet(Entity e) : base(e) { }
+    }
+
     //19
     public class BGM : EntityShell
     {
@@ -360,6 +373,8 @@ namespace GuxtModdingFramework.Entities
             {007, typeof(Powerup) },
             {011, typeof(Wing) },
             {012, typeof(Wing) },
+            {013, typeof(Bullet) },
+            {014, typeof(Bullet) },
             {019, typeof(BGM) },
             {022, typeof(ScrollSpeed) },
             {035, typeof(B2Rocket) },
