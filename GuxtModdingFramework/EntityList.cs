@@ -394,6 +394,28 @@ namespace GuxtModdingFramework.Entities
         public BonusDisable(Entity e) : base(e) { }
     }
 
+    //48
+    public class Gimmick : EntityShell
+    {
+        class DirectionTypeConverter : StringTypeConverter<int>
+        {
+            public DirectionTypeConverter() : base("(Invalid)",
+                "Left",
+                "Up",
+                "Right",
+                "Down")
+            { }
+        }
+
+        [TypeConverter(typeof(DirectionTypeConverter)), Description("What direction to face.")]
+        public int Direction
+        {
+            get => base.ExtraInfo;
+            set => base.ExtraInfo = value;
+        }
+        public Gimmick(Entity e) : base(e) { }
+    }
+
     //67
     public class GuxtTank : EntityShell
     {
@@ -580,6 +602,7 @@ namespace GuxtModdingFramework.Entities
             {043, typeof(Cycloid) },
             {045, typeof(Bonus) },
             {046, typeof(BonusDisable) },
+            {048, typeof(Gimmick) },
             {059, typeof(Powerup) },
             {060, typeof(Powerup) },
             {061, typeof(Powerup) },
