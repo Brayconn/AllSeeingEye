@@ -368,7 +368,7 @@ namespace GuxtModdingFramework.Entities
         public Cycloid(Entity e) : base(e) { }
     }
 
-    //45
+    //45, 121
     public class Bonus : EntityShell
     {
         [Description("What stage's bonus graphics to use")]
@@ -679,6 +679,7 @@ namespace GuxtModdingFramework.Entities
             {117, typeof(CreditDelete) },
             {118, typeof(CreditLoadImg) },
             {119, typeof(CreditPhoto) },
+            {121, typeof(Bonus) },
         });
 
         public readonly static ReadOnlyDictionary<int, string> EntityNames =
