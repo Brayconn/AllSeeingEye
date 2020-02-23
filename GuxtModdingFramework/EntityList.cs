@@ -297,6 +297,27 @@ namespace GuxtModdingFramework.Entities
         public B2Rocket(Entity e) : base(e) { }
     }
     
+    //37
+    public class Stars : EntityShell
+    {
+        class StarTypeConverter : StringTypeConverter
+        {
+            public StarTypeConverter() : base("(Invalid/Invisible)",
+                "One Big",
+                "Two Small",
+                "One Small")
+            { }
+        }
+        [TypeConverter(typeof(StarTypeConverter)), Description("What rock this hugger will be holding")]
+        public int Star
+        {
+            get => base.ExtraInfo;
+            set => base.ExtraInfo = value;
+        }
+        public Stars(Entity e) : base(e) { }
+    }
+
+    //41
     public class CatEye : EntityShell
     {
         [Description("How many frames to wait before activating. ExtraInfo * 50")]
@@ -306,17 +327,7 @@ namespace GuxtModdingFramework.Entities
         }
         public CatEye(Entity e) : base(e) { }
     }
-
-    public class DelayActivate : EntityShell
-    {
-        [Description("How many frames to wait before activating. ExtraInfo * 25")]
-        public string Delay
-        {
-            get => base.ExtraInfo > 0 ? (base.ExtraInfo * 25).ToString() : "Disabled";
-        }
-        public DelayActivate(Entity e) : base(e) { }
-    }
-
+    
     //45
     public class Bonus : EntityShell
     {
@@ -326,6 +337,7 @@ namespace GuxtModdingFramework.Entities
         }
     }
 
+    //67
     public class GuxtTank : EntityShell
     {
         [Description("Offset in the entity grid. Positive values bring them closer to the bottom, negative values closer to the top")]
@@ -336,6 +348,17 @@ namespace GuxtModdingFramework.Entities
         }
 
         public GuxtTank(Entity e) : base(e) { }
+    }
+
+    //68,99
+    public class DelayActivate : EntityShell
+    {
+        [Description("How many frames to wait before activating. ExtraInfo * 25")]
+        public string Delay
+        {
+            get => base.ExtraInfo > 0 ? (base.ExtraInfo * 25).ToString() : "Disabled";
+        }
+        public DelayActivate(Entity e) : base(e) { }
     }
 
     //70
@@ -495,6 +518,7 @@ namespace GuxtModdingFramework.Entities
             {026, typeof(RockHugger) },
             {029, typeof(Entity29) },
             {035, typeof(B2Rocket) },
+            {037, typeof(Stars) },
             {041, typeof(CatEye) },
             {059, typeof(Powerup) },
             {060, typeof(Powerup) },
