@@ -371,10 +371,27 @@ namespace GuxtModdingFramework.Entities
     //45
     public class Bonus : EntityShell
     {
-        public Bonus(Entity e) : base(e)
+        [Description("What stage's bonus graphics to use")]
+        public int BonusType
         {
-
+            get => base.ExtraInfo;
+            set => base.ExtraInfo = value;
         }
+
+        public Bonus(Entity e) : base(e) { }
+    }
+
+    //46, 106
+    public class BonusDisable : EntityShell
+    {
+        [Description("Whether or not this bonus will spawn")]
+        public bool Disabled
+        {
+            get => base.ExtraInfo != 0;
+            set => base.ExtraInfo = value ? 1 : 0;
+        }
+
+        public BonusDisable(Entity e) : base(e) { }
     }
 
     //67
@@ -561,6 +578,8 @@ namespace GuxtModdingFramework.Entities
             {037, typeof(Stars) },
             {041, typeof(CatEye) },
             {043, typeof(Cycloid) },
+            {045, typeof(Bonus) },
+            {046, typeof(BonusDisable) },
             {059, typeof(Powerup) },
             {060, typeof(Powerup) },
             {061, typeof(Powerup) },
@@ -576,6 +595,7 @@ namespace GuxtModdingFramework.Entities
             {099, typeof(DelayActivate) },
             {102, typeof(AngleEntity) },
             {104, typeof(AngleEntity) },
+            {106, typeof(BonusDisable) },
             {107, typeof(ToggleShadow) },
             {117, typeof(CreditDelete) },
             {118, typeof(CreditLoadImg) },
