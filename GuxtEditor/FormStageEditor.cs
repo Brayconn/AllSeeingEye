@@ -38,6 +38,11 @@ namespace GuxtEditor
             }
         }
 
+        private void SetUnsavedEdits(object o, EventArgs e)
+        {
+            UnsavedEdits = true;
+        }
+
         private void UpdateTitle()
         {
             this.Text = $"Stage {StageNumber}";
@@ -88,6 +93,8 @@ namespace GuxtEditor
             //entities
             entityPath = Path.Combine(parentMod.DataPath, parentMod.EntityName + StageNumber + "." + parentMod.EntityExtension);
             entities = PXEVE.Read(entityPath);
+            foreach (var ent in entities)
+                ent.PropertyChanged += SetUnsavedEdits;
 
             //attributes
             var attributePath = Path.Combine(parentMod.DataPath, parentMod.AttributeName + StageNumber + "." + parentMod.AttributeExtension);
@@ -325,6 +332,7 @@ namespace GuxtEditor
         {
             UnsavedEdits = true;
             entities.Add(new Entity(0, pos.X, pos.Y, entityListView.SelectedIndices[0], 0));
+            entities[entities.Count - 1].PropertyChanged += SetUnsavedEdits;
             SelectEntities(entities[entities.Count - 1]);
             DisplayMap(MousePositionOnGrid);
         }
@@ -332,7 +340,10 @@ namespace GuxtEditor
         {
             UnsavedEdits = true;
             foreach (var ent in selectedEntities)
+            {
                 entities.Remove(ent);
+                ent.PropertyChanged -= SetUnsavedEdits;
+            }
             SelectEntities();
         }
 
@@ -418,6 +429,7 @@ namespace GuxtEditor
                     X = pos.X + e.X,
                     Y = pos.Y + e.Y
                 });
+                entities[entities.Count - 1].PropertyChanged += SetUnsavedEdits;
             }
             DisplayMap(MousePositionOnGrid); //Yes, this is on purpose
         }

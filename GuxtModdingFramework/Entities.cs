@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace GuxtModdingFramework.Entities
 {
     /// <summary>
     /// Represents a Guxt entity stored in a .PXEVE file
     /// </summary>
-    public class Entity
+    public class Entity : INotifyPropertyChanged
     {
         internal const string UnusedDescription = "Unused variable.";
         internal const string XDescription = "Horizontal position of the entity.";
@@ -15,31 +16,39 @@ namespace GuxtModdingFramework.Entities
         internal const string EntityIDDescription = "ID of this entity";
         internal const string ExtraInfoDescription = "The entity's properties. Contents/interpretation depends on the entity";
 
+        public event PropertyChangedEventHandler PropertyChanged = (o,e) => { };
+
+        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+        }
+        private int unused, x, y, entityid, extrainfo;
+
         /// <summary>
         /// Unused variable
         /// </summary>
         [Description(UnusedDescription)]
-        public int Unused { get; set; }
+        public int Unused { get => unused; set { if (value != unused) { unused = value; NotifyPropertyChanged(); } } }
         /// <summary>
         /// X position of the entity (in tiles)
         /// </summary>
         [Description(XDescription)]
-        public int X { get; set; }
+        public int X { get => x; set { if (value != x) { x = value; NotifyPropertyChanged(); } } }
         /// <summary>
         /// Y position of the entity (in ???)
         /// </summary>
         [Description(YDescription)]
-        public int Y { get; set; }
+        public int Y { get => y; set { if (value != y) { y = value; NotifyPropertyChanged(); } } }
         /// <summary>
         /// The entity's type
         /// </summary>
         [Description(EntityIDDescription)]
-        public int EntityID { get; set; }
+        public int EntityID { get => entityid; set { if (value != entityid) { entityid = value; NotifyPropertyChanged(); } } }
         /// <summary>
         /// Extra info (music for music switcher)
         /// </summary>
         [Description(ExtraInfoDescription)]
-        public int ExtraInfo { get; set; }
+        public int ExtraInfo { get => extrainfo; set { if (value != extrainfo) { extrainfo = value; NotifyPropertyChanged(); } } }
 
         public Entity(Entity e) : this(e.Unused, e.X, e.Y, e.EntityID, e.ExtraInfo) { }
         public Entity(int u, int x, int y, int id, int info)
