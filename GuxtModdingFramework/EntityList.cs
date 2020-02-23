@@ -504,6 +504,23 @@ namespace GuxtModdingFramework.Entities
         public Square(Entity e) : base(e) { }
     }
 
+    //88
+    public class MissilePot : EntityShell
+    {
+        class OffsetTypeConverter : StringTypeConverter<bool>
+        {
+            public OffsetTypeConverter() : base("Low", "High") { }
+        }
+
+        [TypeConverter(typeof(OffsetTypeConverter)), Description("Spawn either a bit higher, or a bit lower")]
+        public bool Offset
+        {
+            get => base.ExtraInfo != 0;
+            set => base.ExtraInfo = value ? 1 : 0;
+        }
+        public MissilePot(Entity e) : base(e) { }
+    }
+
     //94
     public class SandStamper : EntityShell
     {
@@ -606,6 +623,7 @@ namespace GuxtModdingFramework.Entities
             {059, typeof(Powerup) },
             {060, typeof(Powerup) },
             {061, typeof(Powerup) },
+            {063, typeof(AngleEntity) },
             {064, typeof(Powerup) },
             {067, typeof(GuxtTank) },
             {068, typeof(DelayActivate) },
@@ -613,6 +631,7 @@ namespace GuxtModdingFramework.Entities
             {074, typeof(Powerup) },
             {075, typeof(Powerup) },
             {084, typeof(Square) },
+            {088, typeof(MissilePot) },
             {094, typeof(SandStamper) },
             {098, typeof(AngleEntity) },
             {099, typeof(DelayActivate) },
