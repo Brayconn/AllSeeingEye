@@ -206,6 +206,26 @@ namespace GuxtModdingFramework.Entities
         public ScrollSpeed(Entity e) : base(e) { }
     }
 
+    public class AsteroidSGravity : EntityShell
+    {
+        class SpawnDirectionTypeConverter : StringTypeConverter
+        {
+            public SpawnDirectionTypeConverter() : base("Straight down",
+                "Slightly Left",
+                "Slightly Right",
+                "More Left",
+                "More Right")
+            { }
+        }
+        [TypeConverter(typeof(SpawnDirectionTypeConverter)), Description("What direction to spawn in")]
+        public int SpawnDirection
+        {
+            get => base.ExtraInfo;
+            set => base.ExtraInfo = value;
+        }
+        public AsteroidSGravity(Entity e) : base(e) { }
+    }
+
     //35
     public class B2Rocket : EntityShell
     {
@@ -424,6 +444,7 @@ namespace GuxtModdingFramework.Entities
             {018, typeof(BulletLong) },
             {019, typeof(BGM) },
             {022, typeof(ScrollSpeed) },
+            {023, typeof(AsteroidSGravity) },
             {035, typeof(B2Rocket) },
             {041, typeof(CatEye) },
             {059, typeof(Powerup) },
