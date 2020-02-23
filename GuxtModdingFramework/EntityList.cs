@@ -544,6 +544,18 @@ namespace GuxtModdingFramework.Entities
         public Missile(Entity e) : base(e) { }
     }
 
+    //91
+    public class Rock : EntityShell
+    {
+        [Description("What framerects to use. The values used in game are 1 and 2, which line up with tiles 44/45 and 43 respectively")]
+        public int RectIndex
+        {
+            get => base.ExtraInfo;
+            set => base.ExtraInfo = value;
+        }
+        public Rock(Entity e) : base(e) { }
+    }
+
     //94
     public class SandStamper : EntityShell
     {
@@ -656,6 +668,7 @@ namespace GuxtModdingFramework.Entities
             {084, typeof(Square) },
             {088, typeof(MissilePot) },
             {090, typeof(Missile) },
+            {091, typeof(Rock) },
             {094, typeof(SandStamper) },
             {098, typeof(AngleEntity) },
             {099, typeof(DelayActivate) },
@@ -742,6 +755,7 @@ namespace GuxtModdingFramework.Entities
             {087, "CloudDarkGen"},
             {088, "MissilePot"},
             {090, "Missile"},
+            {091, "Rock" },
             {092, "BGRock"},
             {093, "ClearRockCloudGen"},
             {094, "SandStamper"},
