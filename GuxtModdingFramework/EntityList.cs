@@ -521,6 +521,29 @@ namespace GuxtModdingFramework.Entities
         public MissilePot(Entity e) : base(e) { }
     }
 
+    //90
+    public class Missile : EntityShell
+    {
+        class PatternTypeConverter : StringTypeConverter<int>
+        {
+            public PatternTypeConverter() : base("Hard Left", "Hard Left",
+                "Hard Right",
+                "Medium Left",
+                "Medium Right",
+                "Small Left",
+                "Small Right")
+            { }
+        }
+        [TypeConverter(typeof(PatternTypeConverter)),Description("What flight pattern to use. The difference between these is VERY slight")]
+        public int Pattern
+        {
+            get => base.ExtraInfo;
+            set => base.ExtraInfo = value;
+        }
+
+        public Missile(Entity e) : base(e) { }
+    }
+
     //94
     public class SandStamper : EntityShell
     {
@@ -632,6 +655,7 @@ namespace GuxtModdingFramework.Entities
             {075, typeof(Powerup) },
             {084, typeof(Square) },
             {088, typeof(MissilePot) },
+            {090, typeof(Missile) },
             {094, typeof(SandStamper) },
             {098, typeof(AngleEntity) },
             {099, typeof(DelayActivate) },
