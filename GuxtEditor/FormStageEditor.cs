@@ -336,12 +336,20 @@ namespace GuxtEditor
             SelectEntities();
         }
 
-        private void SetEditingEntity(Entity? ent)
+        private void SetEditingEntity(params Entity[] ents)
         {
-            if(ent != null && parentMod.EntityTypes.ContainsKey(ent.EntityID))
-                entityPropertyGrid.SelectedObject = Activator.CreateInstance(parentMod.EntityTypes[ent.EntityID],ent);
+            if (ents.Length == 0)
+                entityPropertyGrid.SelectedObject = null;
+            else if(ents.Length == 1)
+            {
+                entityPropertyGrid.SelectedObject = parentMod.EntityTypes.ContainsKey(ents[0].EntityID)
+                    ? Activator.CreateInstance(parentMod.EntityTypes[ents[0].EntityID], ents)
+                    : ents[0];
+            }
             else
-                entityPropertyGrid.SelectedObject = ent;
+            {
+                entityPropertyGrid.SelectedObject = new MultiEntityShell(ents);
+            }
         }
         /// <summary>
         /// Sets the given entities as selected. Passing no args will deselect
@@ -351,7 +359,7 @@ namespace GuxtEditor
         {
             //clear everything
             selectedEntities.Clear();
-            SetEditingEntity(null);
+            SetEditingEntity();
 
             //if nothing was passed, this will be skipped
             foreach (var e in ents)
@@ -359,15 +367,19 @@ namespace GuxtEditor
             //and this check would fail
             if (userHasSelectedEntities)
             {
-                var e = selectedEntities.First();
-                //can't scroll to an entity that doesn't exist
-                if (e.EntityID < entityListView.Items.Count)
+                //try to scroll to the selected entity type, if only one is selected
+                if (selectedEntities.Count == 1)
                 {
-                    entityListView.SelectedIndices.Clear();
-                    entityListView.SelectedIndices.Add(e.EntityID);
-                    entityListView.EnsureVisible(e.EntityID);
+                    var e = selectedEntities.First();
+                    //can't scroll to an entity that doesn't exist
+                    if (0 <= e.EntityID && e.EntityID < entityListView.Items.Count)
+                    {
+                        entityListView.SelectedIndices.Clear();
+                        entityListView.SelectedIndices.Add(e.EntityID);
+                        entityListView.EnsureVisible(e.EntityID);
+                    }
                 }
-                SetEditingEntity(e);
+                SetEditingEntity(ents);
             }
             //so there would be nothing selected for editing, or in the selection list
         }

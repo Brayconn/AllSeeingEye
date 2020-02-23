@@ -8,6 +8,86 @@ namespace GuxtModdingFramework.Entities
 {
     #region Common
 
+    public class MultiEntityShell
+    {
+        readonly Entity[] hosts;
+        enum Properties
+        {
+            Unused,
+            X,
+            Y,
+            EntityID,
+            ExtraInfo
+        }
+        private int GetProperty(Entity e, Properties p)
+        {
+            return p switch
+            {
+                Properties.Unused => e.Unused,
+                Properties.X => e.X,
+                Properties.Y => e.Y,
+                Properties.EntityID => e.EntityID,
+                Properties.ExtraInfo => e.ExtraInfo,
+                _ => throw new ArgumentException("Invalid property", nameof(p))
+            };
+        }
+        private int? GetProperty(Properties p)
+        {
+            int val = GetProperty(hosts[0], p);
+            for(int i = 1; i < hosts.Length; i++)
+                if (val != GetProperty(hosts[i], p))
+                    return null;
+            return val;
+        }
+
+        private void SetProperty(int? value, Properties p)
+        {
+            if (value == null)
+                return;
+            foreach(var entity in hosts)
+            {
+                switch(p)
+                {
+                    case Properties.Unused:
+                        entity.Unused = (int)value;
+                        break;
+                    case Properties.X:
+                        entity.X = (int)value;
+                        break;
+                    case Properties.Y:
+                        entity.Y = (int)value;
+                        break;
+                    case Properties.EntityID:
+                        entity.EntityID = (int)value;
+                        break;
+                    case Properties.ExtraInfo:
+                        entity.ExtraInfo = (int)value;
+                        break;
+                    default:
+                        throw new ArgumentException("Invalid property", nameof(p));
+                }
+            }
+        }
+
+        [Description(Entity.UnusedDescription)]
+        public int? Unused { get => GetProperty(Properties.Unused); set => SetProperty(value, Properties.Unused); }
+        [Description(Entity.XDescription)]
+        public int? X { get => GetProperty(Properties.X); set => SetProperty(value, Properties.X); }
+        [Description(Entity.YDescription)]
+        public int? Y { get => GetProperty(Properties.Y); set => SetProperty(value, Properties.Y); }
+        [Description(Entity.EntityIDDescription)]
+        public int? EntityID { get => GetProperty(Properties.EntityID); set => SetProperty(value, Properties.EntityID); }
+        [Description(Entity.ExtraInfoDescription)]
+        public int? ExtraInfo { get => GetProperty(Properties.ExtraInfo); set => SetProperty(value, Properties.ExtraInfo); }
+
+        public MultiEntityShell(params Entity[] ents)
+        {
+            if (ents.Length < 1)
+                throw new ArgumentException("You must supply at least one entity.", nameof(ents));
+            hosts = ents;
+        }
+    }
+
     /// <summary>
     /// Shell over an entity to allow for adding entity specific interfaces
     /// </summary>
