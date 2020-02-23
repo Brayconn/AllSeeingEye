@@ -226,6 +226,39 @@ namespace GuxtModdingFramework.Entities
         public AsteroidSGravity(Entity e) : base(e) { }
     }
 
+    //25
+    public class HangarShoot : EntityShell
+    {
+        [Description("When set, takes only 1 hit and gives 0 score (instead of 2 hits and 10 points)")]
+        public bool LowHealth
+        {
+            get => base.ExtraInfo != 0;
+            set => base.ExtraInfo = value ? 1 : 0;
+        }
+
+        public HangarShoot(Entity e) : base(e) { }
+    }
+
+    //26
+    public class RockHugger : EntityShell
+    {
+        class RockTypeTypeConverter : StringTypeConverter
+        {
+            public RockTypeTypeConverter() : base("Invisible",
+                "Big",
+                "Small",
+                "No Rock")
+            { }
+        }
+        [TypeConverter(typeof(RockTypeTypeConverter)), Description("What rock this hugger will be holding")]
+        public int RockType
+        {
+            get => base.ExtraInfo;
+            set => base.ExtraInfo = value;
+        }
+        public RockHugger(Entity e) : base(e) { }
+    }
+
     //35
     public class B2Rocket : EntityShell
     {
@@ -445,6 +478,8 @@ namespace GuxtModdingFramework.Entities
             {019, typeof(BGM) },
             {022, typeof(ScrollSpeed) },
             {023, typeof(AsteroidSGravity) },
+            {025, typeof(HangarShoot) },
+            {026, typeof(RockHugger) },
             {035, typeof(B2Rocket) },
             {041, typeof(CatEye) },
             {059, typeof(Powerup) },
