@@ -36,7 +36,7 @@ namespace GuxtModdingFramework.Entities
         }
     }
 
-    abstract class StringTypeConverter : TypeConverter
+    abstract class StringTypeConverter<T> : TypeConverter where T : struct
     {
         readonly List<string> text;
         readonly StandardValuesCollection svc;
@@ -55,28 +55,50 @@ namespace GuxtModdingFramework.Entities
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
             if (value is string s)
-                return text.IndexOf(s);
-            else
-                return base.ConvertFrom(context, culture, value);
+            {
+                var t = typeof(T);
+                if (t == typeof(int))
+                    return text.IndexOf(s);
+                else if (t == typeof(bool))
+                    return text.IndexOf(s) == 0;
+            }
+            return base.ConvertFrom(context, culture, value);
         }
 
         public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
         {
-            return destinationType == typeof(int) || base.CanConvertTo(context, destinationType);
+            return destinationType == typeof(int) || destinationType == typeof(bool) || base.CanConvertTo(context, destinationType);
         }
 
         public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
         {
-            if (value is int i)
-                return (0 <= i && i < text.Count) ? text[i] : errorText;
-            else
-                return base.ConvertTo(context, culture, value, destinationType);
+            return value switch
+            {
+                int i => (0 <= i && i < text.Count) ? text[i] : errorText,
+                bool b => text[b ? 1 : 0],
+                _ => base.ConvertTo(context, culture, value, destinationType)
+            };
         }
 
         public StringTypeConverter(string e, params string[] t)
         {
             errorText = e;
             text = new List<string>(t);
+
+            //bool mode
+            if (typeof(T) == typeof(bool))
+            {
+                //either provide just the two as seperate params
+                if (!string.IsNullOrWhiteSpace(e) && t.Length == 1)
+                    text.Add(errorText);
+                //or leave e blank and provide two values to t
+                else if (!(string.IsNullOrWhiteSpace(e) && t.Length == 2))
+                    throw new ArgumentException("You must provide only 2 options for bool mode.", nameof(e) + ", " + nameof(t));
+            }
+            //if it's not bool, it better be int, otherwise...
+            else if (typeof(T) != typeof(int))
+                throw new NotSupportedException("Supplied type is not supported. Please use bool or int.");
+                                  
             svc = new StandardValuesCollection(text);
         }
     }
@@ -87,7 +109,7 @@ namespace GuxtModdingFramework.Entities
 
     public class Powerup : EntityShell
     {
-        class PowerUpTypeConverter : StringTypeConverter
+        class PowerUpTypeConverter : StringTypeConverter<int>
         {
             PowerUpTypeConverter() : base("(Invalid)",
                 "(Nothing)",
@@ -146,7 +168,7 @@ namespace GuxtModdingFramework.Entities
     //18
     public class BulletLong : EntityShell
     {
-        class SpawnDirectionTypeConverter : StringTypeConverter
+        class SpawnDirectionTypeConverter : StringTypeConverter<int>
         {
             public SpawnDirectionTypeConverter() : base("Right with glitchy graphics",
                 "Straight",
@@ -166,7 +188,7 @@ namespace GuxtModdingFramework.Entities
     //19
     public class BGM : EntityShell
     {
-        class MusicTypeConverter : StringTypeConverter
+        class MusicTypeConverter : StringTypeConverter<int>
         {
             MusicTypeConverter() : base("(Invalid)",
                     "(Nothing/Fade Out)",
@@ -208,7 +230,7 @@ namespace GuxtModdingFramework.Entities
 
     public class AsteroidSGravity : EntityShell
     {
-        class SpawnDirectionTypeConverter : StringTypeConverter
+        class SpawnDirectionTypeConverter : StringTypeConverter<int>
         {
             public SpawnDirectionTypeConverter() : base("Straight down",
                 "Slightly Left",
@@ -242,7 +264,7 @@ namespace GuxtModdingFramework.Entities
     //26
     public class RockHugger : EntityShell
     {
-        class RockTypeTypeConverter : StringTypeConverter
+        class RockTypeTypeConverter : StringTypeConverter<int>
         {
             public RockTypeTypeConverter() : base("Invisible",
                 "Big",
@@ -275,7 +297,7 @@ namespace GuxtModdingFramework.Entities
     //35
     public class B2Rocket : EntityShell
     {
-        class RocketBehaviorTypeConverter : StringTypeConverter
+        class RocketBehaviorTypeConverter : StringTypeConverter<int>
         {
             RocketBehaviorTypeConverter() : base("(Invalid/Frozen In Place)",
                 "Down",
@@ -300,7 +322,7 @@ namespace GuxtModdingFramework.Entities
     //37
     public class Stars : EntityShell
     {
-        class StarTypeConverter : StringTypeConverter
+        class StarTypeConverter : StringTypeConverter<int>
         {
             public StarTypeConverter() : base("(Invalid/Invisible)",
                 "One Big",
@@ -327,7 +349,25 @@ namespace GuxtModdingFramework.Entities
         }
         public CatEye(Entity e) : base(e) { }
     }
-    
+
+    //43
+    public class Cycloid : EntityShell
+    {
+        class SpawnLocationTypeConverter : StringTypeConverter<bool>
+        {
+            public SpawnLocationTypeConverter() : base("Bottom", "Top") { }
+        }
+
+        [TypeConverter(typeof(SpawnLocationTypeConverter)), Description("What or not the Sand Stamper will stamp faster")]
+        public bool SpawnLocation
+        {
+            get => base.ExtraInfo != 0;
+            set => base.ExtraInfo = value ? 1 : 0;
+        }
+
+        public Cycloid(Entity e) : base(e) { }
+    }
+
     //45
     public class Bonus : EntityShell
     {
@@ -520,6 +560,7 @@ namespace GuxtModdingFramework.Entities
             {035, typeof(B2Rocket) },
             {037, typeof(Stars) },
             {041, typeof(CatEye) },
+            {043, typeof(Cycloid) },
             {059, typeof(Powerup) },
             {060, typeof(Powerup) },
             {061, typeof(Powerup) },
