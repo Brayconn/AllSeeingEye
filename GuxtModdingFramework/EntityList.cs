@@ -259,6 +259,19 @@ namespace GuxtModdingFramework.Entities
         public RockHugger(Entity e) : base(e) { }
     }
 
+    //29
+    public class Entity29 : EntityShell
+    {
+        [Description("Whether or not to spawn closer to the top of the screen")]
+        public bool SpawnHigher
+        {
+            get => base.ExtraInfo != 0;
+            set => base.ExtraInfo = value ? 1 : 0;
+        }
+
+        public Entity29(Entity e) : base(e) { }
+    }
+
     //35
     public class B2Rocket : EntityShell
     {
@@ -480,6 +493,7 @@ namespace GuxtModdingFramework.Entities
             {023, typeof(AsteroidSGravity) },
             {025, typeof(HangarShoot) },
             {026, typeof(RockHugger) },
+            {029, typeof(Entity29) },
             {035, typeof(B2Rocket) },
             {041, typeof(CatEye) },
             {059, typeof(Powerup) },
@@ -531,6 +545,7 @@ namespace GuxtModdingFramework.Entities
             {026, "RockHugger"},
             {027, "RHAsteroidL"},
             {028, "RHAsteroidS"},
+            //{029, "Something's Jet Trail???"},
             {030, "Elka"},
             {031, "Sodi"},
             {032, "Boss2"},
