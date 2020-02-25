@@ -55,6 +55,18 @@ namespace GuxtEditor
                         x, y, (parentMod.TileSize / 2) - 1, (parentMod.TileSize / 2) - 1);
             }
         }
+
+        const int ScreenWidth = 8;
+        const int ScreenHeight = 10;
+        private void DrawScreenPreview(Graphics g)
+        {
+            g.DrawRectangle(new Pen(UI.Default.ScreenPreviewColor),
+                hScreenPreviewScrollBar.Value,
+                vScreenPreviewScrollBar.Value,
+                (ScreenWidth * parentMod.TileSize) - 1,
+                (ScreenHeight * parentMod.TileSize) - 1);
+        }
+
         /// <summary>
         /// Draws the mouse selection overlay from grid spaces p to p2 (or p to p, if nothing is provided for p2)
         /// </summary>
@@ -99,6 +111,8 @@ namespace GuxtEditor
                     g.DrawImage(mapTileTypes,0,0,mapTileTypes.Width,mapTileTypes.Height);
                 if (entitySpritesToolStripMenuItem.Checked || entityBoxesToolStripMenuItem.Checked || userHasSelectedEntities)
                     DrawEntities(g);
+                if (screenPreviewToolStripMenuItem.Checked)
+                    DrawScreenPreview(g);
                 if (p != null)
                     DrawMouseOverlay(g, (Point)p, p2);
             }
@@ -111,7 +125,7 @@ namespace GuxtEditor
             mapImage.Dispose();
             mapPictureBox.Image?.Dispose();
             mapPictureBox.Image = zoomedMap;            
-        }
+        }               
 
         #endregion
 

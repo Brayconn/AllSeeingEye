@@ -112,12 +112,14 @@ namespace GuxtEditor
             mapPath = Path.Combine(parentMod.DataPath, parentMod.MapName + StageNumber + "." + parentMod.MapExtension);
             map = new Map(mapPath);
             map.MapResized += delegate { InitMapAndDisplay(); };
-            mapPropertyGrid.SelectedObject = map;
+            mapPropertyGrid.SelectedObject = map;            
 
             //display everything
             DisplayTileset();
 
             InitMapAndDisplay();
+            //Init screen preview to the bottom of the screen
+            vScreenPreviewScrollBar.Value = vScreenPreviewScrollBar.Maximum - 1;
         }
 
         /// <summary>
@@ -144,6 +146,10 @@ namespace GuxtEditor
                 if (1 <= value && value <= MaxZoom)
                 {
                     zoomLevel = value;
+                    //changing the scroll value in here doesn't work, it gets set to something else shortly after
+                    //so it has to wait until later...
+                    scrollBarNeedsUpdate = true;
+                    scrollBarMultiplier = panel1.VerticalScroll.Value / (decimal)(panel1.VerticalScroll.Maximum - panel1.VerticalScroll.LargeChange - 1);
                     DisplayMap();
                 }
             }
@@ -152,6 +158,19 @@ namespace GuxtEditor
         {
             if(ModifierKeys == Keys.Control)
                 ZoomLevel += (e.Delta > 0) ? 1 : -1;
+        }
+
+        bool scrollBarNeedsUpdate = false;
+        decimal scrollBarMultiplier = 0;
+        //HACK need to find a better event to hook into than paint
+        void UpdateMapScrollPosition()
+        {
+            if (scrollBarNeedsUpdate)
+            {
+                panel1.VerticalScroll.Value = (int)((panel1.VerticalScroll.Maximum - panel1.VerticalScroll.LargeChange - 1) * scrollBarMultiplier);
+                panel1.PerformLayout();
+                scrollBarNeedsUpdate = false;
+            }
         }
 
         #endregion
@@ -165,6 +184,11 @@ namespace GuxtEditor
         void InitMapAndDisplay()
         {
             InitMap();
+            
+            //init screen preview max
+            vScreenPreviewScrollBar.Maximum = ((map.Height - ScreenHeight) * parentMod.TileSize) + vScreenPreviewScrollBar.LargeChange - 1;
+            hScreenPreviewScrollBar.Maximum = ((map.Width - ScreenWidth) * parentMod.TileSize) + hScreenPreviewScrollBar.LargeChange - 1;
+
             InitMapTileTypes();
             DisplayMap();
         }
@@ -755,6 +779,28 @@ namespace GuxtEditor
         }
 
         #endregion
+
+        #region screen preview scroll bars
+
+        private void ScreenPreviewScrollChanged(object sender, ScrollEventArgs e)
+        {
+            DisplayMap();
+        }
+
+        private void screenPreviewToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
+        {
+            vScreenPreviewScrollBar.Enabled = vScreenPreviewScrollBar.Maximum > 1 && screenPreviewToolStripMenuItem.Checked;
+            hScreenPreviewScrollBar.Enabled = hScreenPreviewScrollBar.Maximum > 1 && screenPreviewToolStripMenuItem.Checked;
+            DisplayMap();   
+        }
+
+        #endregion
+        
+        //HACK bad event to hook into for this
+        private void mapPictureBox_Paint(object sender, PaintEventArgs e)
+        {
+            UpdateMapScrollPosition();
+        }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {

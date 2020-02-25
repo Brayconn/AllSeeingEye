@@ -39,6 +39,7 @@
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.entitySpritesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.entityBoxesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.screenPreviewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.editModeTabControl = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
@@ -49,6 +50,8 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.entityPropertyGrid = new System.Windows.Forms.PropertyGrid();
             this.entityListView = new System.Windows.Forms.ListView();
+            this.hScreenPreviewScrollBar = new System.Windows.Forms.HScrollBar();
+            this.vScreenPreviewScrollBar = new System.Windows.Forms.VScrollBar();
             this.panel1 = new System.Windows.Forms.Panel();
             this.mapPictureBox = new System.Windows.Forms.PictureBox();
             this.menuStrip1.SuspendLayout();
@@ -114,7 +117,8 @@
             this.tileTypesToolStripMenuItem,
             this.toolStripSeparator1,
             this.entitySpritesToolStripMenuItem,
-            this.entityBoxesToolStripMenuItem});
+            this.entityBoxesToolStripMenuItem,
+            this.screenPreviewToolStripMenuItem});
             this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
             this.viewToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.viewToolStripMenuItem.Text = "View";
@@ -123,14 +127,14 @@
             // 
             this.tileTypesToolStripMenuItem.CheckOnClick = true;
             this.tileTypesToolStripMenuItem.Name = "tileTypesToolStripMenuItem";
-            this.tileTypesToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
+            this.tileTypesToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
             this.tileTypesToolStripMenuItem.Text = "Tile Types";
             this.tileTypesToolStripMenuItem.CheckedChanged += new System.EventHandler(this.RefreshDisplay);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(142, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(150, 6);
             // 
             // entitySpritesToolStripMenuItem
             // 
@@ -138,7 +142,7 @@
             this.entitySpritesToolStripMenuItem.CheckOnClick = true;
             this.entitySpritesToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.entitySpritesToolStripMenuItem.Name = "entitySpritesToolStripMenuItem";
-            this.entitySpritesToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
+            this.entitySpritesToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
             this.entitySpritesToolStripMenuItem.Text = "Entitiy Sprites";
             this.entitySpritesToolStripMenuItem.CheckedChanged += new System.EventHandler(this.RefreshDisplay);
             // 
@@ -148,9 +152,17 @@
             this.entityBoxesToolStripMenuItem.CheckOnClick = true;
             this.entityBoxesToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.entityBoxesToolStripMenuItem.Name = "entityBoxesToolStripMenuItem";
-            this.entityBoxesToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
+            this.entityBoxesToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
             this.entityBoxesToolStripMenuItem.Text = "Entity Boxes";
             this.entityBoxesToolStripMenuItem.CheckedChanged += new System.EventHandler(this.RefreshDisplay);
+            // 
+            // screenPreviewToolStripMenuItem
+            // 
+            this.screenPreviewToolStripMenuItem.CheckOnClick = true;
+            this.screenPreviewToolStripMenuItem.Name = "screenPreviewToolStripMenuItem";
+            this.screenPreviewToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
+            this.screenPreviewToolStripMenuItem.Text = "Screen Preview";
+            this.screenPreviewToolStripMenuItem.CheckedChanged += new System.EventHandler(this.screenPreviewToolStripMenuItem_CheckedChanged);
             // 
             // splitContainer1
             // 
@@ -164,6 +176,8 @@
             // 
             // splitContainer1.Panel2
             // 
+            this.splitContainer1.Panel2.Controls.Add(this.hScreenPreviewScrollBar);
+            this.splitContainer1.Panel2.Controls.Add(this.vScreenPreviewScrollBar);
             this.splitContainer1.Panel2.Controls.Add(this.panel1);
             this.splitContainer1.Size = new System.Drawing.Size(800, 426);
             this.splitContainer1.SplitterDistance = 266;
@@ -270,14 +284,40 @@
             this.entityListView.TabIndex = 1;
             this.entityListView.UseCompatibleStateImageBehavior = false;
             // 
+            // hScreenPreviewScrollBar
+            // 
+            this.hScreenPreviewScrollBar.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.hScreenPreviewScrollBar.Enabled = false;
+            this.hScreenPreviewScrollBar.LargeChange = 1;
+            this.hScreenPreviewScrollBar.Location = new System.Drawing.Point(0, 409);
+            this.hScreenPreviewScrollBar.Maximum = 0;
+            this.hScreenPreviewScrollBar.Name = "hScreenPreviewScrollBar";
+            this.hScreenPreviewScrollBar.Size = new System.Drawing.Size(513, 17);
+            this.hScreenPreviewScrollBar.TabIndex = 3;
+            this.hScreenPreviewScrollBar.Scroll += new System.Windows.Forms.ScrollEventHandler(this.ScreenPreviewScrollChanged);
+            // 
+            // vScreenPreviewScrollBar
+            // 
+            this.vScreenPreviewScrollBar.Dock = System.Windows.Forms.DockStyle.Right;
+            this.vScreenPreviewScrollBar.Enabled = false;
+            this.vScreenPreviewScrollBar.LargeChange = 2;
+            this.vScreenPreviewScrollBar.Location = new System.Drawing.Point(513, 0);
+            this.vScreenPreviewScrollBar.Maximum = 1;
+            this.vScreenPreviewScrollBar.Name = "vScreenPreviewScrollBar";
+            this.vScreenPreviewScrollBar.Size = new System.Drawing.Size(17, 426);
+            this.vScreenPreviewScrollBar.TabIndex = 2;
+            this.vScreenPreviewScrollBar.Scroll += new System.Windows.Forms.ScrollEventHandler(this.ScreenPreviewScrollChanged);
+            // 
             // panel1
             // 
+            this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.panel1.AutoScroll = true;
             this.panel1.Controls.Add(this.mapPictureBox);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(530, 426);
+            this.panel1.Size = new System.Drawing.Size(513, 406);
             this.panel1.TabIndex = 1;
             // 
             // mapPictureBox
@@ -288,6 +328,7 @@
             this.mapPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.mapPictureBox.TabIndex = 0;
             this.mapPictureBox.TabStop = false;
+            this.mapPictureBox.Paint += new System.Windows.Forms.PaintEventHandler(this.mapPictureBox_Paint);
             this.mapPictureBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.mapPictureBox_MouseDown);
             this.mapPictureBox.MouseLeave += new System.EventHandler(this.mapPictureBox_MouseLeave);
             this.mapPictureBox.MouseMove += new System.Windows.Forms.MouseEventHandler(this.mapPictureBox_MouseMove);
@@ -352,5 +393,8 @@
         private System.Windows.Forms.ToolStripMenuItem deleteAllEntitiesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem entityBoxesToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripMenuItem screenPreviewToolStripMenuItem;
+        private System.Windows.Forms.HScrollBar hScreenPreviewScrollBar;
+        private System.Windows.Forms.VScrollBar vScreenPreviewScrollBar;
     }
 }

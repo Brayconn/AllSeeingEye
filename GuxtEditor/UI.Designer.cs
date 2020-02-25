@@ -58,5 +58,14 @@ namespace GuxtEditor {
                 return ((global::System.Drawing.Color)(this["SelectedTileColor"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Yellow")]
+        public global::System.Drawing.Color ScreenPreviewColor {
+            get {
+                return ((global::System.Drawing.Color)(this["ScreenPreviewColor"]));
+            }
+        }
     }
 }
