@@ -36,8 +36,7 @@ namespace GuxtEditor
         void InitTilesetTileTypes()
         {
             tilesetTileTypes?.Dispose();
-            tilesetTileTypes = new Bitmap(16 * parentMod.TileSize, 16 * parentMod.TileSize);
-            DrawTiles(tilesetTileTypes, attributes, tileTypes);
+            tilesetTileTypes = (Bitmap)CommonDraw.RenderTiles(attributes, tileTypes, parentMod.TileSize);
         }
         #endregion
         void DrawSelectedTile(Graphics g)

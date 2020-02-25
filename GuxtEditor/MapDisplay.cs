@@ -26,15 +26,12 @@ namespace GuxtEditor
         void InitMap()
         {
             baseMap?.Dispose();
-            baseMap = new Bitmap(map.Width * parentMod.TileSize, map.Height * parentMod.TileSize);
-            DrawTiles(baseMap, map, baseTileset);
-
+            baseMap = (Bitmap)CommonDraw.RenderTiles(map, baseTileset, parentMod.TileSize);
         }
         void InitMapTileTypes()
         {
             mapTileTypes?.Dispose();
-            mapTileTypes = new Bitmap(map.Width * parentMod.TileSize, map.Height * parentMod.TileSize);
-            DrawTiles(mapTileTypes, map, tilesetTileTypes);
+            mapTileTypes = (Bitmap)CommonDraw.RenderTiles(map, tilesetTileTypes, parentMod.TileSize);
         }
         #endregion
 

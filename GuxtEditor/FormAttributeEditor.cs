@@ -120,61 +120,7 @@ namespace GuxtEditor
         {
             tilesetTileTypes?.Dispose();
             tilesetTileTypes = new Bitmap(16 * parentMod.TileSize, 16 * parentMod.TileSize);
-            DrawTiles(tilesetTileTypes, attributes, tileTypes);
-        }
-
-        #endregion
-
-        #region generic draw
-
-        /// <summary>
-        /// Draws all the tiles from the given map onto the given image, using the given tileset
-        /// </summary>
-        /// <param name="toDraw"></param>
-        /// <param name="tileSource"></param>
-        /// <param name="tileset"></param>
-        void DrawTiles(Image toDraw, Map tileSource, Bitmap tileset)
-        {
-            using (Graphics g = Graphics.FromImage(toDraw))
-            {
-                g.CompositingMode = CompositingMode.SourceCopy;
-                for (int i = 0; i < tileSource.Tiles.Count; i++)
-                {
-                    DrawTile(g, tileSource, i, tileset);
-                }
-            }
-        }
-        void DrawTile(Image img, Map tileSource, int i, Bitmap tileset)
-        {
-            using (Graphics g = Graphics.FromImage(img))
-            {
-                g.CompositingMode = CompositingMode.SourceCopy;
-                DrawTile(g, tileSource, i, tileset);
-            }
-        }
-
-        /// <summary>
-        /// Draws the "i"th tile of the given map, using the given Graphics and tileset
-        /// </summary>
-        /// <param name="g"></param>
-        /// <param name="tileSource"></param>
-        /// <param name="i"></param>
-        /// <param name="tileset"></param>
-        void DrawTile(Graphics g, Map tileSource, int i, Bitmap tileset)
-        {
-            var tilesetX = (tileSource.Tiles[i] % 16) * parentMod.TileSize;
-            var tilesetY = (tileSource.Tiles[i] / 16) * parentMod.TileSize;
-
-            var x = (i % tileSource.Width) * parentMod.TileSize;
-            var y = (i / tileSource.Width) * parentMod.TileSize;
-
-            using (var tileImage = tileset.Clone(new Rectangle(
-                tilesetX, tilesetY, parentMod.TileSize, parentMod.TileSize
-            ), PixelFormat.DontCare))
-            {
-                g.FillRectangle(Brushes.Transparent, x, y, parentMod.TileSize, parentMod.TileSize);
-                g.DrawImage(tileImage, x, y, parentMod.TileSize, parentMod.TileSize);
-            }
+            CommonDraw.RenderTiles(tilesetTileTypes, attributes, tileTypes, parentMod.TileSize);
         }
 
         #endregion
@@ -250,7 +196,7 @@ namespace GuxtEditor
             var tile = (p.Y * attributes.Width) + p.X;
             attributes.Tiles[tile] = SelectedTile;
 
-            DrawTile(tilesetTileTypes, attributes, tile, tileTypes);
+            CommonDraw.DrawTile(tilesetTileTypes, attributes, tile, tileTypes, parentMod.TileSize, CompositingMode.SourceCopy);
         }
 
         #endregion

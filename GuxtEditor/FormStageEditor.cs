@@ -242,61 +242,6 @@ namespace GuxtEditor
 
         #endregion
 
-        #region generic draw functions
-
-        /// <summary>
-        /// Draws all the tiles from the given map onto the given image, using the given tileset
-        /// </summary>
-        /// <param name="toDraw"></param>
-        /// <param name="tileSource"></param>
-        /// <param name="tileset"></param>
-        void DrawTiles(Image toDraw, Map tileSource, Bitmap tileset)
-        {
-            using (Graphics g = Graphics.FromImage(toDraw))
-            {
-                for (int i = 0; i < tileSource.Tiles.Count; i++)
-                {
-                    DrawTile(g, tileSource, i, tileset);
-                }
-            }
-        }
-        /// <summary>
-        /// Draws the "i"th tile of the given map, using the given Image and tileset
-        /// </summary>
-        /// <param name="img"></param>
-        /// <param name="tileSource"></param>
-        /// <param name="i"></param>
-        /// <param name="tileset"></param>
-        void DrawTile(Image img, Map tileSource, int i, Bitmap tileset)
-        {
-            using (Graphics g = Graphics.FromImage(img))
-                DrawTile(g, tileSource, i, tileset);
-        }
-        /// <summary>
-        /// Draws the "i"th tile of the given map, using the given Graphics and tileset
-        /// </summary>
-        /// <param name="g"></param>
-        /// <param name="tileSource"></param>
-        /// <param name="i"></param>
-        /// <param name="tileset"></param>
-        void DrawTile(Graphics g, Map tileSource, int i, Bitmap tileset)
-        {
-            var tilesetX = (tileSource.Tiles[i] % 16) * parentMod.TileSize;
-            var tilesetY = (tileSource.Tiles[i] / 16) * parentMod.TileSize;
-
-            var x = (i % tileSource.Width) * parentMod.TileSize;
-            var y = (i / tileSource.Width) * parentMod.TileSize;
-
-            using (var tileImage = tileset.Clone(new Rectangle(
-                tilesetX, tilesetY, parentMod.TileSize, parentMod.TileSize
-            ), PixelFormat.DontCare))
-            {
-                g.DrawImage(tileImage, x, y, parentMod.TileSize, parentMod.TileSize);
-            }
-        }
-
-        #endregion
-
         #region edit map
 
         byte selectedTile = 0;
@@ -322,8 +267,8 @@ namespace GuxtEditor
         {
             UnsavedEdits = true;
             map.Tiles[tileNum] = tileValue;
-            DrawTile(baseMap, map, tileNum, baseTileset);
-            DrawTile(mapTileTypes, map, tileNum, tilesetTileTypes);
+            CommonDraw.DrawTile(baseMap, map, tileNum, baseTileset, parentMod.TileSize);
+            CommonDraw.DrawTile(mapTileTypes, map, tileNum, tilesetTileTypes, parentMod.TileSize);
         }
 
         #endregion
