@@ -81,6 +81,7 @@ namespace GuxtEditor
             Keybinds = keybinds;
 
             InitializeComponent();
+            tilesetPictureBox.MouseWheel += tilesetPictureBox_MouseWheel;
             UpdateTitle();            
 
             //attributes
@@ -181,7 +182,7 @@ namespace GuxtEditor
         #region Drawing tile types
         void DrawSelectedTile(Graphics g)
         {
-            g.DrawRectangle(new Pen(Color.LightGray),
+            g.DrawRectangle(new Pen(UI.Default.SelectedTileColor),
                 (SelectedTile % 16) * parentMod.TileSize,
                 (SelectedTile / 16) * parentMod.TileSize,
                 parentMod.TileSize - 1,
@@ -212,7 +213,7 @@ namespace GuxtEditor
             int width = parentMod.TileSize - 1;
             int height = parentMod.TileSize - 1;
 
-            g.DrawRectangle(new Pen(Color.LightGray), x, y, width, height);
+            g.DrawRectangle(new Pen(UI.Default.CursorColor), x, y, width, height);
         }
         void DisplayTileset(Point? p = null)
         {
@@ -228,7 +229,8 @@ namespace GuxtEditor
                 }
             }
             tilesetPictureBox.Image?.Dispose();
-            tilesetPictureBox.Image = tilesetImage;
+            tilesetPictureBox.Image = CommonDraw.Scale(tilesetImage, ZoomLevel);
+            tilesetImage.Dispose();
         }
 
         #endregion
@@ -263,15 +265,18 @@ namespace GuxtEditor
         Point maxGridPoint { get => new Point(attributes.Width - 1, attributes.Height - 1); }
 
         bool Draw = false;
-
-        private Point GetMousePointOnGrid(Point p)
+        private Point GetMousePointOnTileTypes(Point p)
         {
             return new Point(p.X / parentMod.TileSize, p.Y / parentMod.TileSize);
+        }
+        private Point GetMousePointOnTileset(Point p)
+        {
+            return new Point(p.X / (parentMod.TileSize * ZoomLevel), p.Y / (parentMod.TileSize * ZoomLevel));
         }
 
         private void tileTypesPictureBox_MouseClick(object sender, MouseEventArgs e)
         {
-            var p = GetMousePointOnGrid(e.Location);
+            var p = GetMousePointOnTileTypes(e.Location);
             var value = (p.Y * 16) + p.X;
             if (value <= byte.MaxValue && value != SelectedTile)
             {
@@ -283,12 +288,14 @@ namespace GuxtEditor
         private void tilesetPictureBox_MouseDown(object sender, MouseEventArgs e)
         {
             Draw = e.Button == MouseButtons.Left;
-            SetTile(GetMousePointOnGrid(e.Location));
+            var p = GetMousePointOnTileset(e.Location);
+            SetTile(p);
+            DisplayTileset(p);
         }
 
         private void tilesetPictureBox_MouseMove(object sender, MouseEventArgs e)
         {
-            var p = GetMousePointOnGrid(e.Location);
+            var p = GetMousePointOnTileset(e.Location);
             //TODO make clamp?
             p.X = Math.Max(0, Math.Min(p.X, maxGridPoint.X));
             p.Y = Math.Max(0, Math.Min(p.Y, maxGridPoint.Y));
@@ -328,11 +335,42 @@ namespace GuxtEditor
             {
                 switch(Keybinds[input])
                 {
+                    case "ZoomIn":
+                        ZoomLevel++;
+                        break;
+                    case "ZoomOut":
+                        ZoomLevel--;
+                        break;
                     case "Save":
                         Save();
                         break;
                 }
             }
+        }
+
+        #endregion
+
+        #region zoom
+
+        const int MaxZoom = 10;
+
+        int zoomLevel = 1;
+        int ZoomLevel
+        {
+            get => zoomLevel;
+            set
+            {
+                if (1 <= value && value <= MaxZoom)
+                {
+                    zoomLevel = value;
+                    DisplayTileset();
+                }
+            }
+        }
+        private void tilesetPictureBox_MouseWheel(object sender, MouseEventArgs e)
+        {
+            if (ModifierKeys == Keys.Control)
+                ZoomLevel += (e.Delta > 0) ? 1 : -1;
         }
 
         #endregion
