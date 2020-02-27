@@ -293,10 +293,10 @@ namespace GuxtEditor
             switch (sender)
             {
                 case FormStageEditor fse:
-                    openStages.Remove(fse.StageNumber);
+                    openStages.Remove(fse.AssetNumber);
                     break;
                 case FormAttributeEditor fae:
-                    openAttributes.Remove(fae.AttributeNumber);
+                    openAttributes.Remove(fae.AssetNumber);
                     break;
             }
         }

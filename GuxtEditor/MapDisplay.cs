@@ -42,12 +42,12 @@ namespace GuxtEditor
                 var y = (entities[i].Y * parentMod.TileSize) / 2;
                 var x = (entities[i].X * parentMod.TileSize) / 2;
 
-                if(entitySpritesToolStripMenuItem.Checked && entities[i].EntityID < EntityIcons.Images.Count)
+                //if(entitySpritesToolStripMenuItem.Checked && entities[i].EntityID < EntityIcons.Images.Count)
                     g.DrawImage(EntityIcons.Images[entities[i].EntityID],
                         x, y, parentMod.IconSize, parentMod.IconSize);
 
                 var isSelected = selectedEntities.Contains(entities[i]);
-                if (entityBoxesToolStripMenuItem.Checked || isSelected)
+                //if (entityBoxesToolStripMenuItem.Checked || isSelected)
                     g.DrawRectangle(new Pen(isSelected ? UI.Default.SelectedEntityBoxColor : UI.Default.EntityBoxColor),
                         x, y, (parentMod.TileSize / 2) - 1, (parentMod.TileSize / 2) - 1);
             }
@@ -57,11 +57,13 @@ namespace GuxtEditor
         const int ScreenHeight = 10;
         private void DrawScreenPreview(Graphics g)
         {
+            /*
             g.DrawRectangle(new Pen(UI.Default.ScreenPreviewColor),
                 hScreenPreviewScrollBar.Value,
                 vScreenPreviewScrollBar.Value,
                 (ScreenWidth * parentMod.TileSize) - 1,
                 (ScreenHeight * parentMod.TileSize) - 1);
+            */
         }
 
         /// <summary>
@@ -106,11 +108,11 @@ namespace GuxtEditor
             {
                 if (tileTypesToolStripMenuItem.Checked)
                     g.DrawImage(mapTileTypes,0,0,mapTileTypes.Width,mapTileTypes.Height);
-                if (entitySpritesToolStripMenuItem.Checked || entityBoxesToolStripMenuItem.Checked || userHasSelectedEntities)
+                //if (entitySpritesToolStripMenuItem.Checked || entityBoxesToolStripMenuItem.Checked || userHasSelectedEntities)
                     DrawEntities(g);
-                if (screenPreviewToolStripMenuItem.Checked)
+                //if (screenPreviewToolStripMenuItem.Checked)
                     DrawScreenPreview(g);
-                if (p != null)
+                //if (p != null)
                     DrawMouseOverlay(g, (Point)p, p2);
             }            
             mapPictureBox.Image?.Dispose();

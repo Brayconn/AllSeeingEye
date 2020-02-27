@@ -22,15 +22,15 @@ namespace GuxtEditor
     public partial class FormAttributeEditor : Form
     {
         readonly Mod parentMod;
-        public int AttributeNumber { get; private set; }
+        public int AssetNumber { get; private set; }
 
         readonly IDictionary<WinFormsKeybinds.KeyInput, string> Keybinds;
 
-        bool unsavedEdits = false;
+        protected bool unsavedEdits = false;
         public bool UnsavedEdits
         {
             get => unsavedEdits;
-            private set
+            protected set
             {
                 if (unsavedEdits != value)
                 {
@@ -40,9 +40,9 @@ namespace GuxtEditor
             }
         }
 
-        private void UpdateTitle()
+        protected virtual void UpdateTitle()
         {
-            this.Text = $"Attribute {AttributeNumber}";
+            this.Text = $"Attribute {AssetNumber}";
             if (UnsavedEdits)
                 this.Text += "*";
         }
@@ -50,17 +50,17 @@ namespace GuxtEditor
         /// <summary>
         /// Location to save this attribute to
         /// </summary>
-        readonly string attributePath;
+        string attributePath;
 
         /// <summary>
         /// The loaded attributes
         /// </summary>
-        readonly Map attributes;
+        Map attributes;
 
         /// <summary>
         /// All tile types
         /// </summary>
-        readonly Bitmap tileTypes;
+        Bitmap tileTypes;
 
         /// <summary>
         /// The current tileset (image)
@@ -71,26 +71,39 @@ namespace GuxtEditor
         /// </summary>
         Bitmap tilesetTileTypes;
 
+        private FormAttributeEditor()
+        {
+            InitializeComponent();
+        }
         //everything get initialised, just not in this method
         #nullable disable
         public FormAttributeEditor(Mod m, int attributeNumber, string tileTypePath, IDictionary<WinFormsKeybinds.KeyInput,string> keybinds)
+            : base()
         #nullable restore
         {
             parentMod = m;
-            AttributeNumber = attributeNumber;
+            AssetNumber = attributeNumber;
             Keybinds = keybinds;
 
-            InitializeComponent();
-            tilesetPictureBox.MouseWheel += tilesetPictureBox_MouseWheel;
-            UpdateTitle();            
-
-            //attributes
-            attributePath = Path.Combine(parentMod.DataPath, parentMod.AttributeName + AttributeNumber + "." + parentMod.AttributeExtension);
-            attributes = new Map(attributePath);
-            attributes.MapResized += () => InitTilesetTileTypes();
             tileTypes = new Bitmap(tileTypePath);
 
-            attributePropertyGrid.SelectedObject = attributes;
+            //designer, events, other UI
+            //InitializeComponent();
+            mainPictureBox.MouseWheel += mainPictureBox_MouseWheel;
+            UpdateTitle();
+
+
+            InitAssets();
+        }
+        protected virtual void InitAssets()
+        {
+            //attributes
+            attributePath = Path.Combine(parentMod.DataPath, parentMod.AttributeName + AssetNumber + "." + parentMod.AttributeExtension);
+            attributes = new Map(attributePath);
+            attributes.MapResized += () => InitTilesetTileTypes();
+            
+
+            tilePropertyGrid.SelectedObject = attributes;
 
             //tileset            
             var t = new Bitmap(Path.ChangeExtension(attributePath, parentMod.ImageExtension));
@@ -101,7 +114,6 @@ namespace GuxtEditor
 
             DisplayTileTypes();
             DisplayTileset();
-
         }
 
         #region init images
@@ -143,8 +155,8 @@ namespace GuxtEditor
                 g.DrawImage(tileTypes, 0, 0, tileTypes.Width, tileTypes.Height);
                 DrawSelectedTile(g);
             }
-            tileTypesPictureBox.Image?.Dispose();
-            tileTypesPictureBox.Image = workingTileTypes;
+            tilesetPictureBox.Image?.Dispose();
+            tilesetPictureBox.Image = workingTileTypes;
         }
 
         #endregion
@@ -174,8 +186,8 @@ namespace GuxtEditor
                         DrawMouseOverlay(g, (Point)p);
                 }
             }
-            tilesetPictureBox.Image?.Dispose();
-            tilesetPictureBox.Image = CommonDraw.Scale(tilesetImage, ZoomLevel);
+            mainPictureBox.Image?.Dispose();
+            mainPictureBox.Image = CommonDraw.Scale(tilesetImage, ZoomLevel);
             tilesetImage.Dispose();
         }
 
@@ -273,7 +285,7 @@ namespace GuxtEditor
 
         private void FormAttributeEditor_KeyDown(object sender, KeyEventArgs e)
         {
-            if (attributePropertyGrid.ActiveControl?.GetType().Name == "GridViewEdit")
+            if (tilePropertyGrid.ActiveControl?.GetType().Name == "GridViewEdit")
                 return;
 
             var input = new WinFormsKeybinds.KeyInput(e.KeyData);
@@ -313,7 +325,7 @@ namespace GuxtEditor
                 }
             }
         }
-        private void tilesetPictureBox_MouseWheel(object sender, MouseEventArgs e)
+        protected virtual void mainPictureBox_MouseWheel(object sender, MouseEventArgs e)
         {
             if (ModifierKeys == Keys.Control)
                 ZoomLevel += (e.Delta > 0) ? 1 : -1;

@@ -17,35 +17,16 @@ using GuxtEditor.Properties;
 
 namespace GuxtEditor
 {
-    public partial class FormStageEditor : Form
+    public partial class FormStageEditor : FormAttributeEditor
     {
-        /// <summary>
-        /// What stage this editor is editing
-        /// </summary>
-        public int StageNumber { get; private set; }
-
-        bool unsavedEdits = false;
-        public bool UnsavedEdits
-        {
-            get => unsavedEdits;
-            private set
-            {
-                if(unsavedEdits != value)
-                {
-                    unsavedEdits = value;
-                    UpdateTitle();
-                }
-            }
-        }
-
         private void SetUnsavedEdits(object o, EventArgs e)
         {
             UnsavedEdits = true;
         }
 
-        private void UpdateTitle()
+        protected override void UpdateTitle()
         {
-            this.Text = $"Stage {StageNumber}";
+            this.Text = $"Stage {AssetNumber}";
             if (UnsavedEdits)
                 this.Text += "*";
         }
@@ -77,27 +58,21 @@ namespace GuxtEditor
         //Everything gets set, just not directly in this method
 #nullable disable
         public FormStageEditor(Mod m, int stageNum, string tileTypePath, IDictionary<WinFormsKeybinds.KeyInput,string> keybinds)
+            : base(m, stageNum, tileTypePath, keybinds)
         #nullable restore
         {
-            //everything needs this stuff
-            parentMod = m;
-            StageNumber = stageNum;
-            Keybinds = keybinds;
-
             //UI init
             InitializeComponent();
-            UpdateTitle();
-            mapPictureBox.MouseWheel += mapPictureBox_MouseWheel;
             InitEntityList();
 
             //entities
-            entityPath = Path.Combine(parentMod.DataPath, parentMod.EntityName + StageNumber + "." + parentMod.EntityExtension);
+            entityPath = Path.Combine(parentMod.DataPath, parentMod.EntityName + AssetNumber + "." + parentMod.EntityExtension);
             entities = PXEVE.Read(entityPath);
             foreach (var ent in entities)
                 ent.PropertyChanged += SetUnsavedEdits;
 
             //attributes
-            var attributePath = Path.Combine(parentMod.DataPath, parentMod.AttributeName + StageNumber + "." + parentMod.AttributeExtension);
+            var attributePath = Path.Combine(parentMod.DataPath, parentMod.AttributeName + AssetNumber + "." + parentMod.AttributeExtension);
             attributes = new Map(attributePath);
             tileTypes = new Bitmap(tileTypePath);
 
@@ -109,17 +84,17 @@ namespace GuxtEditor
             InitTilesetTileTypes();            
 
             //base map setup
-            mapPath = Path.Combine(parentMod.DataPath, parentMod.MapName + StageNumber + "." + parentMod.MapExtension);
+            mapPath = Path.Combine(parentMod.DataPath, parentMod.MapName + AssetNumber + "." + parentMod.MapExtension);
             map = new Map(mapPath);
             map.MapResized += delegate { InitMapAndDisplay(); };
-            mapPropertyGrid.SelectedObject = map;            
+            tilePropertyGrid.SelectedObject = map;            
 
             //display everything
             DisplayTileset();
 
             InitMapAndDisplay();
             //Init screen preview to the bottom of the screen
-            vScreenPreviewScrollBar.Value = vScreenPreviewScrollBar.Maximum - 1;
+            //vScreenPreviewScrollBar.Value = vScreenPreviewScrollBar.Maximum - 1;
         }
 
         /// <summary>
@@ -154,11 +129,6 @@ namespace GuxtEditor
                 }
             }
         }
-        private void mapPictureBox_MouseWheel(object sender, MouseEventArgs e)
-        {
-            if(ModifierKeys == Keys.Control)
-                ZoomLevel += (e.Delta > 0) ? 1 : -1;
-        }
 
         bool scrollBarNeedsUpdate = false;
         decimal scrollBarMultiplier = 0;
@@ -186,8 +156,8 @@ namespace GuxtEditor
             InitMap();
             
             //init screen preview max
-            vScreenPreviewScrollBar.Maximum = ((map.Height - ScreenHeight) * parentMod.TileSize) + vScreenPreviewScrollBar.LargeChange - 1;
-            hScreenPreviewScrollBar.Maximum = ((map.Width - ScreenWidth) * parentMod.TileSize) + hScreenPreviewScrollBar.LargeChange - 1;
+            //vScreenPreviewScrollBar.Maximum = ((map.Height - ScreenHeight) * parentMod.TileSize) + vScreenPreviewScrollBar.LargeChange - 1;
+            //hScreenPreviewScrollBar.Maximum = ((map.Width - ScreenWidth) * parentMod.TileSize) + hScreenPreviewScrollBar.LargeChange - 1;
 
             InitMapTileTypes();
             DisplayMap();
@@ -425,13 +395,14 @@ namespace GuxtEditor
         /// </summary>
         EditModes editMode
         {
-            get => editModeTabControl.SelectedIndex switch
+            get => 0 switch //editModeTabControl.SelectedIndex switch
             {
                 0 => EditModes.Tile,
                 1 => EditModes.Entity,
                 _ => EditModes.Tile //Expand new tabs here
             };
         }
+        
 
         /// <summary>
         /// The bottom right point of the map
@@ -655,8 +626,8 @@ namespace GuxtEditor
         private void FormStageEditor_KeyDown(object sender, KeyEventArgs e)
         {
             //Kinda hacky way of checking if the user is editing something in a property grid
-            if (entityPropertyGrid.ActiveControl?.GetType().Name == "GridViewEdit" ||
-                mapPropertyGrid.ActiveControl?.GetType().Name == "GridViewEdit")
+            if (entityPropertyGrid.ActiveControl?.GetType().Name == "GridViewEdit")// ||
+                //mapPropertyGrid.ActiveControl?.GetType().Name == "GridViewEdit")
                 return;
 
             var input = new WinFormsKeybinds.KeyInput(e.KeyData);
@@ -734,8 +705,8 @@ namespace GuxtEditor
 
         private void screenPreviewToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
-            vScreenPreviewScrollBar.Enabled = vScreenPreviewScrollBar.Maximum > 1 && screenPreviewToolStripMenuItem.Checked;
-            hScreenPreviewScrollBar.Enabled = hScreenPreviewScrollBar.Maximum > 1 && screenPreviewToolStripMenuItem.Checked;
+            vScreenPreviewScrollBar.Enabled = vScreenPreviewScrollBar.Maximum > 1;//&& screenPreviewToolStripMenuItem.Checked;
+            hScreenPreviewScrollBar.Enabled = hScreenPreviewScrollBar.Maximum > 1;//&& screenPreviewToolStripMenuItem.Checked;
             DisplayMap();   
         }
 
