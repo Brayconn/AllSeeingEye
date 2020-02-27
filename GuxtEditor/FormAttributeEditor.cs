@@ -22,7 +22,7 @@ namespace GuxtEditor
     public partial class FormAttributeEditor : Form
     {
         readonly Mod parentMod;
-        public int AttributeNumber { get; private set; }
+        public string AttributeFilename { get; private set; }
 
         readonly IDictionary<WinFormsKeybinds.KeyInput, string> Keybinds;
 
@@ -42,7 +42,7 @@ namespace GuxtEditor
 
         private void UpdateTitle()
         {
-            this.Text = $"Attribute {AttributeNumber}";
+            this.Text = AttributeFilename;
             if (UnsavedEdits)
                 this.Text += "*";
         }
@@ -73,11 +73,11 @@ namespace GuxtEditor
 
         //everything get initialised, just not in this method
         #nullable disable
-        public FormAttributeEditor(Mod m, int attributeNumber, string tileTypePath, IDictionary<WinFormsKeybinds.KeyInput,string> keybinds)
+        public FormAttributeEditor(Mod m, string filename, string tileTypePath, IDictionary<WinFormsKeybinds.KeyInput,string> keybinds)
         #nullable restore
         {
             parentMod = m;
-            AttributeNumber = attributeNumber;
+            AttributeFilename = filename;
             Keybinds = keybinds;
 
             InitializeComponent();
@@ -85,7 +85,7 @@ namespace GuxtEditor
             UpdateTitle();            
 
             //attributes
-            attributePath = Path.Combine(parentMod.DataPath, parentMod.AttributeName + AttributeNumber + "." + parentMod.AttributeExtension);
+            attributePath = Path.Combine(parentMod.DataPath, AttributeFilename);
             attributes = new Map(attributePath);
             attributes.MapResized += () => InitTilesetTileTypes();
             tileTypes = new Bitmap(tileTypePath);

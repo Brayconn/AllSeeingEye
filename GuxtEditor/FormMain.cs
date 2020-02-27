@@ -296,7 +296,15 @@ namespace GuxtEditor
                     openStages.Remove(fse.StageNumber);
                     break;
                 case FormAttributeEditor fae:
-                    openAttributes.Remove(fae.AttributeNumber);
+                    //HACK this can probably be done better, but it's going to require redoing the AddOrRemoveEditor function
+                    foreach(var kvp in openAttributes)
+                    {
+                        if(kvp.Value == fae)
+                        {
+                            openAttributes.Remove(kvp.Key);
+                            break;
+                        }
+                    }
                     break;
             }
         }
@@ -311,7 +319,7 @@ namespace GuxtEditor
                     Form? f = editorType switch
                     {
                         AvailableEditors.Stage => new FormStageEditor(LoadedMod!, selectedMap, tileTypePath, stageEditorKeybinds),
-                        AvailableEditors.Attribute => new FormAttributeEditor(LoadedMod!, selectedMap, tileTypePath, stageEditorKeybinds),
+                        AvailableEditors.Attribute => new FormAttributeEditor(LoadedMod!, editorList.SelectedItem.ToString(), tileTypePath, stageEditorKeybinds),
                         _ => null
                     };
                     if (f == null)
