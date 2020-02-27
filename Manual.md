@@ -62,7 +62,7 @@ As stated earlier, ASE does not make any changes to your exe. If you see somethi
   - `Tile Types` - The tile type for each tile on the map is displayed.
   - `Entity Sprites` - Entity sprites/icons appear where entities are placed.
   - `Entity Boxes` - Boxes appear where entities are placed.
-  - `Screen Preview` - Draws a box as big as the in-game screen size. Useful for lining up enemies in just the right spot.
+  - `Screen Preview` - Draws a box as big as the in-game screen size. Useful for lining up enemies in just the right spot. Use the extra scrollbars in the Stage Editor to move it around.
 
 The attribute editor has all these buttons and less™.
 
