@@ -64,10 +64,6 @@ namespace GuxtEditor
         {
             var x = (i % tileSource.Width) * tileSize;
             var y = (i / tileSource.Width) * tileSize;
-            /*do I need to draw a Brushes.Transparent box here sometimes?
-            if(overwrite)
-                g.FillRectangle(Brushes.Transparent, x, y, tileSize, tileSize);
-            */
             g.DrawImage(GetTile(tileSource.Tiles[i], tileset, tileSize), x, y, tileSize, tileSize);
         }
 
