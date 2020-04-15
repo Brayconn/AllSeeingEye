@@ -74,6 +74,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\PixelModdingFramework\PixelModdingFramework\PixelModdingFramework.csproj" />
     <ProjectReference Include="..\..\WinFormsKeybinds\WinFormsKeybinds\WinFormsKeybinds.csproj" />
     <ProjectReference Include="..\GuxtModdingFramework\GuxtModdingFramework.csproj" />
   </ItemGroup>

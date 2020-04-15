@@ -1,17 +1,18 @@
-﻿using System;
+﻿using PixelModdingFramework;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
 namespace GuxtModdingFramework.Maps
 {
-    public class Map
+    public class Map : IMap<List<byte>>
     {
         public event Action MapResized = new Action(() => { });
         public int Size { get => Width * Height; }
 
-        private ushort width;
-        public ushort Width
+        private short width;
+        public short Width
         {
             get => width;
             set
@@ -25,8 +26,8 @@ namespace GuxtModdingFramework.Maps
             }
         }
 
-        private ushort height;
-        public ushort Height
+        private short height;
+        public short Height
         {
             get => height;
             set
@@ -66,7 +67,7 @@ namespace GuxtModdingFramework.Maps
         /// </summary>
         /// <param name="w"></param>
         /// <param name="h"></param>
-        public Map(ushort w, ushort h)
+        public Map(short w, short h)
         {
             Width = w;
             Height = h;
@@ -77,8 +78,8 @@ namespace GuxtModdingFramework.Maps
         {
             using (BinaryReader br = new BinaryReader(new FileStream(path, FileMode.Open, FileAccess.Read)))
             {
-                width = br.ReadUInt16();
-                height = br.ReadUInt16();
+                width = br.ReadInt16();
+                height = br.ReadInt16();
                 Tiles = new List<byte>(Width * Height);
                 while (br.BaseStream.Position < br.BaseStream.Length)
                     Tiles.Add(br.ReadByte());

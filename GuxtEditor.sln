@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GuxtModdingFramework", "Gux
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormsKeybinds", "..\WinFormsKeybinds\WinFormsKeybinds\WinFormsKeybinds.csproj", "{01D4486A-D72A-421D-842F-AB35EF1CDFBB}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixelModdingFramework", "..\PixelModdingFramework\PixelModdingFramework\PixelModdingFramework.csproj", "{3E3EF640-1839-47C6-9C21-8BE8127D351C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{01D4486A-D72A-421D-842F-AB35EF1CDFBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{01D4486A-D72A-421D-842F-AB35EF1CDFBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{01D4486A-D72A-421D-842F-AB35EF1CDFBB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E3EF640-1839-47C6-9C21-8BE8127D351C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E3EF640-1839-47C6-9C21-8BE8127D351C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E3EF640-1839-47C6-9C21-8BE8127D351C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E3EF640-1839-47C6-9C21-8BE8127D351C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

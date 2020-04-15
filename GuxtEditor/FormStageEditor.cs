@@ -14,6 +14,7 @@ using GuxtModdingFramework.Images;
 using GuxtModdingFramework.Entities;
 using GuxtModdingFramework.Maps;
 using GuxtEditor.Properties;
+using static PixelModdingFramework.Rendering;
 
 namespace GuxtEditor
 {
@@ -267,8 +268,8 @@ namespace GuxtEditor
         {
             UnsavedEdits = true;
             map.Tiles[tileNum] = tileValue;
-            CommonDraw.DrawTile(baseMap, map, tileNum, baseTileset, parentMod.TileSize);
-            CommonDraw.DrawTile(mapTileTypes, map, tileNum, tilesetTileTypes, parentMod.TileSize);
+            DrawTile(baseMap, map, tileNum, baseTileset, parentMod.TileSize);
+            DrawTile(mapTileTypes, map, tileNum, tilesetTileTypes, parentMod.TileSize);
         }
 
         #endregion

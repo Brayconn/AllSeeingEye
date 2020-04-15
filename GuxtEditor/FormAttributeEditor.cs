@@ -13,6 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static PixelModdingFramework.Rendering;
 
 namespace GuxtEditor
 {
@@ -120,7 +121,7 @@ namespace GuxtEditor
         {
             tilesetTileTypes?.Dispose();
             tilesetTileTypes = new Bitmap(16 * parentMod.TileSize, 16 * parentMod.TileSize);
-            CommonDraw.RenderTiles(tilesetTileTypes, attributes, tileTypes, parentMod.TileSize);
+            RenderTiles(tilesetTileTypes, attributes, tileTypes, parentMod.TileSize);
         }
 
         #endregion
@@ -175,7 +176,7 @@ namespace GuxtEditor
                 }
             }
             tilesetPictureBox.Image?.Dispose();
-            tilesetPictureBox.Image = CommonDraw.Scale(tilesetImage, ZoomLevel);
+            tilesetPictureBox.Image = PixelModdingFramework.Rendering.ScaleImage(tilesetImage, ZoomLevel);
             tilesetImage.Dispose();
         }
 
@@ -189,14 +190,14 @@ namespace GuxtEditor
             UnsavedEdits = true;
             //auto-resize
             if(p.X >= attributes.Width)
-                attributes.Width = (ushort)(p.X + 1);
+                attributes.Width = (short)(p.X + 1);
             if(p.Y >= attributes.Height)
-                attributes.Height = (ushort)(p.Y + 1);
+                attributes.Height = (short)(p.Y + 1);
             
             var tile = (p.Y * attributes.Width) + p.X;
             attributes.Tiles[tile] = SelectedTile;
 
-            CommonDraw.DrawTile(tilesetTileTypes, attributes, tile, tileTypes, parentMod.TileSize, CompositingMode.SourceCopy);
+            DrawTile(tilesetTileTypes, attributes, tile, tileTypes, parentMod.TileSize, CompositingMode.SourceCopy);
         }
 
         #endregion

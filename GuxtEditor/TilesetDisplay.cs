@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using GuxtModdingFramework.Maps;
+using static PixelModdingFramework.Rendering;
 
 namespace GuxtEditor
 {
@@ -37,7 +38,7 @@ namespace GuxtEditor
         {
             tilesetTileTypes?.Dispose();
             tilesetTileTypes = new Bitmap(16 * parentMod.TileSize, 16 * parentMod.TileSize);
-            CommonDraw.RenderTiles(tilesetTileTypes, attributes, tileTypes, parentMod.TileSize);
+            RenderTiles(tilesetTileTypes, attributes, tileTypes, parentMod.TileSize);
         }
         #endregion
         void DrawSelectedTile(Graphics g)

@@ -6,6 +6,7 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static PixelModdingFramework.Rendering;
 
 namespace GuxtEditor
 {
@@ -26,12 +27,12 @@ namespace GuxtEditor
         void InitMap()
         {
             baseMap?.Dispose();
-            baseMap = (Bitmap)CommonDraw.RenderTiles(map, baseTileset, parentMod.TileSize);
+            baseMap = (Bitmap)RenderTiles(map, baseTileset, parentMod.TileSize);
         }
         void InitMapTileTypes()
         {
             mapTileTypes?.Dispose();
-            mapTileTypes = (Bitmap)CommonDraw.RenderTiles(map, tilesetTileTypes, parentMod.TileSize);
+            mapTileTypes = (Bitmap)RenderTiles(map, tilesetTileTypes, parentMod.TileSize);
         }
         #endregion
 
@@ -114,7 +115,7 @@ namespace GuxtEditor
                     DrawMouseOverlay(g, (Point)p, p2);
             }            
             mapPictureBox.Image?.Dispose();
-            mapPictureBox.Image = CommonDraw.Scale(mapImage, ZoomLevel);
+            mapPictureBox.Image = ScaleImage(mapImage, ZoomLevel);
             mapImage.Dispose();
         }               
 
