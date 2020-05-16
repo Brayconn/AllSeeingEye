@@ -38,6 +38,8 @@
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.scrambleImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.unscrambleImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openBPPToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.stagesListBox = new System.Windows.Forms.ListBox();
             this.imagesListBox = new System.Windows.Forms.ListBox();
@@ -55,7 +57,8 @@
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
-            this.editToolStripMenuItem});
+            this.editToolStripMenuItem,
+            this.toolsToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(800, 24);
@@ -125,6 +128,22 @@
             this.unscrambleImageToolStripMenuItem.Size = new System.Drawing.Size(182, 22);
             this.unscrambleImageToolStripMenuItem.Text = "Unscramble Image...";
             this.unscrambleImageToolStripMenuItem.Click += new System.EventHandler(this.UnscrambleImageToolStripMenuItem_Click);
+            // 
+            // toolsToolStripMenuItem
+            // 
+            this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.openBPPToolStripMenuItem});
+            this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
+            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(46, 20);
+            this.toolsToolStripMenuItem.Text = "Tools";
+            // 
+            // openBPPToolStripMenuItem
+            // 
+            this.openBPPToolStripMenuItem.Enabled = false;
+            this.openBPPToolStripMenuItem.Name = "openBPPToolStripMenuItem";
+            this.openBPPToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.openBPPToolStripMenuItem.Text = "Open BPP...";
+            this.openBPPToolStripMenuItem.Click += new System.EventHandler(this.openBPPToolStripMenuItem_Click);
             // 
             // tableLayoutPanel1
             // 
@@ -279,6 +298,8 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.PropertyGrid modPropertyGrid;
+        private System.Windows.Forms.ToolStripMenuItem toolsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem openBPPToolStripMenuItem;
     }
 }
 

@@ -11,7 +11,7 @@
     <ApplicationIcon>cyber.ico</ApplicationIcon>
     <Win32Resource />
     <Authors>Brayconn</Authors>
-    <Version>1.1.1</Version>
+    <Version>1.2.0</Version>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>
@@ -45,6 +45,11 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <AutoGen>True</AutoGen>
       <DependentUpon>Keybinds.settings</DependentUpon>
+    </Compile>
+    <Compile Update="Patcher.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Patcher.settings</DependentUpon>
     </Compile>
     <Compile Update="UI.Designer.cs">
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -82,6 +87,10 @@
     <None Update="Keybinds.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Keybinds.Designer.cs</LastGenOutput>
+    </None>
+    <None Update="Patcher.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Patcher.Designer.cs</LastGenOutput>
     </None>
     <None Update="UI.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

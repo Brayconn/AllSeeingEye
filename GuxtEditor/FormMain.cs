@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -109,6 +110,8 @@ namespace GuxtEditor
 
             saveToolStripMenuItem.Enabled = true;
             saveAsToolStripMenuItem.Enabled = true;
+
+            openBPPToolStripMenuItem.Enabled = true;
         }
 
         private static void ClearEditorDict(Dictionary<int, Form> dict)
@@ -119,12 +122,12 @@ namespace GuxtEditor
         }
         private void ClearMemory()
         {
+            guxtEXEPath = null;
             ClearEditorDict(openStages);
             ClearEditorDict(openAttributes);
         }
 
         #region File
-
         private void NewToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (!LoadWarning())
@@ -381,6 +384,52 @@ namespace GuxtEditor
                 if(MessageBox.Show("You still have editors open! Are you sure you want to close without saving them?", "Warning", MessageBoxButtons.YesNo) != DialogResult.Yes)
                         e.Cancel = true;
             }
+        }
+
+        string? guxtEXEPath;
+        private void openBPPToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if(!File.Exists(Patcher.Default.ExePath))
+            {
+                MessageBox.Show("You haven't configured your patcher path! Please fill it in the settings file.", "Error");
+                return;
+            }
+            //base address for guxt is 0x400000, not 0x40100 as RAIN thought it was 😤
+            var args = "-b 4194304";
+            
+            if (Directory.Exists(Patcher.Default.HackFolder))
+                args += $" -h \"{Patcher.Default.HackFolder}\"";
+
+            //If you've saved
+            if (File.Exists(savePath))
+                args += $" -l \"{Path.ChangeExtension(savePath, "ph")}\"";
+
+            var exeDir = Path.GetDirectoryName(LoadedMod!.DataPath);
+            if (!File.Exists(guxtEXEPath))
+            {
+                var exes = Directory.GetFiles(exeDir, "*.exe");
+                if (exes.Length == 1)
+                    guxtEXEPath = exes[0];
+                else
+                {
+                    MessageBox.Show("Multiple exes were found in your guxt folder! Please choose which is the right one:", this.Text);
+                    using (var ofd = new OpenFileDialog()
+                    {
+                        Title = "Choose your exe...",
+                        InitialDirectory = exeDir,
+                        Filter = string.Join("|", GuxtEXEFilter, AllFilesFilter)
+                    })
+                    {
+                        if (ofd.ShowDialog() == DialogResult.OK)
+                            guxtEXEPath = ofd.FileName;
+                        else
+                            return;
+                    }
+                }
+            }
+            args += $" -e \"{guxtEXEPath}\"";
+
+            Process.Start(Patcher.Default.ExePath, args);
         }
     }
 }
