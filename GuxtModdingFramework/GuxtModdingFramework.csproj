@@ -8,7 +8,7 @@
     <Copyright>Copyright © Brayconn 2020</Copyright>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <Authors>Brayconn</Authors>
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>
