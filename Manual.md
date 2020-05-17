@@ -28,6 +28,8 @@ The Stage Editor and Attribute Editor function exactly the same, except that the
 - `Edit`
   - `Scramble Image...` - Scrambles an image
   - `Unscramble Image...` - Unscrambles an image
+- `Tools`
+  - `Open BPP...` - Opens [BPP](https://github.com/Brayconn/BPP) on your exe
 
 ## Panels
 
@@ -135,6 +137,15 @@ The `<Action>` should be one of these values, unless you like filling your confi
 - `Copy`
 - `Paste`
 - `Save`
+
+## Patcher
+Under the `<GuxtEditor.Patcher>` section is where you configure BPP.
+By default these fields are null, signified by `<value />`.
+To edit them, replace it with `<value>SETTING TEXT GOES HERE</value>`.
+
+The `ExePath` should be the path to `BPP.exe`. Without this you can't use the `Open BPP...` button.
+
+The `HackFolder` setting should be the path to your folder of hacks. You can ommit this if you would rather have BPP open to the last used hack folder instead.
 
 
 # The .gux project files
