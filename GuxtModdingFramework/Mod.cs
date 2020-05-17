@@ -343,8 +343,8 @@ namespace GuxtModdingFramework
             var names = root["FileNames"];
             m.mapName = names["Map"]?.InnerText ?? m.MapName;
             m.entityName = names["Entity"]?.InnerText ?? m.EntityName;
-            m.imageName = names["Image"]?.InnerText ?? m.ImageName;
-            m.attributeName = names["Attribute"]?.InnerText ?? m.AttributeName;
+            m.imageName = names["Images"]?.InnerText ?? m.ImageName;
+            m.attributeName = names["Attributes"]?.InnerText ?? m.AttributeName;
             m.editorIconName = names["IconName"]?.InnerText ?? m.editorIconName;
 
             #endregion
@@ -354,8 +354,8 @@ namespace GuxtModdingFramework
             var extensions = root["FileExtensions"];
             m.mapExtension = extensions["Map"]?.InnerText ?? m.MapExtension;
             m.entityExtension = extensions["Entity"]?.InnerText ?? m.EntityExtension;
-            m.imageExtension = extensions["Image"]?.InnerText ?? m.ImageExtension;
-            m.attributeExtension = extensions["Attribute"]?.InnerText ?? m.AttributeExtension;
+            m.imageExtension = extensions["Images"]?.InnerText ?? m.ImageExtension;
+            m.attributeExtension = extensions["Attributes"]?.InnerText ?? m.AttributeExtension;
             m.projectExtension = extensions["Projects"]?.InnerText ?? m.ProjectExtension;
 
             #endregion
