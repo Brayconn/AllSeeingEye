@@ -24,6 +24,10 @@ namespace GuxtEditor
         #region Display
 
         #region Initialise
+        /// <summary>
+        /// Resets the tileset buffer, and draws the given image on it
+        /// </summary>
+        /// <param name="t"></param>
         void InitTileset(Image t)
         {
             baseTileset?.Dispose();
@@ -34,7 +38,10 @@ namespace GuxtEditor
                 g.DrawImage(t, 0, 0, t.Width, t.Height);
             }
         }
-        void InitTilesetTileTypes()
+        /// <summary>
+        /// Resets the tileset's tile types on a new image
+        /// </summary>
+        void UpdateTilesetTileTypes()
         {
             tilesetTileTypes?.Dispose();
             tilesetTileTypes = new Bitmap(16 * parentMod.TileSize, 16 * parentMod.TileSize);
