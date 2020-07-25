@@ -79,6 +79,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\LayeredPictureBox\LayeredPictureBox\LayeredPictureBox.csproj" />
     <ProjectReference Include="..\..\PixelModdingFramework\PixelModdingFramework\PixelModdingFramework.csproj" />
     <ProjectReference Include="..\..\WinFormsKeybinds\WinFormsKeybinds\WinFormsKeybinds.csproj" />
     <ProjectReference Include="..\GuxtModdingFramework\GuxtModdingFramework.csproj" />

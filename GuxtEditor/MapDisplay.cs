@@ -1,4 +1,6 @@
-﻿using GuxtModdingFramework.Maps;
+﻿using GuxtModdingFramework.Entities;
+using GuxtModdingFramework.Maps;
+using LayeredPictureBox;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -12,115 +14,152 @@ namespace GuxtEditor
 {
     partial class FormStageEditor
     {
-        #region Display
+        
+        #region layers
 
-        /// <summary>
-        /// Image of the loaded map
-        /// </summary>
-        Bitmap baseMap;
-        /// <summary>
-        /// Image of the loaded map's tile types
-        /// </summary>
-        Bitmap mapTileTypes;
+        const int baseMapLayer = 0;
+        Layer<Image> baseMap { get => mapLayeredPictureBox.Layers[baseMapLayer]; }
 
-        #region Initialise
-        void InitMap()
-        {
-            baseMap?.Dispose();
-            baseMap = (Bitmap)RenderTiles(map, baseTileset, parentMod.TileSize);
-        }
-        void InitMapTileTypes()
-        {
-            mapTileTypes?.Dispose();
-            mapTileTypes = (Bitmap)RenderTiles(map, tilesetTileTypes, parentMod.TileSize);
-        }
-        #endregion
+        const int mapTileTypesLayer = baseMapLayer + 1;
+        Layer<Image> mapTileTypes { get => mapLayeredPictureBox.Layers[mapTileTypesLayer]; }
 
-        void DrawEntities(Graphics g)
-        {
-            for (int i = 0; i < entities.Count; i++)
-            {
-                var y = (entities[i].Y * parentMod.TileSize) / 2;
-                var x = (entities[i].X * parentMod.TileSize) / 2;
+        const int entityIconsLayer = mapTileTypesLayer + 1;
+        Layer<Image> entityIcons { get => mapLayeredPictureBox.Layers[entityIconsLayer]; }
 
-                if(entitySpritesToolStripMenuItem.Checked && entities[i].EntityID < EntityIcons.Images.Count)
-                    g.DrawImage(EntityIcons.Images[entities[i].EntityID],
-                        x, y, parentMod.IconSize, parentMod.IconSize);
+        const int entitySquaresLayer = entityIconsLayer + 1;
+        Layer<Image> entityBoxes { get => mapLayeredPictureBox.Layers[entitySquaresLayer]; }
+        
+        const int selectedEntitySquaresLayer = entitySquaresLayer + 1;
+        Layer<Image> selectedEntityBoxes { get => mapLayeredPictureBox.Layers[selectedEntitySquaresLayer]; }
 
-                var isSelected = selectedEntities.Contains(entities[i]);
-                if (entityBoxesToolStripMenuItem.Checked || isSelected)
-                    g.DrawRectangle(new Pen(isSelected ? UI.Default.SelectedEntityBoxColor : UI.Default.EntityBoxColor),
-                        x, y, (parentMod.TileSize / 2) - 1, (parentMod.TileSize / 2) - 1);
-            }
-        }
+        const int screenPreviewLayer = selectedEntitySquaresLayer + 1;
+        Layer<Image> screenPreview { get => mapLayeredPictureBox.Layers[screenPreviewLayer]; }
 
-        const int ScreenWidth = 8;
-        const int ScreenHeight = 10;
-        private void DrawScreenPreview(Graphics g)
-        {
-            g.DrawRectangle(new Pen(UI.Default.ScreenPreviewColor),
-                hScreenPreviewScrollBar.Value,
-                vScreenPreviewScrollBar.Value,
-                (ScreenWidth * parentMod.TileSize) - 1,
-                (ScreenHeight * parentMod.TileSize) - 1);
-        }
-
-        /// <summary>
-        /// Draws the mouse selection overlay from grid spaces p to p2 (or p to p, if nothing is provided for p2)
-        /// </summary>
-        /// <param name="g">Graphics to draw to</param>
-        /// <param name="p">Start grid space</param>
-        /// <param name="p2">End grid space</param>
-        private void DrawMouseOverlay(Graphics g, Point p, Point? p2 = null)
-        {
-            int x,y, width, height;
-            if(p2 != null)
-            {
-                x = Math.Min(p.X, ((Point)p2).X);
-                y = Math.Min(p.Y, ((Point)p2).Y);                               
-                width = Math.Max(p.X, ((Point)p2).X) - x + 1;
-                height = Math.Max(p.Y, ((Point)p2).Y) - y + 1;
-            }
-            else
-            {
-                x = p.X;
-                y = p.Y;
-                width = 1;
-                height = 1;
-            }
-            x *= gridSize;
-            y *= gridSize;
-            width = (width * gridSize) - 1;
-            height = (height * gridSize) - 1;
-
-            g.DrawRectangle(new Pen(UI.Default.CursorColor), x, y, width, height);
-        }
-        /// <summary>
-        /// Displays the map to the user, with the selection box at point p to p2
-        /// </summary>
-        /// <param name="p">Start grid space</param>
-        /// <param name="p2">End grid space</param>
-        void DisplayMap(Point? p = null, Point? p2 = null)
-        {
-            Bitmap mapImage = new Bitmap(baseMap);
-            using (Graphics g = Graphics.FromImage(mapImage))
-            {
-                if (tileTypesToolStripMenuItem.Checked)
-                    g.DrawImage(mapTileTypes,0,0,mapTileTypes.Width,mapTileTypes.Height);
-                if (entitySpritesToolStripMenuItem.Checked || entityBoxesToolStripMenuItem.Checked || userHasSelectedEntities)
-                    DrawEntities(g);
-                if (screenPreviewToolStripMenuItem.Checked)
-                    DrawScreenPreview(g);
-                if (p != null)
-                    DrawMouseOverlay(g, (Point)p, p2);
-            }            
-            mapPictureBox.Image?.Dispose();
-            mapPictureBox.Image = ScaleImage(mapImage, ZoomLevel);
-            mapImage.Dispose();
-        }               
+        const int mouseOverlayLayer = screenPreviewLayer + 1;
+        Layer<Image> mouseOverlay { get => mapLayeredPictureBox.Layers[mouseOverlayLayer]; }
 
         #endregion
 
+        #region entity
 
+        void RedrawAllEntityLayers()
+        {
+            DrawEntityIcons();
+            DrawEntityBoxes();
+            DrawSelectedEntityBoxes();
+        }
+
+        void DrawEntityIcons()
+        {
+            using (var g = Graphics.FromImage(entityIcons.Image))
+            {
+                g.Clear(Color.Transparent);
+
+                foreach(var e in entities)
+                {                    
+                    if (e.EntityID < EntityIcons.Images.Count)
+                    {
+                        var y = (e.Y * parentMod.TileSize) / 2;
+                        var x = (e.X * parentMod.TileSize) / 2;
+
+                        g.DrawImage(EntityIcons.Images[e.EntityID], x, y, parentMod.IconSize, parentMod.IconSize);
+                    }
+                }
+            }
+        }
+        void DrawEntityBoxes()
+        {
+            using (var g = Graphics.FromImage(entityBoxes.Image))
+            {
+                g.Clear(Color.Transparent);
+
+                //used to not draw selected entities, but that broke inserting new entities
+                foreach (var e in entities)
+                {
+                    var y = (e.Y * parentMod.TileSize) / 2;
+                    var x = (e.X * parentMod.TileSize) / 2;
+
+                    g.DrawRectangle(new Pen(UI.Default.EntityBoxColor), x, y, (parentMod.TileSize / 2) - 1, (parentMod.TileSize / 2) - 1);
+                }
+            }
+        }
+        void DrawSelectedEntityBoxes()
+        {
+            using (var g = Graphics.FromImage(selectedEntityBoxes.Image))
+            {
+                g.Clear(Color.Transparent);
+
+                //don't need to draw selected entities on this layer
+                foreach (var e in selectedEntities)
+                {
+                    var y = (e.Y * parentMod.TileSize) / 2;
+                    var x = (e.X * parentMod.TileSize) / 2;
+
+                    g.DrawRectangle(new Pen(UI.Default.SelectedEntityBoxColor), x, y, (parentMod.TileSize / 2) - 1, (parentMod.TileSize / 2) - 1);
+                }
+            }
+        }
+        #endregion
+
+        #region screen preview
+        const int GuxtScreenWidth = 8;
+        const int GuxtScreenHeight = 10;
+        private void UpdateScreenPreviewLocation()
+        {
+            screenPreview.Location = new Point(hScreenPreviewScrollBar.Value, vScreenPreviewScrollBar.Value);
+        }
+        private void InitScreenPreview()
+        {
+            var sp = new Bitmap(GuxtScreenWidth * parentMod.TileSize, GuxtScreenHeight * parentMod.TileSize);
+            using (var g = Graphics.FromImage(sp))
+            {
+                g.DrawRectangle(new Pen(UI.Default.ScreenPreviewColor), 0, 0, sp.Width - 1, sp.Height - 1);
+            }
+            screenPreview.Image = sp;
+        }
+        #endregion
+
+
+        private Rectangle GetRect(Point p1, Point p2)
+        {
+            int x, y, width, height;
+            x = Math.Min(p1.X, p2.X);
+            y = Math.Min(p1.Y, p2.Y);
+            width = Math.Max(p1.X, p2.X) - x + 1;
+            height = Math.Max(p1.Y, p2.Y) - y + 1;
+            return new Rectangle(x, y, width, height);
+        }
+
+        Image MakeMouseImage(int width, int height)
+        {
+            var img = new Bitmap(width, height);
+            using (var g = Graphics.FromImage(img))
+                g.DrawRectangle(new Pen(UI.Default.CursorColor), 0, 0, img.Width - 1, img.Height - 1);
+            return img;
+        }
+
+        void UpdateMouseMarquee(Point p1, Point p2)
+        {
+            UpdateMouseMarquee(GetRect(p1, p2));
+        }
+        void UpdateMouseMarquee(Rectangle rect)
+        {
+            mouseOverlay.Image = MakeMouseImage(rect.Size.Width * gridSize, rect.Size.Height * gridSize);
+            mouseOverlay.Location = new Point(rect.Location.X * gridSize, rect.Location.Y * gridSize);
+        }
+
+        /// <summary>
+        /// Sets the mouse to the default size, at the given grid position
+        /// </summary>
+        /// <param name="gridPosition">Where to draw the mouse</param>
+        void ResetMouseSize()
+        {
+            mouseOverlay.Image = MakeMouseImage(gridSize, gridSize);
+        }
+
+        void MoveMouse(Point gridPosition)
+        {
+            mouseOverlay.Location = new Point(gridPosition.X * gridSize, gridPosition.Y * gridSize);
+        }
     }
 }

@@ -25,6 +25,8 @@ namespace GuxtEditor
         /// </summary>
         public int StageNumber { get; private set; }
 
+        #region unsaved edits
+
         bool unsavedEdits = false;
         public bool UnsavedEdits
         {
@@ -38,12 +40,15 @@ namespace GuxtEditor
                 }
             }
         }
-
         private void SetUnsavedEdits(object o, EventArgs e)
         {
             UnsavedEdits = true;
         }
+        #endregion
 
+        /// <summary>
+        /// Updates the window title
+        /// </summary>
         private void UpdateTitle()
         {
             this.Text = $"Stage {StageNumber}";
@@ -88,7 +93,12 @@ namespace GuxtEditor
             //UI init
             InitializeComponent();
             UpdateTitle();
-            mapPictureBox.MouseWheel += mapPictureBox_MouseWheel;
+            mapLayeredPictureBox.MouseWheel += mapPictureBox_MouseWheel;
+            //add layers, and init the ones we can
+            mapLayeredPictureBox.AddLayers(mouseOverlayLayer + 1);
+            ResetMouseSize();
+            InitScreenPreview();
+
             InitEntityList();
 
             //entities
@@ -96,31 +106,45 @@ namespace GuxtEditor
             entities = PXEVE.Read(entityPath);
             foreach (var ent in entities)
                 ent.PropertyChanged += SetUnsavedEdits;
-
+            
             //attributes
             var attributePath = Path.Combine(parentMod.DataPath, parentMod.AttributeName + StageNumber + "." + parentMod.AttributeExtension);
             attributes = new Map(attributePath);
             tileTypes = new Bitmap(tileTypePath);
 
-            //tileset            
+            //tileset
             var t = new Bitmap(Path.ChangeExtension(attributePath, parentMod.ImageExtension));
             if (parentMod.ImagesScrambeled)
                 t = Scrambler.Unscramble(t);
             InitTileset(t);
-            InitTilesetTileTypes();            
+            UpdateTilesetTileTypes();
 
             //base map setup
             mapPath = Path.Combine(parentMod.DataPath, parentMod.MapName + StageNumber + "." + parentMod.MapExtension);
             map = new Map(mapPath);
-            map.MapResized += delegate { InitMapAndDisplay(); };
+            //need to re-display the map from scratch in the case of a resize
+            map.MapResized += delegate { InitMap(); };
             mapPropertyGrid.SelectedObject = map;            
 
-            //display everything
             DisplayTileset();
+            InitMap();
 
-            InitMapAndDisplay();
-            //Init screen preview to the bottom of the screen
+            //need to init entity images after the map has been initialized so we actually have a good size
+            //need to init them each seperately since otherwise I think it would all be a reference to the same image...
+            entityIcons.Image = new Bitmap(baseMap.Image.Width, baseMap.Image.Height);
+            entityBoxes.Image = new Bitmap(baseMap.Image.Width, baseMap.Image.Height);
+            selectedEntityBoxes.Image = new Bitmap(baseMap.Image.Width, baseMap.Image.Height);
+            DrawEntityIcons();
+            DrawEntityBoxes();
+
+            tileTypesToolStripMenuItem_CheckedChanged(this, new EventArgs());
+            entitySpritesToolStripMenuItem_CheckedChanged(this, new EventArgs());
+            entityBoxesToolStripMenuItem_CheckedChanged(this, new EventArgs());
+            screenPreviewToolStripMenuItem_CheckedChanged(this, new EventArgs());
+
+            //Init screen preview to the bottom of the screen            
             vScreenPreviewScrollBar.Value = vScreenPreviewScrollBar.Maximum - 1;
+            UpdateScreenPreviewLocation();
         }
 
         /// <summary>
@@ -138,20 +162,19 @@ namespace GuxtEditor
 
         const int MaxZoom = 10;
 
-        int zoomLevel = 1;
         int ZoomLevel
         {
-            get => zoomLevel;
+            get => mapLayeredPictureBox.CanvasScale;
             set
             {
                 if (1 <= value && value <= MaxZoom)
                 {
-                    zoomLevel = value;
                     //changing the scroll value in here doesn't work, it gets set to something else shortly after
                     //so it has to wait until later...
                     scrollBarNeedsUpdate = true;
                     scrollBarMultiplier = panel1.VerticalScroll.Value / (decimal)(panel1.VerticalScroll.Maximum - panel1.VerticalScroll.LargeChange - 1);
-                    DisplayMap();
+                    //setting this last so the map gets updated at the right time
+                    mapLayeredPictureBox.CanvasScale  = value;
                 }
             }
         }
@@ -179,19 +202,22 @@ namespace GuxtEditor
         #region map and entity init
 
         /// <summary>
-        /// Initializes the entire map from scratch, then displays.
+        /// Initializes the entire map from scratch.
         /// only used on startup and resize
         /// </summary>
-        void InitMapAndDisplay()
+        void InitMap()
         {
-            InitMap();
+            mapLayeredPictureBox.UnlockCanvasSize();
+
+            baseMap.Image = RenderTiles(map, baseTileset, parentMod.TileSize);
             
             //init screen preview max
-            vScreenPreviewScrollBar.Maximum = ((map.Height - ScreenHeight) * parentMod.TileSize) + vScreenPreviewScrollBar.LargeChange - 1;
-            hScreenPreviewScrollBar.Maximum = ((map.Width - ScreenWidth) * parentMod.TileSize) + hScreenPreviewScrollBar.LargeChange - 1;
+            vScreenPreviewScrollBar.Maximum = ((map.Height - GuxtScreenHeight) * parentMod.TileSize) + vScreenPreviewScrollBar.LargeChange - 1;
+            hScreenPreviewScrollBar.Maximum = ((map.Width - GuxtScreenWidth) * parentMod.TileSize) + hScreenPreviewScrollBar.LargeChange - 1;
 
-            InitMapTileTypes();
-            DisplayMap();
+            mapTileTypes.Image = RenderTiles(map, tilesetTileTypes, parentMod.TileSize);
+
+            mapLayeredPictureBox.LockCanvasSize();
         }
 
         void UpdateEntityIcons()
@@ -237,7 +263,12 @@ namespace GuxtEditor
             entityListView.LargeImageList = EntityIcons;
             for (int i = 0; i < EntityIcons.Images.Count; i++)
             {
-                entityListView.Items.Add(parentMod.EntityNames.ContainsKey(i) ? parentMod.EntityNames[i] : i.ToString() , i);
+                entityListView.Items.Add(new ListViewItem()
+                {
+                    Text = parentMod.EntityNames.TryGetValue(i, out string val) ? val : i.ToString(),
+                    ImageIndex = i,
+                    //ToolTipText = ;)
+                });
             }
         }
 
@@ -268,8 +299,8 @@ namespace GuxtEditor
         {
             UnsavedEdits = true;
             map.Tiles[tileNum] = tileValue;
-            DrawTile(baseMap, map, tileNum, baseTileset, parentMod.TileSize);
-            DrawTile(mapTileTypes, map, tileNum, tilesetTileTypes, parentMod.TileSize);
+            DrawTile(baseMap.Image, map, tileNum, baseTileset, parentMod.TileSize);
+            DrawTile(mapTileTypes.Image, map, tileNum, tilesetTileTypes, parentMod.TileSize, System.Drawing.Drawing2D.CompositingMode.SourceCopy);
         }
 
         #endregion
@@ -294,9 +325,9 @@ namespace GuxtEditor
         }
         private IEnumerable<Entity> GetEntitiesAtLocation(int x, int y, int x2, int y2)
         {
-            //TODO maybe remove LINQ?
-            return entities.Where(entity => x <= entity.X && entity.X <= x2
-                                         && y <= entity.Y && entity.Y <= y2);
+            for(int i = 0; i< entities.Count; i++)
+                if (x <= entities[i].X && entities[i].X <= x2 && y <= entities[i].Y && entities[i].Y <= y2)
+                    yield return entities[i];
         }                
         void CreateNewEntity(Point pos)
         {
@@ -304,7 +335,7 @@ namespace GuxtEditor
             entities.Add(new Entity(0, pos.X, pos.Y, entityListView.SelectedIndices[0], 0));
             entities[entities.Count - 1].PropertyChanged += SetUnsavedEdits;
             SelectEntities(entities[entities.Count - 1]);
-            DisplayMap(MousePositionOnGrid);
+            RedrawAllEntityLayers();
         }
         void DeleteSelectedEntities()
         {
@@ -315,17 +346,21 @@ namespace GuxtEditor
                 ent.PropertyChanged -= SetUnsavedEdits;
             }
             SelectEntities();
+            RedrawAllEntityLayers();
         }
 
+        /// <summary>
+        /// Set what entities are being edited in the entityPorpertyGrid
+        /// </summary>
+        /// <param name="ents">Entities to edit</param>
         private void SetEditingEntity(params Entity[] ents)
         {
             if (ents.Length == 0)
                 entityPropertyGrid.SelectedObject = null;
             else if(ents.Length == 1)
             {
-                entityPropertyGrid.SelectedObject = parentMod.EntityTypes.ContainsKey(ents[0].EntityID)
-                    ? Activator.CreateInstance(parentMod.EntityTypes[ents[0].EntityID], ents)
-                    : ents[0];
+                //if the entity has a custom type, use that, otherwise edit the entity directly
+                entityPropertyGrid.SelectedObject = parentMod.EntityTypes.TryGetValue(ents[0].EntityID, out Type t) ? Activator.CreateInstance(t, ents) : ents[0];
             }
             else
             {
@@ -335,7 +370,7 @@ namespace GuxtEditor
         /// <summary>
         /// Sets the given entities as selected. Passing no args will deselect
         /// </summary>
-        /// <param name="ents"></param>
+        /// <param name="ents">Entities to select</param>
         private void SelectEntities(params Entity[] ents)
         {
             //clear everything
@@ -363,18 +398,12 @@ namespace GuxtEditor
                 SetEditingEntity(ents);
             }
             //so there would be nothing selected for editing, or in the selection list
+            DrawSelectedEntityBoxes();
         }
-        private void SelectEntity(object sender, EventArgs e)
-        {
-            if (sender is ToolStripMenuItem tsmi)
-            {
-                SelectEntities(entities[int.Parse(tsmi.Name)]);
-            }
-        }
-        void CopyEntities(int index)
-        {
-            CopyEntities(entities[index]);
-        }
+        /// <summary>
+        /// Copies the given entities to the clipboard
+        /// </summary>
+        /// <param name="ents">Entities to copy</param>
         void CopyEntities(params Entity[] ents)
         {
             Point topLeft = new Point(ents.Select(x => x.X).Min(), ents.Select(x => x.Y).Min());
@@ -387,7 +416,11 @@ namespace GuxtEditor
                 });
             }
         }
-        void PasteEntities(Point pos)
+        /// <summary>
+        /// Pastes the entities currently in the clipboard to the given grid position
+        /// </summary>
+        /// <param name="gridPos">Where on the grid to paste the entities</param>
+        void PasteEntities(Point gridPos)
         {
             if (!entitiesInClipboard)
                 return;
@@ -396,21 +429,29 @@ namespace GuxtEditor
             {
                 entities.Add(new Entity(e)
                 {
-                    X = pos.X + e.X,
-                    Y = pos.Y + e.Y
+                    X = gridPos.X + e.X,
+                    Y = gridPos.Y + e.Y
                 });
                 entities[entities.Count - 1].PropertyChanged += SetUnsavedEdits;
             }
-            DisplayMap(MousePositionOnGrid); //Yes, this is on purpose
+            RedrawAllEntityLayers();
         }
         #endregion
 
         #region Mouse
 
-
+        /// <summary>
+        /// The mouse's current position on the grid
+        /// </summary>
         Point MousePositionOnGrid = new Point(-1, -1);
 
+        /// <summary>
+        /// The grid position the user started selecting entities from
+        /// </summary>
         Point EntitySelectionStart = new Point(-1, -1);
+        /// <summary>
+        /// The grid position the user was last selecting entities from
+        /// </summary>
         Point EntitySelectionEnd = new Point(-1, -1);
 
         /// <summary>
@@ -437,7 +478,7 @@ namespace GuxtEditor
         /// <summary>
         /// The bottom right point of the map
         /// </summary>
-        Point maxGridPoint { get => new Point((map.Width * (int)editMode) - 1, (map.Height * (int)editMode) - 1); }
+        Point maxGridPoint => new Point((map.Width * (int)editMode) - 1, (map.Height * (int)editMode) - 1);
 
         /// <summary>
         /// How big the grid is right now
@@ -463,7 +504,10 @@ namespace GuxtEditor
             return new Point(p.X / (gridSize * ZoomLevel), p.Y / (gridSize * ZoomLevel));
         }
 
-        bool mouseOnMap { get => MousePositionOnGrid != new Point(-1, -1); }
+        /// <summary>
+        /// Whether or not the mouse is currently on the map
+        /// </summary>
+        bool mouseOnMap { get => mapLayeredPictureBox.ClientRectangle.Contains(mapLayeredPictureBox.PointToClient(Cursor.Position)); }
         /// <summary>
         /// Whether or not the user has selected an entity from the list of all entities
         /// </summary>
@@ -478,7 +522,45 @@ namespace GuxtEditor
 
         HoldActions? HoldAction = null;
 
+        #region context menu methods n stuff
+
+        /// <summary>
+        /// The delete context menu item, just to save on creating a new one every time
+        /// </summary>
         ToolStripMenuItem? delete = null;
+        ContextMenuStrip? entityContextMenu = null;
+
+        //can't do one for insert because it relies on the location of the click...
+        void EntityContectMenu_CopyEntity(object sender, EventArgs e)
+        {
+            if (sender is ToolStripMenuItem tsmi)
+            {
+                CopyEntities(entities[int.Parse(tsmi.Name)]);
+            }
+        }
+        //paste also relies on that location...
+        void EntityContextMenu_Delete(object sender, EventArgs e)
+        {
+            DeleteSelectedEntities();
+            MoveMouse(MousePositionOnGrid);
+        }
+        void EntityContextMenu_SelectEntity(object sender, EventArgs e)
+        {
+            if (sender is ToolStripMenuItem tsmi)
+            {
+                SelectEntities(entities[int.Parse(tsmi.Name)]);
+            }
+        }
+
+        void EntityContextMenu_VisibleChanged(object sender, EventArgs e)
+        {
+            if(sender is ContextMenuStrip cms && cms.Visible == false && !mouseOnMap)
+            {
+                mapPictureBox_MouseLeave(sender, e);
+            }
+        }
+        #endregion
+
         private void mapPictureBox_MouseDown(object sender, MouseEventArgs e)
         {
             Point p = GetMousePointOnMap(e.Location);
@@ -492,9 +574,9 @@ namespace GuxtEditor
                     {
                         case MouseButtons.Left:
                             HoldAction = HoldActions.DrawTiles;
-
+                            mouseOverlay.Shown = false;
                             SetTile(tile);
-                            DisplayMap();
+                            mapLayeredPictureBox.Invalidate();
                             break;
                         case MouseButtons.Middle:
                             SelectedTile = map.Tiles[tile];
@@ -512,6 +594,7 @@ namespace GuxtEditor
                             {
                                 //start moving
                                 HoldAction = HoldActions.MoveEntities;
+                                mouseOverlay.Shown = false;
                             }
                             //if the user isn't, that means they're either:
                             // a. clicking on a new entity, or
@@ -528,12 +611,12 @@ namespace GuxtEditor
                             #region Context menu stuff
                             //basic init
                             var hoveredEntitiesCount = entitiesWhereClicked.Count();
-                            ContextMenuStrip entityContextMenu = new ContextMenuStrip();
+                            entityContextMenu = new ContextMenuStrip();
 
                             //Insert
                             var insert = new ToolStripMenuItem("Insert Entity");
                             insert.Enabled = entitySelected;
-                            insert.Click += delegate { if (entitySelected) CreateNewEntity(p); };
+                            insert.Click += delegate { if (entitySelected) { CreateNewEntity(p); MoveMouse(MousePositionOnGrid); } };
                             entityContextMenu.Items.Add(insert);
                                                         
                             //Copy
@@ -543,21 +626,21 @@ namespace GuxtEditor
                             if (copy.Enabled = hoveredEntitiesCount == 1)
                             {
                                 copy.Name = entities.IndexOf(entitiesWhereClicked.First()).ToString();
-                                copy.Click += (o,e) => { CopyEntities(int.Parse(((ToolStripMenuItem)o).Name)); };
+                                copy.Click += EntityContectMenu_CopyEntity;
                             }
                             entityContextMenu.Items.Add(copy);
 
                             //Paste
                             var paste = new ToolStripMenuItem("Paste");
                             paste.Enabled = entitiesInClipboard;
-                            paste.Click += delegate { PasteEntities(p); };
+                            paste.Click += delegate { PasteEntities(p); MoveMouse(MousePositionOnGrid); };
                             entityContextMenu.Items.Add(paste);
 
                             //Delete
                             if(delete == null)
                             {
                                 delete = new ToolStripMenuItem();
-                                delete.Click += delegate { DeleteSelectedEntities(); DisplayMap(MousePositionOnGrid); };
+                                delete.Click += EntityContextMenu_Delete;
                             }                            
                             delete.Text = $"Delete Entit{(selectedEntities.Count > 1 ? "ies" : "y")}";
                             delete.Enabled = userHasSelectedEntities;
@@ -576,16 +659,21 @@ namespace GuxtEditor
                                     parentMod.EntityNames.TryGetValue(entities[index].EntityID, out entityName);
                                     var tsmi = new ToolStripMenuItem(index.ToString() + " - " + entityName);
                                     tsmi.Name = index.ToString();
-                                    tsmi.Click += SelectEntity;
+                                    tsmi.Click += EntityContextMenu_SelectEntity;
                                     entityContextMenu.Items.Add(tsmi);
-                                }                                    
+                                }
                             }
-                            entityContextMenu.Show(mapPictureBox, e.Location);
+                            entityContextMenu.VisibleChanged += EntityContextMenu_VisibleChanged;
+                            entityContextMenu.Show(mapLayeredPictureBox, e.Location);
                             #endregion
                             break;
                     }
                     break;
             }
+        }
+        private void mapLayeredPictureBox_MouseEnter(object sender, EventArgs e)
+        {
+            mouseOverlay.Shown = true;
         }
         private void mapPictureBox_MouseMove(object sender, MouseEventArgs e)
         {
@@ -596,12 +684,12 @@ namespace GuxtEditor
             //if we're still on the same grid space, stop
             if (p == MousePositionOnGrid)
                 return;
-
+            
             switch (HoldAction)
             {
                 case HoldActions.DrawTiles:
                     SetTile(p);
-                    DisplayMap();
+                    mapLayeredPictureBox.Invalidate();
                     break;
                 case HoldActions.MoveEntities:
                     int xd = MousePositionOnGrid.X - p.X;
@@ -611,13 +699,14 @@ namespace GuxtEditor
                         ent.X -= xd;
                         ent.Y -= yd;
                     }
-                    DisplayMap();
+                    RedrawAllEntityLayers();
+                    mapLayeredPictureBox.Invalidate();
                     break;
                 case HoldActions.SelectEntities:
-                    DisplayMap(EntitySelectionStart, EntitySelectionEnd = p);
+                    UpdateMouseMarquee(EntitySelectionStart, EntitySelectionEnd = p);
                     break;
                 default:
-                    DisplayMap(p);
+                    MoveMouse(p);
                     break;
 
             }
@@ -637,17 +726,24 @@ namespace GuxtEditor
                     int yd = Math.Max(EntitySelectionStart.Y, EntitySelectionEnd.Y);
 
                     SelectEntities(GetEntitiesAtLocation(x, y, xd, yd).ToArray());
-                    DisplayMap(MousePositionOnGrid);
+                    ResetMouseSize();
                     break;
             }
+            MoveMouse(MousePositionOnGrid);
+            mouseOverlay.Shown = true;
             HoldAction = null;
         }
 
         private void mapPictureBox_MouseLeave(object sender, EventArgs e)
         {
             HoldAction = null;
-            MousePositionOnGrid = new Point(-1, -1);
-            DisplayMap();
+            //this check is here to stop the mouse hiding when the context menu appears, since that triggers MouseLeave
+            if (entityContextMenu != null && !entityContextMenu.Visible)
+            {
+                MousePositionOnGrid = new Point(-1, -1);
+                mouseOverlay.Shown = false;
+            }
+            ResetMouseSize();
         }
 
         #endregion
@@ -676,16 +772,18 @@ namespace GuxtEditor
                         break;
                     case "DeleteEntities" when editMode == EditModes.Entity && userHasSelectedEntities:
                         DeleteSelectedEntities();
-                        DisplayMap(MousePositionOnGrid);
+                        mapLayeredPictureBox.Invalidate();
                         break;
                     case "InsertEntity" when editMode == EditModes.Entity && mouseOnMap:
                         CreateNewEntity(MousePositionOnGrid);
+                        mapLayeredPictureBox.Invalidate();
                         break;
                     case "Copy" when editMode == EditModes.Entity && userHasSelectedEntities:
                         CopyEntities(selectedEntities.ToArray());
                         break;
                     case "Paste" when editMode == EditModes.Entity && entitiesInClipboard && mouseOnMap:
                         PasteEntities(MousePositionOnGrid);
+                        mapLayeredPictureBox.Invalidate();
                         break;
                     case "Save":
                         Save();
@@ -698,16 +796,22 @@ namespace GuxtEditor
 
         #region menu buttons
 
-        /// <summary>
-        /// Used when checkboxes for entities/grid n stuff are changed
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void RefreshDisplay(object sender, EventArgs e)
+        private void tileTypesToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
+            mapTileTypes.Shown = tileTypesToolStripMenuItem.Checked;
             DisplayTileset();
-            DisplayMap();
         }
+
+        private void entitySpritesToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
+        {
+            entityIcons.Shown = entitySpritesToolStripMenuItem.Checked;
+        }
+
+        private void entityBoxesToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
+        {
+            entityBoxes.Shown = entityBoxesToolStripMenuItem.Checked;
+        }
+
 
         private void deleteAllEntitiesToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -715,7 +819,10 @@ namespace GuxtEditor
             {
                 SelectEntities();
                 entities.Clear();
-                DisplayMap();
+
+                DrawEntityIcons();
+                DrawEntityBoxes();
+                DrawSelectedEntityBoxes();
             }
         }
 
@@ -730,14 +837,14 @@ namespace GuxtEditor
 
         private void ScreenPreviewScrollChanged(object sender, ScrollEventArgs e)
         {
-            DisplayMap();
+            UpdateScreenPreviewLocation();
         }
 
         private void screenPreviewToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
             vScreenPreviewScrollBar.Enabled = vScreenPreviewScrollBar.Maximum > 1 && screenPreviewToolStripMenuItem.Checked;
             hScreenPreviewScrollBar.Enabled = hScreenPreviewScrollBar.Maximum > 1 && screenPreviewToolStripMenuItem.Checked;
-            DisplayMap();   
+            screenPreview.Shown = screenPreviewToolStripMenuItem.Checked;
         }
 
         #endregion
@@ -746,6 +853,11 @@ namespace GuxtEditor
         private void mapPictureBox_Paint(object sender, PaintEventArgs e)
         {
             UpdateMapScrollPosition();
+        }
+
+        private void editModeTabControl_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ResetMouseSize();
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)

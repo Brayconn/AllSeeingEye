@@ -53,7 +53,7 @@
             this.hScreenPreviewScrollBar = new System.Windows.Forms.HScrollBar();
             this.vScreenPreviewScrollBar = new System.Windows.Forms.VScrollBar();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.mapPictureBox = new System.Windows.Forms.PictureBox();
+            this.mapLayeredPictureBox = new LayeredPictureBox.LayeredPictureBox();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -66,7 +66,6 @@
             this.tabPage2.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.panel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.mapPictureBox)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -129,7 +128,7 @@
             this.tileTypesToolStripMenuItem.Name = "tileTypesToolStripMenuItem";
             this.tileTypesToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
             this.tileTypesToolStripMenuItem.Text = "Tile Types";
-            this.tileTypesToolStripMenuItem.CheckedChanged += new System.EventHandler(this.RefreshDisplay);
+            this.tileTypesToolStripMenuItem.CheckedChanged += new System.EventHandler(this.tileTypesToolStripMenuItem_CheckedChanged);
             // 
             // toolStripSeparator1
             // 
@@ -144,7 +143,7 @@
             this.entitySpritesToolStripMenuItem.Name = "entitySpritesToolStripMenuItem";
             this.entitySpritesToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
             this.entitySpritesToolStripMenuItem.Text = "Entitiy Sprites";
-            this.entitySpritesToolStripMenuItem.CheckedChanged += new System.EventHandler(this.RefreshDisplay);
+            this.entitySpritesToolStripMenuItem.CheckedChanged += new System.EventHandler(this.entitySpritesToolStripMenuItem_CheckedChanged);
             // 
             // entityBoxesToolStripMenuItem
             // 
@@ -154,7 +153,7 @@
             this.entityBoxesToolStripMenuItem.Name = "entityBoxesToolStripMenuItem";
             this.entityBoxesToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
             this.entityBoxesToolStripMenuItem.Text = "Entity Boxes";
-            this.entityBoxesToolStripMenuItem.CheckedChanged += new System.EventHandler(this.RefreshDisplay);
+            this.entityBoxesToolStripMenuItem.CheckedChanged += new System.EventHandler(this.entityBoxesToolStripMenuItem_CheckedChanged);
             // 
             // screenPreviewToolStripMenuItem
             // 
@@ -193,6 +192,7 @@
             this.editModeTabControl.SelectedIndex = 0;
             this.editModeTabControl.Size = new System.Drawing.Size(266, 426);
             this.editModeTabControl.TabIndex = 0;
+            this.editModeTabControl.SelectedIndexChanged += new System.EventHandler(this.editModeTabControl_SelectedIndexChanged);
             // 
             // tabPage1
             // 
@@ -314,25 +314,32 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panel1.AutoScroll = true;
-            this.panel1.Controls.Add(this.mapPictureBox);
+            this.panel1.Controls.Add(this.mapLayeredPictureBox);
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(513, 406);
             this.panel1.TabIndex = 1;
             // 
-            // mapPictureBox
+            // mapLayeredPictureBox
             // 
-            this.mapPictureBox.Location = new System.Drawing.Point(0, 0);
-            this.mapPictureBox.Name = "mapPictureBox";
-            this.mapPictureBox.Size = new System.Drawing.Size(167, 133);
-            this.mapPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.mapPictureBox.TabIndex = 0;
-            this.mapPictureBox.TabStop = false;
-            this.mapPictureBox.Paint += new System.Windows.Forms.PaintEventHandler(this.mapPictureBox_Paint);
-            this.mapPictureBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.mapPictureBox_MouseDown);
-            this.mapPictureBox.MouseLeave += new System.EventHandler(this.mapPictureBox_MouseLeave);
-            this.mapPictureBox.MouseMove += new System.Windows.Forms.MouseEventHandler(this.mapPictureBox_MouseMove);
-            this.mapPictureBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.mapPictureBox_MouseUp);
+            this.mapLayeredPictureBox.AutoScroll = true;
+            this.mapLayeredPictureBox.CanvasScale = 1;
+            this.mapLayeredPictureBox.CanvasSizeLocked = false;
+            this.mapLayeredPictureBox.CurrentCanvasHeight = 0;
+            this.mapLayeredPictureBox.CurrentCanvasWidth = 0;
+            this.mapLayeredPictureBox.Location = new System.Drawing.Point(0, 0);
+            this.mapLayeredPictureBox.MaxCanvasHeight = 0;
+            this.mapLayeredPictureBox.MaxCanvasSize = new System.Drawing.Size(0, 0);
+            this.mapLayeredPictureBox.MaxCanvasWidth = 0;
+            this.mapLayeredPictureBox.Name = "mapLayeredPictureBox";
+            this.mapLayeredPictureBox.Size = new System.Drawing.Size(200, 100);
+            this.mapLayeredPictureBox.TabIndex = 1;
+            this.mapLayeredPictureBox.Paint += new System.Windows.Forms.PaintEventHandler(this.mapPictureBox_Paint);
+            this.mapLayeredPictureBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.mapPictureBox_MouseDown);
+            this.mapLayeredPictureBox.MouseEnter += new System.EventHandler(this.mapLayeredPictureBox_MouseEnter);
+            this.mapLayeredPictureBox.MouseLeave += new System.EventHandler(this.mapPictureBox_MouseLeave);
+            this.mapLayeredPictureBox.MouseMove += new System.Windows.Forms.MouseEventHandler(this.mapPictureBox_MouseMove);
+            this.mapLayeredPictureBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.mapPictureBox_MouseUp);
             // 
             // FormStageEditor
             // 
@@ -363,7 +370,6 @@
             this.tableLayoutPanel1.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.mapPictureBox)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -383,7 +389,6 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.PropertyGrid entityPropertyGrid;
         private System.Windows.Forms.ListView entityListView;
-        private System.Windows.Forms.PictureBox mapPictureBox;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.PropertyGrid mapPropertyGrid;
@@ -396,5 +401,6 @@
         private System.Windows.Forms.ToolStripMenuItem screenPreviewToolStripMenuItem;
         private System.Windows.Forms.HScrollBar hScreenPreviewScrollBar;
         private System.Windows.Forms.VScrollBar vScreenPreviewScrollBar;
+        private LayeredPictureBox.LayeredPictureBox mapLayeredPictureBox;
     }
 }

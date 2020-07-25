@@ -11,7 +11,7 @@ Check out the [Manual](Manual.md) for more detailed information on what the butt
 ## Building
 It's just a regular VS2019 project, should build pretty normally.
 
-Make sure you have [WinFormsKeybinds](https://github.com/Brayconn/WinFormsKeybinds) though.
+Make sure you have [WinFormsKeybinds](https://github.com/Brayconn/WinFormsKeybinds), and [LayeredPictureBox](https://github.com/Brayconn/LayeredPictureBox/) though.
 
 ## Running
 On Windows you can just click the exe.
