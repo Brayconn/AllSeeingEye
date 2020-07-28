@@ -1,78 +1,49 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Drawing;
 using System.Windows.Forms;
-using GuxtModdingFramework.Maps;
+using LayeredPictureBox;
 using static PixelModdingFramework.Rendering;
 
 namespace GuxtEditor
 {
     partial class FormStageEditor
     {
-        /// <summary>
-        /// Image of the loaded tileset
-        /// </summary>
-        Bitmap baseTileset;
-        /// <summary>
-        /// The tile types of the tileset
-        /// </summary>
-        Bitmap tilesetTileTypes;
+        const int baseTilesetLayer = 0;
+        Layer<Image> baseTileset => tilesetLayeredPictureBox.Layers[baseTilesetLayer];
 
-        #region Display
+        const int tilesetTileTypesLayer = baseTilesetLayer + 1;
+        Layer<Image> tilesetTileTypes => tilesetLayeredPictureBox.Layers[tilesetTileTypesLayer];
 
-        #region Initialise
+        const int tilesetMouseOverlayLayer = tilesetTileTypesLayer + 1;
+        Layer<Image> tilesetMouseOverlay => tilesetLayeredPictureBox.Layers[tilesetMouseOverlayLayer];
+
         /// <summary>
         /// Resets the tileset buffer, and draws the given image on it
         /// </summary>
         /// <param name="t"></param>
-        void InitTileset(Image t)
+        void InitTilesetAndTileTypes(Image t)
         {
-            baseTileset?.Dispose();
-            baseTileset = new Bitmap(16 * parentMod.TileSize, 16 * parentMod.TileSize);
-            using (Graphics g = Graphics.FromImage(baseTileset))
+            tilesetLayeredPictureBox.UnlockCanvasSize();
+
+            var tileset = new Bitmap(16 * parentMod.TileSize, 16 * parentMod.TileSize);
+            using (Graphics g = Graphics.FromImage(tileset))
             {
                 g.Clear(Color.Black);
                 g.DrawImage(t, 0, 0, t.Width, t.Height);
             }
-        }
-        /// <summary>
-        /// Resets the tileset's tile types on a new image
-        /// </summary>
-        void UpdateTilesetTileTypes()
-        {
-            tilesetTileTypes?.Dispose();
-            tilesetTileTypes = new Bitmap(16 * parentMod.TileSize, 16 * parentMod.TileSize);
-            RenderTiles(tilesetTileTypes, attributes, tileTypes, parentMod.TileSize);
-        }
-        #endregion
-        void DrawSelectedTile(Graphics g)
-        {
-            g.DrawRectangle(new Pen(UI.Default.SelectedTileColor),
-                (SelectedTile % 16) * parentMod.TileSize,
-                (SelectedTile / 16) * parentMod.TileSize,
-                parentMod.TileSize - 1,
-                parentMod.TileSize - 1);
-        }
-        void DisplayTileset()
-        {
-            var workingTileset = new Bitmap(baseTileset);
-            using (Graphics g = Graphics.FromImage(workingTileset))
-            {
-                if (tileTypesToolStripMenuItem.Checked)
-                    g.DrawImage(tilesetTileTypes,0,0, tilesetTileTypes.Width, tilesetTileTypes.Height);
-                DrawSelectedTile(g);
-            }
-            tilesetPictureBox.Image?.Dispose();
-            tilesetPictureBox.Image = workingTileset;
-        }
+            
+            var tiletypes = new Bitmap(16 * parentMod.TileSize, 16 * parentMod.TileSize);
+            RenderTiles(tiletypes, attributes, tileTypes, parentMod.TileSize);
 
-        #endregion
+            baseTileset.Image = tileset;
+            tilesetTileTypes.Image = tiletypes;
+            tilesetMouseOverlay.Image = MakeMouseImage(parentMod.TileSize, parentMod.TileSize, UI.Default.SelectedTileColor);
 
-
-        #region Tileset Interaction
+            tilesetLayeredPictureBox.LockCanvasSize();
+        }
+        void MoveTileSelection()
+        {
+            tilesetMouseOverlay.Location = new Point((SelectedTile % 16) * parentMod.TileSize, (SelectedTile / 16) * parentMod.TileSize);
+        }
 
         private void tilesetPictureBox_MouseClick(object sender, MouseEventArgs e)
         {
@@ -81,8 +52,5 @@ namespace GuxtEditor
             if (value <= byte.MaxValue && value != SelectedTile)
                 SelectedTile = (byte)value;
         }
-
-        #endregion
-
     }
 }

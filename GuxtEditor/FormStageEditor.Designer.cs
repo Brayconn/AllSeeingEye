@@ -44,8 +44,8 @@
             this.editModeTabControl = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            this.tilesetPictureBox = new System.Windows.Forms.PictureBox();
             this.mapPropertyGrid = new System.Windows.Forms.PropertyGrid();
+            this.tilesetLayeredPictureBox = new LayeredPictureBox.LayeredPictureBox();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.entityPropertyGrid = new System.Windows.Forms.PropertyGrid();
@@ -62,7 +62,6 @@
             this.editModeTabControl.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.tilesetPictureBox)).BeginInit();
             this.tabPage2.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -210,8 +209,8 @@
             this.tableLayoutPanel2.ColumnCount = 1;
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel2.Controls.Add(this.tilesetPictureBox, 0, 1);
             this.tableLayoutPanel2.Controls.Add(this.mapPropertyGrid, 0, 0);
+            this.tableLayoutPanel2.Controls.Add(this.tilesetLayeredPictureBox, 0, 1);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
@@ -221,16 +220,6 @@
             this.tableLayoutPanel2.Size = new System.Drawing.Size(252, 394);
             this.tableLayoutPanel2.TabIndex = 1;
             // 
-            // tilesetPictureBox
-            // 
-            this.tilesetPictureBox.Location = new System.Drawing.Point(3, 200);
-            this.tilesetPictureBox.Name = "tilesetPictureBox";
-            this.tilesetPictureBox.Size = new System.Drawing.Size(246, 191);
-            this.tilesetPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.tilesetPictureBox.TabIndex = 0;
-            this.tilesetPictureBox.TabStop = false;
-            this.tilesetPictureBox.MouseClick += new System.Windows.Forms.MouseEventHandler(this.tilesetPictureBox_MouseClick);
-            // 
             // mapPropertyGrid
             // 
             this.mapPropertyGrid.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -238,6 +227,17 @@
             this.mapPropertyGrid.Name = "mapPropertyGrid";
             this.mapPropertyGrid.Size = new System.Drawing.Size(246, 191);
             this.mapPropertyGrid.TabIndex = 1;
+            // 
+            // tilesetLayeredPictureBox
+            // 
+            this.tilesetLayeredPictureBox.AutoScroll = true;
+            this.tilesetLayeredPictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tilesetLayeredPictureBox.Location = new System.Drawing.Point(3, 200);
+            this.tilesetLayeredPictureBox.MaxCanvasSize = new System.Drawing.Size(0, 0);
+            this.tilesetLayeredPictureBox.Name = "tilesetLayeredPictureBox";
+            this.tilesetLayeredPictureBox.Size = new System.Drawing.Size(246, 191);
+            this.tilesetLayeredPictureBox.TabIndex = 2;
+            this.tilesetLayeredPictureBox.MouseClick += new System.Windows.Forms.MouseEventHandler(this.tilesetPictureBox_MouseClick);
             // 
             // tabPage2
             // 
@@ -323,14 +323,8 @@
             // mapLayeredPictureBox
             // 
             this.mapLayeredPictureBox.AutoScroll = true;
-            this.mapLayeredPictureBox.CanvasScale = 1;
-            this.mapLayeredPictureBox.CanvasSizeLocked = false;
-            this.mapLayeredPictureBox.CurrentCanvasHeight = 0;
-            this.mapLayeredPictureBox.CurrentCanvasWidth = 0;
             this.mapLayeredPictureBox.Location = new System.Drawing.Point(0, 0);
-            this.mapLayeredPictureBox.MaxCanvasHeight = 0;
             this.mapLayeredPictureBox.MaxCanvasSize = new System.Drawing.Size(0, 0);
-            this.mapLayeredPictureBox.MaxCanvasWidth = 0;
             this.mapLayeredPictureBox.Name = "mapLayeredPictureBox";
             this.mapLayeredPictureBox.Size = new System.Drawing.Size(200, 100);
             this.mapLayeredPictureBox.TabIndex = 1;
@@ -365,7 +359,6 @@
             this.tabPage1.ResumeLayout(false);
             this.tableLayoutPanel2.ResumeLayout(false);
             this.tableLayoutPanel2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.tilesetPictureBox)).EndInit();
             this.tabPage2.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
@@ -384,7 +377,6 @@
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.TabControl editModeTabControl;
         private System.Windows.Forms.TabPage tabPage1;
-        private System.Windows.Forms.PictureBox tilesetPictureBox;
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.PropertyGrid entityPropertyGrid;
@@ -402,5 +394,6 @@
         private System.Windows.Forms.HScrollBar hScreenPreviewScrollBar;
         private System.Windows.Forms.VScrollBar vScreenPreviewScrollBar;
         private LayeredPictureBox.LayeredPictureBox mapLayeredPictureBox;
+        private LayeredPictureBox.LayeredPictureBox tilesetLayeredPictureBox;
     }
 }

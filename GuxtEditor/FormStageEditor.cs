@@ -99,6 +99,9 @@ namespace GuxtEditor
             ResetMouseSize();
             InitScreenPreview();
 
+            tilesetLayeredPictureBox.AddLayers(3);
+
+
             InitEntityList();
 
             //entities
@@ -116,8 +119,7 @@ namespace GuxtEditor
             var t = new Bitmap(Path.ChangeExtension(attributePath, parentMod.ImageExtension));
             if (parentMod.ImagesScrambeled)
                 t = Scrambler.Unscramble(t);
-            InitTileset(t);
-            UpdateTilesetTileTypes();
+            InitTilesetAndTileTypes(t);
 
             //base map setup
             mapPath = Path.Combine(parentMod.DataPath, parentMod.MapName + StageNumber + "." + parentMod.MapExtension);
@@ -126,7 +128,6 @@ namespace GuxtEditor
             map.MapResized += delegate { InitMap(); };
             mapPropertyGrid.SelectedObject = map;            
 
-            DisplayTileset();
             InitMap();
 
             //need to init entity images after the map has been initialized so we actually have a good size
@@ -209,13 +210,13 @@ namespace GuxtEditor
         {
             mapLayeredPictureBox.UnlockCanvasSize();
 
-            baseMap.Image = RenderTiles(map, baseTileset, parentMod.TileSize);
+            baseMap.Image = RenderTiles(map, (Bitmap)baseTileset.Image, parentMod.TileSize);
             
             //init screen preview max
             vScreenPreviewScrollBar.Maximum = ((map.Height - GuxtScreenHeight) * parentMod.TileSize) + vScreenPreviewScrollBar.LargeChange - 1;
             hScreenPreviewScrollBar.Maximum = ((map.Width - GuxtScreenWidth) * parentMod.TileSize) + hScreenPreviewScrollBar.LargeChange - 1;
 
-            mapTileTypes.Image = RenderTiles(map, tilesetTileTypes, parentMod.TileSize);
+            mapTileTypes.Image = RenderTiles(map, (Bitmap)tilesetTileTypes.Image, parentMod.TileSize);
 
             mapLayeredPictureBox.LockCanvasSize();
         }
@@ -283,7 +284,7 @@ namespace GuxtEditor
             set
             {
                 selectedTile = value;
-                DisplayTileset();
+                MoveTileSelection();
             }
         }
 
@@ -299,8 +300,8 @@ namespace GuxtEditor
         {
             UnsavedEdits = true;
             map.Tiles[tileNum] = tileValue;
-            DrawTile(baseMap.Image, map, tileNum, baseTileset, parentMod.TileSize);
-            DrawTile(mapTileTypes.Image, map, tileNum, tilesetTileTypes, parentMod.TileSize, System.Drawing.Drawing2D.CompositingMode.SourceCopy);
+            DrawTile(baseMap.Image, map, tileNum, (Bitmap)baseTileset.Image, parentMod.TileSize);
+            DrawTile(mapTileTypes.Image, map, tileNum, (Bitmap)tilesetTileTypes.Image, parentMod.TileSize, System.Drawing.Drawing2D.CompositingMode.SourceCopy);
         }
 
         #endregion
@@ -738,11 +739,8 @@ namespace GuxtEditor
         {
             HoldAction = null;
             //this check is here to stop the mouse hiding when the context menu appears, since that triggers MouseLeave
-            if (entityContextMenu != null && !entityContextMenu.Visible)
-            {
-                MousePositionOnGrid = new Point(-1, -1);
-                mouseOverlay.Shown = false;
-            }
+            if (entityContextMenu == null || !entityContextMenu.Visible)
+                mouseOverlay.Shown = false;            
             ResetMouseSize();
         }
 
@@ -799,7 +797,7 @@ namespace GuxtEditor
         private void tileTypesToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
             mapTileTypes.Shown = tileTypesToolStripMenuItem.Checked;
-            DisplayTileset();
+            tilesetTileTypes.Shown = tileTypesToolStripMenuItem.Checked;
         }
 
         private void entitySpritesToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
