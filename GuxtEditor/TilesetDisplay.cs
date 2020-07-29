@@ -2,6 +2,7 @@
 using System.Windows.Forms;
 using LayeredPictureBox;
 using static PixelModdingFramework.Rendering;
+using static GuxtEditor.SharedGraphics;
 
 namespace GuxtEditor
 {

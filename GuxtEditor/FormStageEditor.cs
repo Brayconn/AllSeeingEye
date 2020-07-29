@@ -99,7 +99,7 @@ namespace GuxtEditor
             ResetMouseSize();
             InitScreenPreview();
 
-            tilesetLayeredPictureBox.AddLayers(3);
+            tilesetLayeredPictureBox.AddLayers(tilesetMouseOverlayLayer + 1);
 
 
             InitEntityList();

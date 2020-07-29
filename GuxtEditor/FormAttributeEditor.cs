@@ -1,6 +1,7 @@
 ﻿using GuxtModdingFramework;
 using GuxtModdingFramework.Images;
 using GuxtModdingFramework.Maps;
+using LayeredPictureBox;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,6 +15,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static PixelModdingFramework.Rendering;
+using static GuxtEditor.SharedGraphics;
 
 namespace GuxtEditor
 {
@@ -63,15 +65,6 @@ namespace GuxtEditor
         /// </summary>
         readonly Bitmap tileTypes;
 
-        /// <summary>
-        /// The current tileset (image)
-        /// </summary>
-        Bitmap baseTileset;
-        /// <summary>
-        /// The current tileset (tile types)
-        /// </summary>
-        Bitmap tilesetTileTypes;
-
         //everything get initialised, just not in this method
         #nullable disable
         public FormAttributeEditor(Mod m, string filename, string tileTypePath, IDictionary<WinFormsKeybinds.KeyInput,string> keybinds)
@@ -82,109 +75,111 @@ namespace GuxtEditor
             Keybinds = keybinds;
 
             InitializeComponent();
-            tilesetPictureBox.MouseWheel += tilesetPictureBox_MouseWheel;
-            UpdateTitle();            
+            UpdateTitle();
+            attributesLayeredPictureBox.MouseWheel += attributesLayeredPictureBox_MouseWheel;
+            attributesLayeredPictureBox.AddLayers(mouseOverlayLayer + 1);
+            availableTileTypesLayeredPictureBox.AddLayers(availableTileTypesMouseOverlayLayer + 1);
 
-            //attributes
+            tileTypes = new Bitmap(tileTypePath);
+            InitAvailableTileTypes(tileTypes);
+
+            //attributes file
             attributePath = Path.Combine(parentMod.DataPath, AttributeFilename);
             attributes = new Map(attributePath);
-            attributes.MapResized += () => InitTilesetTileTypes();
-            tileTypes = new Bitmap(tileTypePath);
-
+            attributes.MapResized += delegate { InitAttributeTileTypes(); };
+           
             attributePropertyGrid.SelectedObject = attributes;
 
-            //tileset            
+            //tileset image
             var t = new Bitmap(Path.ChangeExtension(attributePath, parentMod.ImageExtension));
             if (parentMod.ImagesScrambeled)
                 t = Scrambler.Unscramble(t);
-            InitTileset(t);
-            InitTilesetTileTypes();
-
-            DisplayTileTypes();
-            DisplayTileset();
-
+            InitAttributes(t);
         }
 
-        #region init images
+        #region attributes
 
-        void InitTileset(Image t)
+        const int baseAttributesLayer = 0;
+        Layer<Image> baseAttributes => attributesLayeredPictureBox.Layers[baseAttributesLayer];
+
+        const int attributesTileTypesLayer = baseAttributesLayer + 1;
+        Layer<Image> attributesTileTypes => attributesLayeredPictureBox.Layers[attributesTileTypesLayer];
+
+        const int mouseOverlayLayer = attributesTileTypesLayer + 1;
+        Layer<Image> mouseOverlay => attributesLayeredPictureBox.Layers[mouseOverlayLayer];
+
+        void InitAttributes(Image t)
         {
-            baseTileset?.Dispose();
-            baseTileset = new Bitmap(16 * parentMod.TileSize, 16 * parentMod.TileSize);
-            using (Graphics g = Graphics.FromImage(baseTileset))
+            attributesLayeredPictureBox.UnlockCanvasSize();
+            
+            var attrib = new Bitmap(16 * parentMod.TileSize, 16 * parentMod.TileSize);
+            using (Graphics g = Graphics.FromImage(attrib))
             {
                 g.Clear(Color.Black);
                 g.DrawImage(t, 0, 0, t.Width, t.Height);
             }
+
+            baseAttributes.Image = attrib;
+            InitAttributeTileTypes();
+            mouseOverlay.Image = MakeMouseImage(parentMod.TileSize, parentMod.TileSize, UI.Default.CursorColor);
+            
+            attributesLayeredPictureBox.LockCanvasSize();
         }
-        void InitTilesetTileTypes()
+        void InitAttributeTileTypes()
         {
-            tilesetTileTypes?.Dispose();
-            tilesetTileTypes = new Bitmap(16 * parentMod.TileSize, 16 * parentMod.TileSize);
-            RenderTiles(tilesetTileTypes, attributes, tileTypes, parentMod.TileSize);
+            var tiletypes = new Bitmap(16 * parentMod.TileSize, 16 * parentMod.TileSize);
+            RenderTiles(tiletypes, attributes, tileTypes, parentMod.TileSize);
+            attributesTileTypes.Image = tiletypes;
         }
+
 
         #endregion
 
-        #region Drawing tile types
-        void DrawSelectedTile(Graphics g)
+
+        #region available tile types
+
+        const int availableTileTypesLayer = 0;
+        Layer<Image> availableTileTypes => availableTileTypesLayeredPictureBox.Layers[availableTileTypesLayer];
+
+        const int availableTileTypesMouseOverlayLayer = availableTileTypesLayer + 1;
+        Layer<Image> availableTileTypesMouseOverlay => availableTileTypesLayeredPictureBox.Layers[availableTileTypesMouseOverlayLayer];
+
+        /// <summary>
+        /// Resets the tileset buffer, and draws the given image on it
+        /// </summary>
+        /// <param name="t"></param>
+        void InitAvailableTileTypes(Image t)
         {
-            g.DrawRectangle(new Pen(UI.Default.SelectedTileColor),
-                (SelectedTile % 16) * parentMod.TileSize,
-                (SelectedTile / 16) * parentMod.TileSize,
-                parentMod.TileSize - 1,
-                parentMod.TileSize - 1);
-        }
-        void DisplayTileTypes()
-        {
-            var workingTileTypes = new Bitmap(tileTypes.Width, tileTypes.Height);
-            using (Graphics g = Graphics.FromImage(workingTileTypes))
+            availableTileTypesLayeredPictureBox.UnlockCanvasSize();
+
+            var tileset = new Bitmap(16 * parentMod.TileSize, 16 * parentMod.TileSize);
+            using (Graphics g = Graphics.FromImage(tileset))
             {
                 g.Clear(Color.Black);
-                g.DrawImage(tileTypes, 0, 0, tileTypes.Width, tileTypes.Height);
-                DrawSelectedTile(g);
-            }
-            tileTypesPictureBox.Image?.Dispose();
-            tileTypesPictureBox.Image = workingTileTypes;
+                g.DrawImage(t, 0, 0, t.Width, t.Height);
+            }            
+            availableTileTypes.Image = tileset;
+            availableTileTypesMouseOverlay.Image = MakeMouseImage(parentMod.TileSize, parentMod.TileSize, UI.Default.SelectedTileColor);
+
+            availableTileTypesLayeredPictureBox.LockCanvasSize();
+        }
+        void MoveTileSelection()
+        {
+            availableTileTypesMouseOverlay.Location = new Point((SelectedTile % 16) * parentMod.TileSize, (SelectedTile / 16) * parentMod.TileSize);
         }
 
         #endregion
-
-        #region draw tileset
-
-        private void DrawMouseOverlay(Graphics g, Point p)
+        
+        byte selectedTile = 0;
+        byte SelectedTile
         {
-            int x = p.X * parentMod.TileSize;
-            int y = p.Y * parentMod.TileSize;
-
-            int width = parentMod.TileSize - 1;
-            int height = parentMod.TileSize - 1;
-
-            g.DrawRectangle(new Pen(UI.Default.CursorColor), x, y, width, height);
-        }
-        void DisplayTileset(Point? p = null)
-        {
-            Bitmap tilesetImage = new Bitmap(baseTileset);
-            if (tileTypesToolStripMenuItem.Checked)
+            get => selectedTile;
+            set
             {
-                using (Graphics g = Graphics.FromImage(tilesetImage))
-                {
-                    if (tileTypesToolStripMenuItem.Checked)
-                        g.DrawImage(tilesetTileTypes, 0, 0, tilesetTileTypes.Width, tilesetTileTypes.Height);
-                    if (p != null)
-                        DrawMouseOverlay(g, (Point)p);
-                }
+                selectedTile = value;
+                MoveTileSelection();
             }
-            tilesetPictureBox.Image?.Dispose();
-            tilesetPictureBox.Image = PixelModdingFramework.Rendering.ScaleImage(tilesetImage, ZoomLevel);
-            tilesetImage.Dispose();
         }
-
-        #endregion
-
-        #region edit tileset
-
-        byte SelectedTile = 0;
         void SetTile(Point p)
         {
             UnsavedEdits = true;
@@ -197,11 +192,9 @@ namespace GuxtEditor
             var tile = (p.Y * attributes.Width) + p.X;
             attributes.Tiles[tile] = SelectedTile;
 
-            DrawTile(tilesetTileTypes, attributes, tile, tileTypes, parentMod.TileSize, CompositingMode.SourceCopy);
+            DrawTile(attributesTileTypes.Image, attributes, tile, tileTypes, parentMod.TileSize, CompositingMode.SourceCopy);
         }
-
-        #endregion
-
+                
         #region Mouse
 
         Point MousePositionOnGrid = new Point(-1, -1);
@@ -216,33 +209,33 @@ namespace GuxtEditor
         {
             return new Point(p.X / parentMod.TileSize, p.Y / parentMod.TileSize);
         }
-        private Point GetMousePointOnTileset(Point p)
+        private Point GetMousePointOnAttributes(Point p)
         {
             return new Point(p.X / (parentMod.TileSize * ZoomLevel), p.Y / (parentMod.TileSize * ZoomLevel));
         }
 
-        private void tileTypesPictureBox_MouseClick(object sender, MouseEventArgs e)
+        private void availableTileTypesPictureBox_MouseClick(object sender, MouseEventArgs e)
         {
             var p = GetMousePointOnTileTypes(e.Location);
             var value = (p.Y * 16) + p.X;
             if (value <= byte.MaxValue && value != SelectedTile)
             {
                 SelectedTile = (byte)value;
-                DisplayTileTypes();
             }
         }
 
-        private void tilesetPictureBox_MouseDown(object sender, MouseEventArgs e)
+        private void attributesLayeredPictureBox_MouseDown(object sender, MouseEventArgs e)
         {
             Draw = e.Button == MouseButtons.Left;
-            var p = GetMousePointOnTileset(e.Location);
+            mouseOverlay.Shown = !Draw;
+            var p = GetMousePointOnAttributes(e.Location);
             SetTile(p);
-            DisplayTileset(p);
+            attributesLayeredPictureBox.Invalidate();
         }
 
-        private void tilesetPictureBox_MouseMove(object sender, MouseEventArgs e)
+        private void attributesLayeredPictureBox_MouseMove(object sender, MouseEventArgs e)
         {
-            var p = GetMousePointOnTileset(e.Location);
+            var p = GetMousePointOnAttributes(e.Location);
             //TODO make clamp?
             p.X = Math.Max(0, Math.Min(p.X, maxGridPoint.X));
             p.Y = Math.Max(0, Math.Min(p.Y, maxGridPoint.Y));
@@ -251,21 +244,29 @@ namespace GuxtEditor
                 return;
 
             if (Draw)
+            {
                 SetTile(p);
-
+                attributesLayeredPictureBox.Invalidate();
+            }
+            MoveMouse(p);
             MousePositionOnGrid = p;
-            DisplayTileset(p);
         }
 
-        private void tilesetPictureBox_MouseUp(object sender, MouseEventArgs e)
+        void MoveMouse(Point gridPosition)
         {
-            Draw = false;
+            mouseOverlay.Location = new Point(gridPosition.X * parentMod.TileSize, gridPosition.Y * parentMod.TileSize);
         }
 
-        private void tilesetPictureBox_MouseLeave(object sender, EventArgs e)
+        private void attributesLayeredPictureBox_MouseUp(object sender, MouseEventArgs e)
         {
             Draw = false;
-            DisplayTileset();
+            mouseOverlay.Shown = true;
+        }
+
+        private void attributesLayeredPictureBox_MouseLeave(object sender, EventArgs e)
+        {
+            Draw = false;
+            mouseOverlay.Shown = false;
         }
 
         #endregion
@@ -300,21 +301,18 @@ namespace GuxtEditor
         #region zoom
 
         const int MaxZoom = 10;
-
-        int zoomLevel = 1;
         int ZoomLevel
         {
-            get => zoomLevel;
+            get => attributesLayeredPictureBox.CanvasScale;
             set
             {
                 if (1 <= value && value <= MaxZoom)
                 {
-                    zoomLevel = value;
-                    DisplayTileset();
+                    attributesLayeredPictureBox.CanvasScale = value;
                 }
             }
         }
-        private void tilesetPictureBox_MouseWheel(object sender, MouseEventArgs e)
+        private void attributesLayeredPictureBox_MouseWheel(object sender, MouseEventArgs e)
         {
             if (ModifierKeys == Keys.Control)
                 ZoomLevel += (e.Delta > 0) ? 1 : -1;
@@ -334,7 +332,7 @@ namespace GuxtEditor
 
         private void tileTypesToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
-            DisplayTileset();
+             attributesTileTypes.Shown = tileTypesToolStripMenuItem.Checked;
         }
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
@@ -352,6 +350,11 @@ namespace GuxtEditor
                         return;
                 }
             }
+        }
+
+        private void attributesLayeredPictureBox_MouseEnter(object sender, EventArgs e)
+        {
+            mouseOverlay.Shown = true;
         }
     }
 }

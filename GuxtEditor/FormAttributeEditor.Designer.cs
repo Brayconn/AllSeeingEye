@@ -37,19 +37,17 @@
             this.tileTypesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.tileTypesPictureBox = new System.Windows.Forms.PictureBox();
             this.attributePropertyGrid = new System.Windows.Forms.PropertyGrid();
+            this.availableTileTypesLayeredPictureBox = new LayeredPictureBox.LayeredPictureBox();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.tilesetPictureBox = new System.Windows.Forms.PictureBox();
+            this.attributesLayeredPictureBox = new LayeredPictureBox.LayeredPictureBox();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.tileTypesPictureBox)).BeginInit();
             this.panel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.tilesetPictureBox)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -124,8 +122,8 @@
             // 
             this.tableLayoutPanel1.ColumnCount = 1;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.Controls.Add(this.tileTypesPictureBox, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.attributePropertyGrid, 0, 0);
+            this.tableLayoutPanel1.Controls.Add(this.availableTileTypesLayeredPictureBox, 0, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -135,16 +133,6 @@
             this.tableLayoutPanel1.Size = new System.Drawing.Size(266, 426);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
-            // tileTypesPictureBox
-            // 
-            this.tileTypesPictureBox.Location = new System.Drawing.Point(3, 216);
-            this.tileTypesPictureBox.Name = "tileTypesPictureBox";
-            this.tileTypesPictureBox.Size = new System.Drawing.Size(100, 50);
-            this.tileTypesPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.tileTypesPictureBox.TabIndex = 0;
-            this.tileTypesPictureBox.TabStop = false;
-            this.tileTypesPictureBox.MouseClick += new System.Windows.Forms.MouseEventHandler(this.tileTypesPictureBox_MouseClick);
-            // 
             // attributePropertyGrid
             // 
             this.attributePropertyGrid.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -153,28 +141,40 @@
             this.attributePropertyGrid.Size = new System.Drawing.Size(260, 207);
             this.attributePropertyGrid.TabIndex = 1;
             // 
+            // availableTileTypesLayeredPictureBox
+            // 
+            this.availableTileTypesLayeredPictureBox.AutoScroll = true;
+            this.availableTileTypesLayeredPictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.availableTileTypesLayeredPictureBox.Location = new System.Drawing.Point(3, 216);
+            this.availableTileTypesLayeredPictureBox.MaxCanvasSize = new System.Drawing.Size(0, 0);
+            this.availableTileTypesLayeredPictureBox.Name = "availableTileTypesLayeredPictureBox";
+            this.availableTileTypesLayeredPictureBox.Size = new System.Drawing.Size(260, 207);
+            this.availableTileTypesLayeredPictureBox.TabIndex = 2;
+            this.availableTileTypesLayeredPictureBox.MouseClick += new System.Windows.Forms.MouseEventHandler(this.availableTileTypesPictureBox_MouseClick);
+            // 
             // panel1
             // 
             this.panel1.AutoScroll = true;
-            this.panel1.Controls.Add(this.tilesetPictureBox);
+            this.panel1.Controls.Add(this.attributesLayeredPictureBox);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(530, 426);
             this.panel1.TabIndex = 0;
             // 
-            // tilesetPictureBox
+            // attributesLayeredPictureBox
             // 
-            this.tilesetPictureBox.Location = new System.Drawing.Point(0, 0);
-            this.tilesetPictureBox.Name = "tilesetPictureBox";
-            this.tilesetPictureBox.Size = new System.Drawing.Size(142, 118);
-            this.tilesetPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.tilesetPictureBox.TabIndex = 0;
-            this.tilesetPictureBox.TabStop = false;
-            this.tilesetPictureBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.tilesetPictureBox_MouseDown);
-            this.tilesetPictureBox.MouseLeave += new System.EventHandler(this.tilesetPictureBox_MouseLeave);
-            this.tilesetPictureBox.MouseMove += new System.Windows.Forms.MouseEventHandler(this.tilesetPictureBox_MouseMove);
-            this.tilesetPictureBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.tilesetPictureBox_MouseUp);
+            this.attributesLayeredPictureBox.AutoScroll = true;
+            this.attributesLayeredPictureBox.Location = new System.Drawing.Point(0, 0);
+            this.attributesLayeredPictureBox.MaxCanvasSize = new System.Drawing.Size(0, 0);
+            this.attributesLayeredPictureBox.Name = "attributesLayeredPictureBox";
+            this.attributesLayeredPictureBox.Size = new System.Drawing.Size(200, 100);
+            this.attributesLayeredPictureBox.TabIndex = 0;
+            this.attributesLayeredPictureBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.attributesLayeredPictureBox_MouseDown);
+            this.attributesLayeredPictureBox.MouseEnter += new System.EventHandler(this.attributesLayeredPictureBox_MouseEnter);
+            this.attributesLayeredPictureBox.MouseLeave += new System.EventHandler(this.attributesLayeredPictureBox_MouseLeave);
+            this.attributesLayeredPictureBox.MouseMove += new System.Windows.Forms.MouseEventHandler(this.attributesLayeredPictureBox_MouseMove);
+            this.attributesLayeredPictureBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.attributesLayeredPictureBox_MouseUp);
             // 
             // FormAttributeEditor
             // 
@@ -197,10 +197,8 @@
             this.splitContainer1.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.tileTypesPictureBox)).EndInit();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.tilesetPictureBox)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -216,9 +214,9 @@
         private System.Windows.Forms.ToolStripMenuItem tileTypesToolStripMenuItem;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-        private System.Windows.Forms.PictureBox tileTypesPictureBox;
         private System.Windows.Forms.PropertyGrid attributePropertyGrid;
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.PictureBox tilesetPictureBox;
+        private LayeredPictureBox.LayeredPictureBox availableTileTypesLayeredPictureBox;
+        private LayeredPictureBox.LayeredPictureBox attributesLayeredPictureBox;
     }
 }
