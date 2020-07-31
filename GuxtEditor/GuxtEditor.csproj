@@ -11,7 +11,7 @@
     <ApplicationIcon>cyber.ico</ApplicationIcon>
     <Win32Resource />
     <Authors>Brayconn</Authors>
-    <Version>1.2.0</Version>
+    <Version>1.2.1</Version>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>
