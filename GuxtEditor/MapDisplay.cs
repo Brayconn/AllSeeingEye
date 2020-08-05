@@ -97,9 +97,11 @@ namespace GuxtEditor
         #region screen preview
         const int GuxtScreenWidth = 8;
         const int GuxtScreenHeight = 10;
-        private void UpdateScreenPreviewLocation()
+        private void UpdateScreenPreviewLocation(int h, int v)
         {
-            screenPreview.Location = new Point(hScreenPreviewScrollBar.Value, vScreenPreviewScrollBar.Value);
+            hScreenPreviewScrollBar.Value = h;
+            vScreenPreviewScrollBar.Value = v;
+            screenPreview.Location = new Point(h, v);
         }
         private void InitScreenPreview()
         {

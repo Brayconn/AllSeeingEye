@@ -1,19 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using GuxtModdingFramework;
 using GuxtModdingFramework.Images;
 using GuxtModdingFramework.Entities;
 using GuxtModdingFramework.Maps;
-using GuxtEditor.Properties;
 using static PixelModdingFramework.Rendering;
 
 namespace GuxtEditor
@@ -141,11 +137,15 @@ namespace GuxtEditor
             tileTypesToolStripMenuItem_CheckedChanged(this, new EventArgs());
             entitySpritesToolStripMenuItem_CheckedChanged(this, new EventArgs());
             entityBoxesToolStripMenuItem_CheckedChanged(this, new EventArgs());
-            screenPreviewToolStripMenuItem_CheckedChanged(this, new EventArgs());
-
+                        
             //Init screen preview to the bottom of the screen            
-            vScreenPreviewScrollBar.Value = vScreenPreviewScrollBar.Maximum - 1;
-            UpdateScreenPreviewLocation();
+            UpdateScreenPreviewLocation(0, vScreenPreviewScrollBar.Maximum - vScreenPreviewScrollBar.LargeChange + 1);
+        }
+
+        private void FormStageEditor_Load(object sender, EventArgs e)
+        {
+            //need to update these scrollbars once the form has loaded, otherwise they are permanently hidden
+            screenPreviewToolStripMenuItem_CheckedChanged(this, new EventArgs());
         }
 
         /// <summary>
@@ -173,7 +173,7 @@ namespace GuxtEditor
                     //changing the scroll value in here doesn't work, it gets set to something else shortly after
                     //so it has to wait until later...
                     scrollBarNeedsUpdate = true;
-                    scrollBarMultiplier = panel1.VerticalScroll.Value / (decimal)(panel1.VerticalScroll.Maximum - panel1.VerticalScroll.LargeChange - 1);
+                    scrollBarMultiplier = pictureBoxPanel.VerticalScroll.Value / (decimal)(pictureBoxPanel.VerticalScroll.Maximum - pictureBoxPanel.VerticalScroll.LargeChange + 1);
                     //setting this last so the map gets updated at the right time
                     mapLayeredPictureBox.CanvasScale  = value;
                 }
@@ -192,8 +192,8 @@ namespace GuxtEditor
         {
             if (scrollBarNeedsUpdate)
             {
-                panel1.VerticalScroll.Value = (int)((panel1.VerticalScroll.Maximum - panel1.VerticalScroll.LargeChange - 1) * scrollBarMultiplier);
-                panel1.PerformLayout();
+                pictureBoxPanel.VerticalScroll.Value = (int)Math.Round((pictureBoxPanel.VerticalScroll.Maximum - pictureBoxPanel.VerticalScroll.LargeChange + 1) * scrollBarMultiplier);
+                pictureBoxPanel.PerformLayout();
                 scrollBarNeedsUpdate = false;
             }
         }
@@ -208,17 +208,33 @@ namespace GuxtEditor
         /// </summary>
         void InitMap()
         {
-            mapLayeredPictureBox.UnlockCanvasSize();
-
-            baseMap.Image = RenderTiles(map, (Bitmap)baseTileset.Image, parentMod.TileSize);
+            //hiding both of these so they can't affect the canvas size
+            bool spShown = screenPreview.Shown;
+            screenPreview.Shown = false;
+            bool mShown = mouseOverlay.Shown;
+            mouseOverlay.Shown = false;
             
-            //init screen preview max
-            vScreenPreviewScrollBar.Maximum = ((map.Height - GuxtScreenHeight) * parentMod.TileSize) + vScreenPreviewScrollBar.LargeChange - 1;
-            hScreenPreviewScrollBar.Maximum = ((map.Width - GuxtScreenWidth) * parentMod.TileSize) + hScreenPreviewScrollBar.LargeChange - 1;
+            mapLayeredPictureBox.UnlockCanvasSize();
+            {   
+                baseMap.Image = RenderTiles(map, (Bitmap)baseTileset.Image, parentMod.TileSize);
 
-            mapTileTypes.Image = RenderTiles(map, (Bitmap)tilesetTileTypes.Image, parentMod.TileSize);
+                //init screen preview max
+                var vMax = (map.Height - GuxtScreenHeight) * parentMod.TileSize;
+                var hMax = (map.Width - GuxtScreenWidth) * parentMod.TileSize;
+                vScreenPreviewScrollBar.Maximum = vMax + vScreenPreviewScrollBar.LargeChange - 1;
+                hScreenPreviewScrollBar.Maximum = hMax + hScreenPreviewScrollBar.LargeChange - 1;
+                //clamp the screen preview inside the map
+                UpdateScreenPreviewLocation(Math.Min(screenPreview.Location.X, hMax), Math.Min(screenPreview.Location.Y, vMax));
+                //this call won't do anything the first time this function is called, but it will work on subsequent calls
+                UpdateScreenPreviewScrollbars();
 
+                mapTileTypes.Image = RenderTiles(map, (Bitmap)tilesetTileTypes.Image, parentMod.TileSize);
+            }
             mapLayeredPictureBox.LockCanvasSize();
+
+            //show the ones that were shown again
+            screenPreview.Shown = spShown;
+            mouseOverlay.Shown = mShown;
         }
 
         void UpdateEntityIcons()
@@ -834,14 +850,83 @@ namespace GuxtEditor
         #region screen preview scroll bars
 
         private void ScreenPreviewScrollChanged(object sender, ScrollEventArgs e)
-        {
-            UpdateScreenPreviewLocation();
+        {            
+            int h = hScreenPreviewScrollBar.Value;
+            int v = vScreenPreviewScrollBar.Value;
+            if (e.ScrollOrientation == ScrollOrientation.VerticalScroll)
+                v = e.NewValue;
+            else if (e.ScrollOrientation == ScrollOrientation.HorizontalScroll)
+                h = e.NewValue;
+            else
+                throw new ArgumentException();
+            UpdateScreenPreviewLocation(h,v);
         }
+                
+        /// <summary>
+        /// Toggles the visisbility of a scrollbar, and adjusts the size of the pictureboxpanel and the scrollbars to fit
+        /// </summary>
+        /// <param name="visible">Whether or not to show this scrollbar</param>
+        /// <param name="sb1">The scrollbar to show/hide</param>
+        /// <param name="sb2">A second scrollbar that may need to move out of the way, or that could be expanded</param>
+        void ToggleScrollbarVisible(bool visible, ScrollBar sb1, ScrollBar sb2)
+        {
+            int GetScrollBarLength(ScrollBar sb)
+            {
+                if (sb is VScrollBar v)
+                    return v.Height;
+                else if (sb is HScrollBar h)
+                    return h.Width;
+                else
+                    throw new ArgumentException();
+            }
+            void SetScrollBarLength(ScrollBar sb, int value)
+            {
+                if (sb is VScrollBar v)
+                {
+                    v.Height = value;
+                    pictureBoxPanel.Height = value;
+                }
+                else if (sb is HScrollBar h)
+                {
+                    h.Width = value;
+                    pictureBoxPanel.Width = value;
+                }
+                else
+                    throw new ArgumentException();
+            }
+            int GetScrollBarWidth(ScrollBar sb)
+            {
+                if (sb is VScrollBar v)
+                    return v.Width;
+                else if (sb is HScrollBar h)
+                    return h.Height;
+                else
+                    throw new ArgumentException();
+            }
+            //int SetScrollBarWidth(ScrollBar sb); //never need to set the scrollbar width
+                        
+            if (visible)
+                //move the other one out of the way to make room for us
+                SetScrollBarLength(sb2, GetScrollBarLength(sb2) - GetScrollBarWidth(sb1));
+            else
+                //the other one can take up all the space now that we're gone
+                SetScrollBarLength(sb2, GetScrollBarLength(sb2) + GetScrollBarWidth(sb1));
+            
+            sb1.Visible = visible;
+        }
+        void UpdateScreenPreviewScrollbars()
+        {
+            bool showV = vScreenPreviewScrollBar.Maximum > vScreenPreviewScrollBar.LargeChange && screenPreviewToolStripMenuItem.Checked;
+            if(vScreenPreviewScrollBar.Visible != showV)
+                ToggleScrollbarVisible(showV, vScreenPreviewScrollBar, hScreenPreviewScrollBar);
 
+            bool showH = hScreenPreviewScrollBar.Maximum > hScreenPreviewScrollBar.LargeChange && screenPreviewToolStripMenuItem.Checked;
+            if(hScreenPreviewScrollBar.Visible != showH)
+                ToggleScrollbarVisible(showH, hScreenPreviewScrollBar, vScreenPreviewScrollBar);
+        }
         private void screenPreviewToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
-            vScreenPreviewScrollBar.Enabled = vScreenPreviewScrollBar.Maximum > 1 && screenPreviewToolStripMenuItem.Checked;
-            hScreenPreviewScrollBar.Enabled = hScreenPreviewScrollBar.Maximum > 1 && screenPreviewToolStripMenuItem.Checked;
+            UpdateScreenPreviewScrollbars();
             screenPreview.Shown = screenPreviewToolStripMenuItem.Checked;
         }
 

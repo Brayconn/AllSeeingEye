@@ -50,9 +50,9 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.entityPropertyGrid = new System.Windows.Forms.PropertyGrid();
             this.entityListView = new System.Windows.Forms.ListView();
-            this.hScreenPreviewScrollBar = new System.Windows.Forms.HScrollBar();
             this.vScreenPreviewScrollBar = new System.Windows.Forms.VScrollBar();
-            this.panel1 = new System.Windows.Forms.Panel();
+            this.hScreenPreviewScrollBar = new System.Windows.Forms.HScrollBar();
+            this.pictureBoxPanel = new System.Windows.Forms.Panel();
             this.mapLayeredPictureBox = new LayeredPictureBox.LayeredPictureBox();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -64,7 +64,7 @@
             this.tableLayoutPanel2.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
-            this.panel1.SuspendLayout();
+            this.pictureBoxPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -174,9 +174,9 @@
             // 
             // splitContainer1.Panel2
             // 
-            this.splitContainer1.Panel2.Controls.Add(this.hScreenPreviewScrollBar);
             this.splitContainer1.Panel2.Controls.Add(this.vScreenPreviewScrollBar);
-            this.splitContainer1.Panel2.Controls.Add(this.panel1);
+            this.splitContainer1.Panel2.Controls.Add(this.hScreenPreviewScrollBar);
+            this.splitContainer1.Panel2.Controls.Add(this.pictureBoxPanel);
             this.splitContainer1.Size = new System.Drawing.Size(800, 426);
             this.splitContainer1.SplitterDistance = 266;
             this.splitContainer1.TabIndex = 1;
@@ -284,41 +284,37 @@
             this.entityListView.TabIndex = 1;
             this.entityListView.UseCompatibleStateImageBehavior = false;
             // 
-            // hScreenPreviewScrollBar
+            // vScrollBar1
             // 
-            this.hScreenPreviewScrollBar.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.hScreenPreviewScrollBar.Enabled = false;
-            this.hScreenPreviewScrollBar.LargeChange = 1;
-            this.hScreenPreviewScrollBar.Location = new System.Drawing.Point(0, 409);
-            this.hScreenPreviewScrollBar.Maximum = 0;
-            this.hScreenPreviewScrollBar.Name = "hScreenPreviewScrollBar";
-            this.hScreenPreviewScrollBar.Size = new System.Drawing.Size(513, 17);
-            this.hScreenPreviewScrollBar.TabIndex = 3;
-            this.hScreenPreviewScrollBar.Scroll += new System.Windows.Forms.ScrollEventHandler(this.ScreenPreviewScrollChanged);
-            // 
-            // vScreenPreviewScrollBar
-            // 
-            this.vScreenPreviewScrollBar.Dock = System.Windows.Forms.DockStyle.Right;
-            this.vScreenPreviewScrollBar.Enabled = false;
-            this.vScreenPreviewScrollBar.LargeChange = 2;
+            this.vScreenPreviewScrollBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.vScreenPreviewScrollBar.Location = new System.Drawing.Point(513, 0);
-            this.vScreenPreviewScrollBar.Maximum = 1;
-            this.vScreenPreviewScrollBar.Name = "vScreenPreviewScrollBar";
-            this.vScreenPreviewScrollBar.Size = new System.Drawing.Size(17, 426);
-            this.vScreenPreviewScrollBar.TabIndex = 2;
+            this.vScreenPreviewScrollBar.Name = "vScrollBar1";
+            this.vScreenPreviewScrollBar.Size = new System.Drawing.Size(17, 409);
+            this.vScreenPreviewScrollBar.TabIndex = 3;
             this.vScreenPreviewScrollBar.Scroll += new System.Windows.Forms.ScrollEventHandler(this.ScreenPreviewScrollChanged);
             // 
-            // panel1
+            // hScrollBar1
             // 
-            this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.hScreenPreviewScrollBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.hScreenPreviewScrollBar.Location = new System.Drawing.Point(0, 409);
+            this.hScreenPreviewScrollBar.Name = "hScrollBar1";
+            this.hScreenPreviewScrollBar.Size = new System.Drawing.Size(513, 17);
+            this.hScreenPreviewScrollBar.TabIndex = 2;
+            this.hScreenPreviewScrollBar.Scroll += new System.Windows.Forms.ScrollEventHandler(this.ScreenPreviewScrollChanged);
+            // 
+            // pictureBoxPanel
+            // 
+            this.pictureBoxPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.panel1.AutoScroll = true;
-            this.panel1.Controls.Add(this.mapLayeredPictureBox);
-            this.panel1.Location = new System.Drawing.Point(0, 0);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(513, 406);
-            this.panel1.TabIndex = 1;
+            this.pictureBoxPanel.AutoScroll = true;
+            this.pictureBoxPanel.Controls.Add(this.mapLayeredPictureBox);
+            this.pictureBoxPanel.Location = new System.Drawing.Point(0, 0);
+            this.pictureBoxPanel.Name = "pictureBoxPanel";
+            this.pictureBoxPanel.Size = new System.Drawing.Size(513, 409);
+            this.pictureBoxPanel.TabIndex = 1;
             // 
             // mapLayeredPictureBox
             // 
@@ -348,6 +344,7 @@
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "FormStageEditor";
             this.Text = "FormStageEditor";
+            this.Load += new System.EventHandler(this.FormStageEditor_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FormStageEditor_KeyDown);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
@@ -361,8 +358,8 @@
             this.tableLayoutPanel2.PerformLayout();
             this.tabPage2.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
+            this.pictureBoxPanel.ResumeLayout(false);
+            this.pictureBoxPanel.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -381,7 +378,6 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.PropertyGrid entityPropertyGrid;
         private System.Windows.Forms.ListView entityListView;
-        private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.PropertyGrid mapPropertyGrid;
         private System.Windows.Forms.ToolStripMenuItem tileTypesToolStripMenuItem;
@@ -391,9 +387,10 @@
         private System.Windows.Forms.ToolStripMenuItem entityBoxesToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem screenPreviewToolStripMenuItem;
-        private System.Windows.Forms.HScrollBar hScreenPreviewScrollBar;
-        private System.Windows.Forms.VScrollBar vScreenPreviewScrollBar;
-        private LayeredPictureBox.LayeredPictureBox mapLayeredPictureBox;
         private LayeredPictureBox.LayeredPictureBox tilesetLayeredPictureBox;
+        private System.Windows.Forms.Panel pictureBoxPanel;
+        private LayeredPictureBox.LayeredPictureBox mapLayeredPictureBox;
+        private System.Windows.Forms.VScrollBar vScreenPreviewScrollBar;
+        private System.Windows.Forms.HScrollBar hScreenPreviewScrollBar;
     }
 }
