@@ -121,7 +121,7 @@ namespace GuxtEditor
             mapPath = Path.Combine(parentMod.DataPath, parentMod.MapName + StageNumber + "." + parentMod.MapExtension);
             map = new Map(mapPath);
             //need to re-display the map from scratch in the case of a resize
-            map.MapResized += delegate { InitMap(); };
+            map.MapResized += delegate { UnsavedEdits = true; InitMap(); };
             mapPropertyGrid.SelectedObject = map;            
 
             InitMap();
