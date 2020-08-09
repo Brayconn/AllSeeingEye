@@ -12,7 +12,7 @@ namespace GuxtEditor {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.4.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.6.0.0")]
     internal sealed partial class UI : global::System.Configuration.ApplicationSettingsBase {
         
         private static UI defaultInstance = ((UI)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new UI())));
@@ -65,6 +65,15 @@ namespace GuxtEditor {
         public global::System.Drawing.Color ScreenPreviewColor {
             get {
                 return ((global::System.Drawing.Color)(this["ScreenPreviewColor"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Black")]
+        public global::System.Drawing.Color GridColor {
+            get {
+                return ((global::System.Drawing.Color)(this["GridColor"]));
             }
         }
     }

@@ -125,7 +125,7 @@ namespace GuxtEditor
             mapPropertyGrid.SelectedObject = map;            
 
             InitMap();
-
+                        
             //need to init entity images after the map has been initialized so we actually have a good size
             //need to init them each seperately since otherwise I think it would all be a reference to the same image...
             entityIcons.Image = new Bitmap(baseMap.Image.Width, baseMap.Image.Height);
@@ -135,6 +135,7 @@ namespace GuxtEditor
             DrawEntityBoxes();
 
             tileTypesToolStripMenuItem_CheckedChanged(this, new EventArgs());
+            gridToolStripMenuItem_CheckedChanged(this, new EventArgs());
             entitySpritesToolStripMenuItem_CheckedChanged(this, new EventArgs());
             entityBoxesToolStripMenuItem_CheckedChanged(this, new EventArgs());
                         
@@ -217,6 +218,9 @@ namespace GuxtEditor
             mapLayeredPictureBox.UnlockCanvasSize();
             {   
                 baseMap.Image = RenderTiles(map, (Bitmap)baseTileset.Image, parentMod.TileSize);
+
+                mapTileGrid.Image = new Bitmap(baseMap.Image.Width, baseMap.Image.Height);
+                RedrawGrid();
 
                 //init screen preview max
                 var vMax = (map.Height - GuxtScreenHeight) * parentMod.TileSize;
@@ -814,6 +818,11 @@ namespace GuxtEditor
         {
             mapTileTypes.Shown = tileTypesToolStripMenuItem.Checked;
             tilesetTileTypes.Shown = tileTypesToolStripMenuItem.Checked;
+        }
+
+        private void gridToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
+        {
+            mapTileGrid.Shown = gridToolStripMenuItem.Checked;
         }
 
         private void entitySpritesToolStripMenuItem_CheckedChanged(object sender, EventArgs e)

@@ -11,29 +11,60 @@ namespace GuxtEditor
         #region layers
 
         const int baseMapLayer = 0;
-        Layer<Image> baseMap { get => mapLayeredPictureBox.Layers[baseMapLayer]; }
+        Layer<Image> baseMap => mapLayeredPictureBox.Layers[baseMapLayer];
 
         const int mapTileTypesLayer = baseMapLayer + 1;
-        Layer<Image> mapTileTypes { get => mapLayeredPictureBox.Layers[mapTileTypesLayer]; }
+        Layer<Image> mapTileTypes => mapLayeredPictureBox.Layers[mapTileTypesLayer];
 
-        const int entityIconsLayer = mapTileTypesLayer + 1;
-        Layer<Image> entityIcons { get => mapLayeredPictureBox.Layers[entityIconsLayer]; }
+        const int mapTileGridLayer = mapTileTypesLayer + 1;
+        Layer<Image> mapTileGrid => mapLayeredPictureBox.Layers[mapTileGridLayer];
+
+        const int entityIconsLayer = mapTileGridLayer + 1;
+        Layer<Image> entityIcons => mapLayeredPictureBox.Layers[entityIconsLayer];
 
         const int entitySquaresLayer = entityIconsLayer + 1;
-        Layer<Image> entityBoxes { get => mapLayeredPictureBox.Layers[entitySquaresLayer]; }
-        
+        Layer<Image> entityBoxes => mapLayeredPictureBox.Layers[entitySquaresLayer];
+
         const int selectedEntitySquaresLayer = entitySquaresLayer + 1;
-        Layer<Image> selectedEntityBoxes { get => mapLayeredPictureBox.Layers[selectedEntitySquaresLayer]; }
+        Layer<Image> selectedEntityBoxes => mapLayeredPictureBox.Layers[selectedEntitySquaresLayer];
 
         const int screenPreviewLayer = selectedEntitySquaresLayer + 1;
-        Layer<Image> screenPreview { get => mapLayeredPictureBox.Layers[screenPreviewLayer]; }
+        Layer<Image> screenPreview => mapLayeredPictureBox.Layers[screenPreviewLayer];
 
         const int mouseOverlayLayer = screenPreviewLayer + 1;
-        Layer<Image> mouseOverlay { get => mapLayeredPictureBox.Layers[mouseOverlayLayer]; }
+        Layer<Image> mouseOverlay => mapLayeredPictureBox.Layers[mouseOverlayLayer];
 
         #endregion
 
-        #region entity
+        #region grid
+
+        void RedrawGrid()
+        {
+            using(var g = Graphics.FromImage(mapTileGrid.Image))
+            {
+                g.Clear(Color.Transparent);
+
+                var width = map.Width * parentMod.TileSize;
+                var height = map.Height * parentMod.TileSize;
+
+                //vertical lines
+                for (int i = 0; i < map.Width; i++)
+                {
+                    var x = (i * parentMod.TileSize) - 1;
+                    g.DrawLine(new Pen(UI.Default.GridColor), x, 0, x, height);
+                }
+                //horizontal lines
+                for (int i = 1; i < map.Height; i++)
+                {
+                    var y = (i * parentMod.TileSize) - 1;
+                    g.DrawLine(new Pen(UI.Default.GridColor), 0, y, width, y);
+                }
+            }
+        }
+
+#endregion
+
+#region entity
 
         void RedrawAllEntityLayers()
         {
@@ -92,9 +123,9 @@ namespace GuxtEditor
                 }
             }
         }
-        #endregion
+#endregion
 
-        #region screen preview
+#region screen preview
         const int GuxtScreenWidth = 8;
         const int GuxtScreenHeight = 10;
         private void UpdateScreenPreviewLocation(int h, int v)
@@ -112,9 +143,9 @@ namespace GuxtEditor
             }
             screenPreview.Image = sp;
         }
-        #endregion
+#endregion
 
-        #region mouse stuff
+#region mouse stuff
 
         void UpdateMouseMarquee(Point p1, Point p2)
         {
@@ -139,6 +170,6 @@ namespace GuxtEditor
             mouseOverlay.Location = new Point(gridPosition.X * gridSize, gridPosition.Y * gridSize);
         }
 
-        #endregion
+#endregion
     }
 }
