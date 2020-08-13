@@ -11,6 +11,7 @@ using GuxtModdingFramework.Images;
 using GuxtModdingFramework.Entities;
 using GuxtModdingFramework.Maps;
 using static PixelModdingFramework.Rendering;
+using System.Reflection;
 
 namespace GuxtEditor
 {
@@ -104,8 +105,10 @@ namespace GuxtEditor
             entityPath = Path.Combine(parentMod.DataPath, parentMod.EntityName + StageNumber + "." + parentMod.EntityExtension);
             entities = PXEVE.Read(entityPath);
             foreach (var ent in entities)
+            {
                 ent.PropertyChanged += SetUnsavedEdits;
-            
+                entityListBox.Items.Add(ent);
+            }
             //attributes
             var attributePath = Path.Combine(parentMod.DataPath, parentMod.AttributeName + StageNumber + "." + parentMod.AttributeExtension);
             attributes = new Map(attributePath);
@@ -339,7 +342,47 @@ namespace GuxtEditor
         /// </summary>
         bool entitiesInClipboard { get => entityClipboard.Count > 0; }
         readonly HashSet<Entity> entityClipboard = new HashSet<Entity>();
-                     
+
+        private string GetEntityIndexAndName(Entity ent)
+        {
+            string entityName = "<no name>";
+            parentMod.EntityNames.TryGetValue(ent.EntityID, out entityName);
+            return $"{entities.IndexOf(ent)} - {entityName}";
+        }
+        private void AddEntity(Entity ent)
+        {
+            ent.PropertyChanged += SetUnsavedEdits;
+            entities.Add(ent);
+            entityListBox.Items.Add(ent);
+        }
+        private void InsertEntity(int index, Entity ent)
+        {
+            ent.PropertyChanged += SetUnsavedEdits;
+            entities.Insert(index, ent);
+            entityListBox.Items.Insert(index, ent);
+        }
+        private void MoveEntity(Entity ent, int difference)
+        {
+            if(difference != 0)
+            {
+                var currentIndex = entities.IndexOf(ent);
+                if (currentIndex == -1)
+                    throw new ArgumentException("Entity not found!", nameof(ent));
+                var newIndex = currentIndex + difference;
+                RemoveEntity(ent);
+                if (newIndex > entities.Count)
+                    AddEntity(ent);
+                else
+                    InsertEntity(newIndex, ent);
+            }
+        }
+        private void RemoveEntity(Entity ent)
+        {
+            entities.Remove(ent);
+            entityListBox.Items.Remove(ent);
+            ent.PropertyChanged -= SetUnsavedEdits;
+        }
+
         private IEnumerable<Entity> GetEntitiesAtLocation(int x, int y)
         {
             return GetEntitiesAtLocation(x, y, x, y);
@@ -352,20 +395,24 @@ namespace GuxtEditor
         }                
         void CreateNewEntity(Point pos)
         {
+            if (entityListView.SelectedIndices.Count <= 0)
+                return;
             UnsavedEdits = true;
-            entities.Add(new Entity(0, pos.X, pos.Y, entityListView.SelectedIndices[0], 0));
-            entities[entities.Count - 1].PropertyChanged += SetUnsavedEdits;
-            SelectEntities(entities[entities.Count - 1]);
+            
+            var ent = new Entity(0, pos.X, pos.Y, entityListView.SelectedIndices[0], 0);
+            AddEntity(ent);
+            SelectEntities(ent);
+
             RedrawAllEntityLayers();
         }
         void DeleteSelectedEntities()
         {
             UnsavedEdits = true;
-            foreach (var ent in selectedEntities)
+            foreach (var ent in selectedEntities.ToList())
             {
-                entities.Remove(ent);
-                ent.PropertyChanged -= SetUnsavedEdits;
+                RemoveEntity(ent);
             }
+            entityListBox.SelectedItems.Clear();
             SelectEntities();
             RedrawAllEntityLayers();
         }
@@ -396,14 +443,17 @@ namespace GuxtEditor
         {
             //clear everything
             selectedEntities.Clear();
+            entityListBox.SelectedItems.Clear();
             SetEditingEntity();
 
-            //if nothing was passed, this will be skipped
-            foreach (var e in ents)
-                selectedEntities.Add(e);
-            //and this check would fail
-            if (userHasSelectedEntities)
-            {
+            //only select things if there's something to select
+            if(ents.Length > 0)
+            { 
+                foreach (var e in ents)
+                {
+                    selectedEntities.Add(e);
+                    entityListBox.SelectedItems.Add(e);
+                }
                 //try to scroll to the selected entity type, if only one is selected
                 if (selectedEntities.Count == 1)
                 {
@@ -418,7 +468,6 @@ namespace GuxtEditor
                 }
                 SetEditingEntity(ents);
             }
-            //so there would be nothing selected for editing, or in the selection list
             DrawSelectedEntityBoxes();
         }
         /// <summary>
@@ -443,19 +492,19 @@ namespace GuxtEditor
         /// <param name="gridPos">Where on the grid to paste the entities</param>
         void PasteEntities(Point gridPos)
         {
-            if (!entitiesInClipboard)
-                return;
-            UnsavedEdits = true;
-            foreach (var e in entityClipboard)
+            if (entitiesInClipboard)
             {
-                entities.Add(new Entity(e)
+                UnsavedEdits = true;
+                foreach (var e in entityClipboard)
                 {
-                    X = gridPos.X + e.X,
-                    Y = gridPos.Y + e.Y
-                });
-                entities[entities.Count - 1].PropertyChanged += SetUnsavedEdits;
+                    AddEntity(new Entity(e)
+                    {
+                        X = gridPos.X + e.X,
+                        Y = gridPos.Y + e.Y
+                    });
+                }
+                RedrawAllEntityLayers();
             }
-            RedrawAllEntityLayers();
         }
         #endregion
 
@@ -492,6 +541,7 @@ namespace GuxtEditor
             {
                 0 => EditModes.Tile,
                 1 => EditModes.Entity,
+                2 => EditModes.Entity,
                 _ => EditModes.Tile //Expand new tabs here
             };
         }
@@ -676,9 +726,8 @@ namespace GuxtEditor
                                     var index = entities.IndexOf(ent);
 
                                     //TODO temp text
-                                    string entityName = "<no name>";
-                                    parentMod.EntityNames.TryGetValue(entities[index].EntityID, out entityName);
-                                    var tsmi = new ToolStripMenuItem(index.ToString() + " - " + entityName);
+                                    
+                                    var tsmi = new ToolStripMenuItem(GetEntityIndexAndName(ent));
                                     tsmi.Name = index.ToString();
                                     tsmi.Click += EntityContextMenu_SelectEntity;
                                     entityContextMenu.Items.Add(tsmi);
@@ -692,6 +741,7 @@ namespace GuxtEditor
                     break;
             }
         }
+
         private void mapLayeredPictureBox_MouseEnter(object sender, EventArgs e)
         {
             mouseOverlay.Shown = true;
@@ -951,6 +1001,111 @@ namespace GuxtEditor
         {
             ResetMouseSize();
         }
+
+        #region entity list box
+
+        private void entityListBox_SelectedValueChanged(object sender, EventArgs e)
+        {
+            IEnumerable<Entity> listboxSelectedEntities()
+            {
+                var iter = entityListBox.SelectedItems.GetEnumerator();
+                while (iter.MoveNext())
+                    yield return (Entity)iter.Current;
+            }            
+            if (!selectedEntities.SetEquals(listboxSelectedEntities()))
+            {
+                SelectEntities(listboxSelectedEntities().ToArray());
+                /*
+                selectedEntities.Clear();
+                foreach (var ent in listboxSelectedEntities())
+                    selectedEntities.Add(ent);
+                */
+            }
+        }
+
+        private void entityListBox_Format(object sender, ListControlConvertEventArgs e)
+        {
+            if (e.ListItem is Entity ent && e.DesiredType == typeof(string))
+                e.Value = GetEntityIndexAndName(ent);
+        }
+
+        bool isHolding = false;
+        int startIndex = -1;
+        int endIndex = -1;
+
+        private void entityListBox_MouseDown(object sender, MouseEventArgs e)
+        {
+            var clickedIndex = entityListBox.IndexFromPoint(new Point(e.X, e.Y));
+            if (clickedIndex == -1)
+                return;
+            if (e.Button == MouseButtons.Left && !isHolding)
+            {
+                startIndex = clickedIndex;
+                isHolding = true;
+            }
+        }
+
+        private void entityListBox_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (isHolding)
+            {
+                //hopefully stopping unnessecary entity selections
+                if(entityListBox.SelectedIndex != startIndex)
+                    entityListBox.SelectedIndex = startIndex;
+                endIndex = entityListBox.IndexFromPoint(new Point(e.X, e.Y));
+                if (startIndex != endIndex)
+                    DoDragDrop(selectedEntities, DragDropEffects.Move);
+            }
+        }
+
+        private void entityListBox_MouseUp(object sender, MouseEventArgs e)
+        {
+            isHolding = false;
+        }
+
+        private void entityListBox_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetFormats().Any(x => e.Data.GetData(x) is HashSet<Entity>) && e.AllowedEffect == DragDropEffects.Move)
+                e.Effect = DragDropEffects.Move;
+            else
+                e.Effect = DragDropEffects.None;
+        }
+
+        private void entityListBox_DragDrop(object sender, DragEventArgs e)
+        {
+            int GetIndex()
+            {
+                var p = entityListBox.PointToClient(new Point(e.X, e.Y));
+                int index = entityListBox.IndexFromPoint(p);
+                //default to adding to the end of the list
+                if (index < 0)
+                    index = entityListBox.Items.Count;
+                return index;
+            }
+            int index = Math.Min(entityListBox.Items.Count - 1, GetIndex());
+            var entitiesToMove = e.Data.GetFormats().Select(x => e.Data.GetData(x) as HashSet<Entity>).FirstOrDefault().ToArray();
+            
+            //sort list by index
+            var entsInOrder = (IEnumerable<Entity>)entitiesToMove.OrderBy(x => entities.IndexOf(x));
+            if (startIndex < index) //always start from the end closest to where we're moving
+                entsInOrder = entsInOrder.Reverse();
+            //calculate how much to move each entity by
+            var difference = index - startIndex;
+            
+            foreach (var entity in entsInOrder)
+            {
+                MoveEntity(entity, difference);
+            }
+            SelectEntities(entitiesToMove);
+            //HACK need to refresh the entity list, and for whatever reason that method is private
+            typeof(ListBox).InvokeMember("RefreshItems",
+              BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.InvokeMethod,
+              null, entityListBox, Array.Empty<object>());
+
+            isHolding = false;
+        }
+
+        #endregion
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
