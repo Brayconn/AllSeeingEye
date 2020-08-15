@@ -361,21 +361,6 @@ namespace GuxtEditor
             entities.Insert(index, ent);
             entityListBox.Items.Insert(index, ent);
         }
-        private void MoveEntity(Entity ent, int difference)
-        {
-            if(difference != 0)
-            {
-                var currentIndex = entities.IndexOf(ent);
-                if (currentIndex == -1)
-                    throw new ArgumentException("Entity not found!", nameof(ent));
-                var newIndex = currentIndex + difference;
-                RemoveEntity(ent);
-                if (newIndex > entities.Count)
-                    AddEntity(ent);
-                else
-                    InsertEntity(newIndex, ent);
-            }
-        }
         private void RemoveEntity(Entity ent)
         {
             entities.Remove(ent);
@@ -443,6 +428,7 @@ namespace GuxtEditor
         {
             //clear everything
             selectedEntities.Clear();
+            listboxCanUpdateSelection = false;
             entityListBox.SelectedItems.Clear();
             SetEditingEntity();
 
@@ -468,6 +454,7 @@ namespace GuxtEditor
                 }
                 SetEditingEntity(ents);
             }
+            listboxCanUpdateSelection = true;
             DrawSelectedEntityBoxes();
         }
         /// <summary>
@@ -891,7 +878,8 @@ namespace GuxtEditor
             if (MessageBox.Show("Are you sure you want to delete EVERY entity?\nIf you save after this, there's no coming back.", "Warning", MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
                 SelectEntities();
-                entities.Clear();
+                while (entities.Count > 0)
+                    RemoveEntity(entities[0]);
 
                 DrawEntityIcons();
                 DrawEntityBoxes();
@@ -1004,6 +992,7 @@ namespace GuxtEditor
 
         #region entity list box
 
+        bool listboxCanUpdateSelection = true;
         private void entityListBox_SelectedValueChanged(object sender, EventArgs e)
         {
             IEnumerable<Entity> listboxSelectedEntities()
@@ -1011,15 +1000,11 @@ namespace GuxtEditor
                 var iter = entityListBox.SelectedItems.GetEnumerator();
                 while (iter.MoveNext())
                     yield return (Entity)iter.Current;
-            }            
-            if (!selectedEntities.SetEquals(listboxSelectedEntities()))
+            }
+            //this check lets the user override whatever the default is being set to
+            if (listboxCanUpdateSelection && !selectedEntities.SetEquals(listboxSelectedEntities()))
             {
                 SelectEntities(listboxSelectedEntities().ToArray());
-                /*
-                selectedEntities.Clear();
-                foreach (var ent in listboxSelectedEntities())
-                    selectedEntities.Add(ent);
-                */
             }
         }
 
@@ -1029,43 +1014,47 @@ namespace GuxtEditor
                 e.Value = GetEntityIndexAndName(ent);
         }
 
-        bool isHolding = false;
+        Rectangle dragBox = Rectangle.Empty;
         int startIndex = -1;
-        int endIndex = -1;
-
+        
         private void entityListBox_MouseDown(object sender, MouseEventArgs e)
         {
             var clickedIndex = entityListBox.IndexFromPoint(new Point(e.X, e.Y));
-            if (clickedIndex == -1)
-                return;
-            if (e.Button == MouseButtons.Left && !isHolding)
+            if (clickedIndex != ListBox.NoMatches && selectedEntities.Contains(entities[clickedIndex]) && e.Button == MouseButtons.Left)
             {
                 startIndex = clickedIndex;
-                isHolding = true;
+                dragBox = new Rectangle(new Point(
+                                        e.X - (SystemInformation.DragSize.Width / 2),
+                                        e.Y - (SystemInformation.DragSize.Height / 2)),
+                                        SystemInformation.DragSize);
             }
         }
 
         private void entityListBox_MouseMove(object sender, MouseEventArgs e)
         {
-            if (isHolding)
+            if (e.Button == MouseButtons.Left && dragBox != Rectangle.Empty && !dragBox.Contains(e.Location))
             {
-                //hopefully stopping unnessecary entity selections
-                if(entityListBox.SelectedIndex != startIndex)
-                    entityListBox.SelectedIndex = startIndex;
-                endIndex = entityListBox.IndexFromPoint(new Point(e.X, e.Y));
-                if (startIndex != endIndex)
-                    DoDragDrop(selectedEntities, DragDropEffects.Move);
+                listboxCanUpdateSelection = false;
+
+                //if a drag has been started, restore the entities that are actually selected
+                entityListBox.SelectedItems.Clear();
+                foreach (var ent in selectedEntities)
+                    entityListBox.SelectedItems.Add(ent);
+
+                entityListBox.DoDragDrop(selectedEntities, DragDropEffects.Move);
+
+                listboxCanUpdateSelection = true;
             }
         }
 
         private void entityListBox_MouseUp(object sender, MouseEventArgs e)
         {
-            isHolding = false;
+            dragBox = Rectangle.Empty;
         }
 
         private void entityListBox_DragEnter(object sender, DragEventArgs e)
         {
-            if (e.Data.GetFormats().Any(x => e.Data.GetData(x) is HashSet<Entity>) && e.AllowedEffect == DragDropEffects.Move)
+            if (e.Data.GetDataPresent(typeof(HashSet<Entity>)) && e.AllowedEffect == DragDropEffects.Move)
                 e.Effect = DragDropEffects.Move;
             else
                 e.Effect = DragDropEffects.None;
@@ -1082,27 +1071,55 @@ namespace GuxtEditor
                     index = entityListBox.Items.Count;
                 return index;
             }
-            int index = Math.Min(entityListBox.Items.Count - 1, GetIndex());
-            var entitiesToMove = e.Data.GetFormats().Select(x => e.Data.GetData(x) as HashSet<Entity>).FirstOrDefault().ToArray();
+            int endIndex = Math.Min(entityListBox.Items.Count - 1, GetIndex());
+            var entitiesToMove = ((HashSet<Entity>)e.Data.GetData(typeof(HashSet<Entity>))).ToArray();
             
-            //sort list by index
-            var entsInOrder = (IEnumerable<Entity>)entitiesToMove.OrderBy(x => entities.IndexOf(x));
-            if (startIndex < index) //always start from the end closest to where we're moving
-                entsInOrder = entsInOrder.Reverse();
             //calculate how much to move each entity by
-            var difference = index - startIndex;
-            
-            foreach (var entity in entsInOrder)
+            var difference = endIndex - startIndex;
+            if (0 < entitiesToMove.Length && entitiesToMove.Length < entities.Count && difference != 0)
             {
-                MoveEntity(entity, difference);
+                void MoveEntity(Entity ent, int newIndex)
+                {
+                    RemoveEntity(ent);
+                    if (newIndex > entities.Count)
+                        AddEntity(ent);
+                    else
+                        InsertEntity(Math.Max(0, newIndex), ent);
+                }
+                //sort list by index
+                var entsInOrder = (IEnumerable<Entity>)entitiesToMove.OrderBy(x => entities.IndexOf(x));
+                //moving down
+                if(startIndex < endIndex)
+                {
+                    var lastIndex = entities.Count;
+                    foreach (var ent in entsInOrder.Reverse())
+                    {
+                        //clamp the new entity location to the highest entity placed
+                        var newIndex = Math.Max(0, Math.Min(entities.IndexOf(ent) + difference, lastIndex-1));
+                        MoveEntity(ent, newIndex);
+                        lastIndex = newIndex;
+                    }
+                }
+                //moving up
+                else
+                {
+                    var lastIndex = -1;                    
+                    foreach(var ent in entsInOrder)
+                    {
+                        //clamp the new entity location to the highest entity placed
+                        var newIndex = Math.Min(Math.Max(lastIndex+1, entities.IndexOf(ent) + difference), entities.Count);
+                        MoveEntity(ent, newIndex);
+                        lastIndex = newIndex;
+                    }
+                }
+                UnsavedEdits = true;
             }
             SelectEntities(entitiesToMove);
             //HACK need to refresh the entity list, and for whatever reason that method is private
             typeof(ListBox).InvokeMember("RefreshItems",
               BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.InvokeMethod,
               null, entityListBox, Array.Empty<object>());
-
-            isHolding = false;
+            dragBox = Rectangle.Empty;
         }
 
         #endregion
