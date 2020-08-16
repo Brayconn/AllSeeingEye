@@ -107,7 +107,6 @@ namespace GuxtEditor
             foreach (var ent in entities)
             {
                 ent.PropertyChanged += SetUnsavedEdits;
-                entityListBox.Items.Add(ent);
             }
             //attributes
             var attributePath = Path.Combine(parentMod.DataPath, parentMod.AttributeName + StageNumber + "." + parentMod.AttributeExtension);
@@ -144,6 +143,7 @@ namespace GuxtEditor
                         
             //Init screen preview to the bottom of the screen            
             UpdateScreenPreviewLocation(0, vScreenPreviewScrollBar.Maximum - vScreenPreviewScrollBar.LargeChange + 1);
+            entityListBox.DataSource = entities;
         }
 
         private void FormStageEditor_Load(object sender, EventArgs e)
@@ -353,18 +353,15 @@ namespace GuxtEditor
         {
             ent.PropertyChanged += SetUnsavedEdits;
             entities.Add(ent);
-            entityListBox.Items.Add(ent);
         }
         private void InsertEntity(int index, Entity ent)
         {
             ent.PropertyChanged += SetUnsavedEdits;
             entities.Insert(index, ent);
-            entityListBox.Items.Insert(index, ent);
         }
         private void RemoveEntity(Entity ent)
         {
             entities.Remove(ent);
-            entityListBox.Items.Remove(ent);
             ent.PropertyChanged -= SetUnsavedEdits;
         }
 
@@ -1114,11 +1111,15 @@ namespace GuxtEditor
                 }
                 UnsavedEdits = true;
             }
-            SelectEntities(entitiesToMove);
+
             //HACK need to refresh the entity list, and for whatever reason that method is private
             typeof(ListBox).InvokeMember("RefreshItems",
               BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.InvokeMethod,
               null, entityListBox, Array.Empty<object>());
+
+            //selecting entities after calling the above event to avoid the selected entities getting overwritten for some dumb reason
+            SelectEntities(entitiesToMove);
+
             dragBox = Rectangle.Empty;
         }
 
