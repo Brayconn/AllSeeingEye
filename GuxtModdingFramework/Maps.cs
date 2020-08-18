@@ -69,9 +69,9 @@ namespace GuxtModdingFramework.Maps
         /// <param name="h"></param>
         public Map(short w, short h)
         {
-            Width = w;
-            Height = h;
-            Tiles = new List<byte>(w * h);
+            width = w;
+            height = h;
+            Tiles = new List<byte>(new byte[w * h]);
         }
 
         public Map(string path)
