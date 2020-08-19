@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using LayeredPictureBox;
 using static PixelModdingFramework.Rendering;
 using static GuxtEditor.SharedGraphics;
+using System;
 
 namespace GuxtEditor
 {
@@ -25,14 +26,14 @@ namespace GuxtEditor
         {
             tilesetLayeredPictureBox.UnlockCanvasSize();
 
-            var tileset = new Bitmap(16 * parentMod.TileSize, 16 * parentMod.TileSize);
+            var tileset = new Bitmap(TilesetWidth * parentMod.TileSize, TilesetHeight * parentMod.TileSize);
             using (Graphics g = Graphics.FromImage(tileset))
             {
                 g.Clear(Color.Black);
                 g.DrawImage(t, 0, 0, t.Width, t.Height);
             }
             
-            var tiletypes = new Bitmap(16 * parentMod.TileSize, 16 * parentMod.TileSize);
+            var tiletypes = new Bitmap(TilesetWidth * parentMod.TileSize, TilesetHeight * parentMod.TileSize);
             RenderTiles(tiletypes, attributes, tileTypes, parentMod.TileSize);
 
             baseTileset.Image = tileset;
@@ -41,17 +42,47 @@ namespace GuxtEditor
 
             tilesetLayeredPictureBox.LockCanvasSize();
         }
-        void MoveTileSelection()
+
+        Point attributesStartPos = new Point(-1, -1);
+        Point attributesLastPos = new Point(-1, -1);
+        private void tilesetLayeredPictureBox_MouseDown(object sender, MouseEventArgs e)
         {
-            tilesetMouseOverlay.Location = new Point((SelectedTile % 16) * parentMod.TileSize, (SelectedTile / 16) * parentMod.TileSize);
+            if (e.Button == MouseButtons.Left)
+            {
+                tilesetMouseOverlay.Shown = true;
+                attributesStartPos = attributesLastPos = GetMousePointOnTileset(e.Location);
+                UpdateMouseMarquee(attributesStartPos, attributesLastPos, tilesetMouseOverlay, parentMod.TileSize, UI.Default.SelectedTileColor);
+            }
         }
 
-        private void tilesetPictureBox_MouseClick(object sender, MouseEventArgs e)
+        private void tilesetLayeredPictureBox_MouseMove(object sender, MouseEventArgs e)
         {
-            var p = GetMousePointOnTileset(e.Location);
-            var value = (p.Y * 16) + p.X;
-            if (value <= byte.MaxValue && value != SelectedTile)
-                SelectedTile = (byte)value;
+            if (e.Button == MouseButtons.Left)
+            {
+                var p = GetMousePointOnTileset(e.Location);
+                //TODO could do with making a Clamp method
+                p.X = Math.Max(0, Math.Min(p.X, TilesetWidth));
+                p.Y = Math.Max(0, Math.Min(p.Y, TilesetHeight));
+                //if we're still on the same grid space, stop
+                if (p == attributesLastPos)
+                    return;
+
+                UpdateMouseMarquee(attributesStartPos, attributesLastPos = p, tilesetMouseOverlay, parentMod.TileSize, UI.Default.SelectedTileColor);
+            }
+        }
+
+        private void tilesetLayeredPictureBox_MouseUp(object sender, MouseEventArgs e)
+        {
+            if(e.Button == MouseButtons.Left)
+            {
+                SelectTilesFromTileset(GetRect(attributesStartPos, attributesLastPos));
+                RestoreMouseSize();
+            }
+        }
+
+        private void tilesetLayeredPictureBox_MouseLeave(object sender, EventArgs e)
+        {
+
         }
     }
 }

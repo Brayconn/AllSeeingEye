@@ -5,13 +5,14 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
 using GuxtModdingFramework;
 using GuxtModdingFramework.Images;
 using GuxtModdingFramework.Entities;
 using GuxtModdingFramework.Maps;
 using static PixelModdingFramework.Rendering;
-using System.Reflection;
+using static GuxtEditor.SharedGraphics;
 
 namespace GuxtEditor
 {
@@ -93,7 +94,7 @@ namespace GuxtEditor
             mapLayeredPictureBox.MouseWheel += mapPictureBox_MouseWheel;
             //add layers, and init the ones we can
             mapLayeredPictureBox.AddLayers(mouseOverlayLayer + 1);
-            ResetMouseSize();
+            RestoreMouseSize();
             InitScreenPreview();
 
             tilesetLayeredPictureBox.AddLayers(tilesetMouseOverlayLayer + 1);
@@ -300,24 +301,34 @@ namespace GuxtEditor
 
         #region edit map
 
-        byte selectedTile = 0;
-        byte SelectedTile
+        Map SelectedTiles = new Map(1, 1);
+        void SelectTilesFromMap(Point p)
         {
-            get => selectedTile;
-            set
-            {
-                selectedTile = value;
-                MoveTileSelection();
-            }
+            SelectTilesFromMap(new Rectangle(p, new Size(0, 0)));
         }
+        void SelectTilesFromMap(Rectangle rect)
+        {
+            SelectedTiles = new Map((short)(rect.Width + 1), (short)(rect.Height + 1));
+            for (int i = 0; i < rect.Height + 1; i++)
+                for (int j = 0; j < rect.Width + 1; j++)
+                    SelectedTiles.Tiles[(i*SelectedTiles.Width) + j] = map.Tiles[((rect.Y + i) * map.Width) + rect.X + j];
+        }
+        void SelectTilesFromTileset(Rectangle rect)
+        {
+            SelectedTiles = new Map((short)(rect.Width + 1), (short)(rect.Height + 1));
+            for (int i = 0; i < rect.Height + 1; i++)
+                for (int j = 0; j < rect.Width + 1; j++)
+                    SelectedTiles.Tiles[(i * SelectedTiles.Width) + j] = (byte)(((rect.Y + i) * TilesetWidth) + rect.X + j);
+        }
+
 
         void SetTile(Point p)
         {
-            SetTile((p.Y * map.Width) + p.X);
+            SetTiles(p, SelectedTiles);
         }
         void SetTile(int tileNum)
         {
-            SetTile(tileNum, SelectedTile);
+            SetTile(new Point(tileNum%map.Width, tileNum/map.Width));
         }
         void SetTile(int tileNum, byte tileValue)
         {
@@ -325,6 +336,16 @@ namespace GuxtEditor
             map.Tiles[tileNum] = tileValue;
             DrawTile(baseMap.Image, map, tileNum, (Bitmap)baseTileset.Image, parentMod.TileSize);
             DrawTile(mapTileTypes.Image, map, tileNum, (Bitmap)tilesetTileTypes.Image, parentMod.TileSize, System.Drawing.Drawing2D.CompositingMode.SourceCopy);
+        }
+        void SetTiles(Point p, Map tileSource)
+        {
+            for (int i = 0; i < Math.Min(tileSource.Height, map.Height - p.Y); i++)
+            {
+                for (int j = 0; j < Math.Min(tileSource.Width, map.Width - p.X); j++)
+                {
+                    SetTile(((p.Y + i) * map.Width) + p.X + j, tileSource.Tiles[(i * tileSource.Width) + j]);
+                }
+            }
         }
 
         #endregion
@@ -365,14 +386,14 @@ namespace GuxtEditor
             ent.PropertyChanged -= SetUnsavedEdits;
         }
 
-        private IEnumerable<Entity> GetEntitiesAtLocation(int x, int y)
+        private IEnumerable<Entity> GetEntitiesAtLocation(Point p)
         {
-            return GetEntitiesAtLocation(x, y, x, y);
+            return GetEntitiesAtLocation(new Rectangle(p, new Size(0,0)));
         }
-        private IEnumerable<Entity> GetEntitiesAtLocation(int x, int y, int x2, int y2)
+        private IEnumerable<Entity> GetEntitiesAtLocation(Rectangle rect)
         {
-            for(int i = 0; i< entities.Count; i++)
-                if (x <= entities[i].X && entities[i].X <= x2 && y <= entities[i].Y && entities[i].Y <= y2)
+            for(int i = 0; i < entities.Count; i++)
+                if (rect.X <= entities[i].X && entities[i].X <= rect.Right && rect.Y <= entities[i].Y && entities[i].Y <= rect.Bottom)
                     yield return entities[i];
         }                
         void CreateNewEntity(Point pos)
@@ -460,7 +481,7 @@ namespace GuxtEditor
         /// <param name="ents">Entities to copy</param>
         void CopyEntities(params Entity[] ents)
         {
-            Point topLeft = new Point(ents.Select(x => x.X).Min(), ents.Select(x => x.Y).Min());
+            Point topLeft = new Point(ents.Min(x => x.X), ents.Min(x => x.Y));
             entityClipboard.Clear();
             foreach (var e in ents)
             {
@@ -497,16 +518,12 @@ namespace GuxtEditor
         /// <summary>
         /// The mouse's current position on the grid
         /// </summary>
-        Point MousePositionOnGrid = new Point(-1, -1);
+        Point lastMousePosition = new Point(-1, -1);
 
         /// <summary>
         /// The grid position the user started selecting entities from
         /// </summary>
-        Point EntitySelectionStart = new Point(-1, -1);
-        /// <summary>
-        /// The grid position the user was last selecting entities from
-        /// </summary>
-        Point EntitySelectionEnd = new Point(-1, -1);
+        Point startMousePosition = new Point(-1, -1);
 
         /// <summary>
         /// All possible editing modes
@@ -538,7 +555,13 @@ namespace GuxtEditor
         /// <summary>
         /// How big the grid is right now
         /// </summary>
-        int gridSize { get => parentMod.TileSize / (int)editMode; }
+        int gridSize => editMode switch
+        {
+            EditModes.Tile => parentMod.TileSize,
+            EditModes.Entity => parentMod.TileSize / 2,
+            _ => parentMod.TileSize
+        };
+
 
         /// <summary>
         /// converts a cursor location to a point on the tileset
@@ -571,6 +594,7 @@ namespace GuxtEditor
         enum HoldActions
         {
             DrawTiles,
+            CopyTiles,
             SelectEntities,
             MoveEntities
         }
@@ -597,7 +621,7 @@ namespace GuxtEditor
         void EntityContextMenu_Delete(object sender, EventArgs e)
         {
             DeleteSelectedEntities();
-            MoveMouse(MousePositionOnGrid);
+            MoveMouse(lastMousePosition);
         }
         void EntityContextMenu_SelectEntity(object sender, EventArgs e)
         {
@@ -634,13 +658,15 @@ namespace GuxtEditor
                             mapLayeredPictureBox.Invalidate();
                             break;
                         case MouseButtons.Middle:
-                            SelectedTile = map.Tiles[tile];
+                            HoldAction = HoldActions.CopyTiles;
+                            mouseOverlay.Image = MakeMouseImage(parentMod.TileSize, parentMod.TileSize, UI.Default.CursorColor);
+                            startMousePosition = p;
                             break;
                     }
                     break;
                 //Entity
                 case EditModes.Entity:
-                    var entitiesWhereClicked = GetEntitiesAtLocation(p.X, p.Y);
+                    var entitiesWhereClicked = GetEntitiesAtLocation(p);
                     switch (e.Button)
                     {
                         case MouseButtons.Left:
@@ -658,7 +684,7 @@ namespace GuxtEditor
                             else
                             {
                                 HoldAction = HoldActions.SelectEntities;
-                                EntitySelectionStart = EntitySelectionEnd = p;
+                                startMousePosition = p;
                             }                            
                             break;
                         //Context menu
@@ -671,7 +697,7 @@ namespace GuxtEditor
                             //Insert
                             var insert = new ToolStripMenuItem("Insert Entity");
                             insert.Enabled = entitySelected;
-                            insert.Click += delegate { if (entitySelected) { CreateNewEntity(p); MoveMouse(MousePositionOnGrid); } };
+                            insert.Click += delegate { if (entitySelected) { CreateNewEntity(p); MoveMouse(lastMousePosition); } };
                             entityContextMenu.Items.Add(insert);
                                                         
                             //Copy
@@ -688,7 +714,7 @@ namespace GuxtEditor
                             //Paste
                             var paste = new ToolStripMenuItem("Paste");
                             paste.Enabled = entitiesInClipboard;
-                            paste.Click += delegate { PasteEntities(p); MoveMouse(MousePositionOnGrid); };
+                            paste.Click += delegate { PasteEntities(p); MoveMouse(lastMousePosition); };
                             entityContextMenu.Items.Add(paste);
 
                             //Delete
@@ -737,7 +763,7 @@ namespace GuxtEditor
             p.X = Math.Max(0, Math.Min(p.X, maxGridPoint.X));
             p.Y = Math.Max(0, Math.Min(p.Y, maxGridPoint.Y));
             //if we're still on the same grid space, stop
-            if (p == MousePositionOnGrid)
+            if (p == lastMousePosition)
                 return;
             
             switch (HoldAction)
@@ -746,9 +772,12 @@ namespace GuxtEditor
                     SetTile(p);
                     mapLayeredPictureBox.Invalidate();
                     break;
+                case HoldActions.CopyTiles:
+                    UpdateMouseMarquee(startMousePosition, p, mouseOverlay, gridSize, UI.Default.CursorColor);
+                    break;
                 case HoldActions.MoveEntities:
-                    int xd = MousePositionOnGrid.X - p.X;
-                    int yd = MousePositionOnGrid.Y - p.Y;
+                    int xd = lastMousePosition.X - p.X;
+                    int yd = lastMousePosition.Y - p.Y;
                     foreach(var ent in selectedEntities)
                     {
                         ent.X -= xd;
@@ -758,14 +787,14 @@ namespace GuxtEditor
                     mapLayeredPictureBox.Invalidate();
                     break;
                 case HoldActions.SelectEntities:
-                    UpdateMouseMarquee(EntitySelectionStart, EntitySelectionEnd = p);
+                    UpdateMouseMarquee(startMousePosition, p, mouseOverlay, gridSize, UI.Default.CursorColor);
                     break;
                 default:
                     MoveMouse(p);
                     break;
 
             }
-            MousePositionOnGrid = p;
+            lastMousePosition = p;
         }
 
         private void mapPictureBox_MouseUp(object sender, MouseEventArgs e)
@@ -773,18 +802,25 @@ namespace GuxtEditor
             switch(HoldAction)
             {
                 case HoldActions.SelectEntities:
-                    
-                    //TODO M E S S Y
-                    int x = Math.Min(EntitySelectionStart.X, EntitySelectionEnd.X);
-                    int y = Math.Min(EntitySelectionStart.Y, EntitySelectionEnd.Y);
-                    int xd = Math.Max(EntitySelectionStart.X, EntitySelectionEnd.X);
-                    int yd = Math.Max(EntitySelectionStart.Y, EntitySelectionEnd.Y);
-
-                    SelectEntities(GetEntitiesAtLocation(x, y, xd, yd).ToArray());
-                    ResetMouseSize();
+                    SelectEntities(GetEntitiesAtLocation(GetRect(startMousePosition, lastMousePosition)).ToArray());
+                    RestoreMouseSize();
+                    break;
+                case HoldActions.CopyTiles:
+                    SelectTilesFromMap(GetRect(startMousePosition, lastMousePosition));
+                    RestoreMouseSize();
+                    if(SelectedTiles.Tiles.Count == 1)
+                    {
+                        tilesetMouseOverlay.Image = MakeMouseImage(parentMod.TileSize, parentMod.TileSize, UI.Default.SelectedTileColor);
+                        tilesetMouseOverlay.Location = new Point((SelectedTiles.Tiles[0] % TilesetWidth)*parentMod.TileSize, (SelectedTiles.Tiles[0] / TilesetWidth)*parentMod.TileSize);
+                        tilesetMouseOverlay.Shown = true;
+                    }
+                    else
+                    {
+                        tilesetMouseOverlay.Shown = false;
+                    }
                     break;
             }
-            MoveMouse(MousePositionOnGrid);
+            MoveMouse(lastMousePosition);
             mouseOverlay.Shown = true;
             HoldAction = null;
         }
@@ -795,7 +831,7 @@ namespace GuxtEditor
             //this check is here to stop the mouse hiding when the context menu appears, since that triggers MouseLeave
             if (entityContextMenu == null || !entityContextMenu.Visible)
                 mouseOverlay.Shown = false;            
-            ResetMouseSize();
+            RestoreMouseSize();
         }
 
         #endregion
@@ -820,21 +856,22 @@ namespace GuxtEditor
                         ZoomLevel--;
                         break;
                     case "PickTile" when editMode == EditModes.Tile && mouseOnMap:
-                        SelectedTile = map.Tiles[(MousePositionOnGrid.Y * map.Width) + MousePositionOnGrid.X];
+                        SelectTilesFromMap(lastMousePosition);
+                        tilesetMouseOverlay.Shown = false;
                         break;
                     case "DeleteEntities" when editMode == EditModes.Entity && userHasSelectedEntities:
                         DeleteSelectedEntities();
                         mapLayeredPictureBox.Invalidate();
                         break;
                     case "InsertEntity" when editMode == EditModes.Entity && mouseOnMap:
-                        CreateNewEntity(MousePositionOnGrid);
+                        CreateNewEntity(lastMousePosition);
                         mapLayeredPictureBox.Invalidate();
                         break;
                     case "Copy" when editMode == EditModes.Entity && userHasSelectedEntities:
                         CopyEntities(selectedEntities.ToArray());
                         break;
                     case "Paste" when editMode == EditModes.Entity && entitiesInClipboard && mouseOnMap:
-                        PasteEntities(MousePositionOnGrid);
+                        PasteEntities(lastMousePosition);
                         mapLayeredPictureBox.Invalidate();
                         break;
                     case "Save":
@@ -984,7 +1021,7 @@ namespace GuxtEditor
 
         private void editModeTabControl_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ResetMouseSize();
+            RestoreMouseSize();
         }
 
         #region entity list box

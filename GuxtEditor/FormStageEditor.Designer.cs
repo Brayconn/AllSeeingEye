@@ -251,7 +251,10 @@
             this.tilesetLayeredPictureBox.Name = "tilesetLayeredPictureBox";
             this.tilesetLayeredPictureBox.Size = new System.Drawing.Size(246, 191);
             this.tilesetLayeredPictureBox.TabIndex = 2;
-            this.tilesetLayeredPictureBox.MouseClick += new System.Windows.Forms.MouseEventHandler(this.tilesetPictureBox_MouseClick);
+            this.tilesetLayeredPictureBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.tilesetLayeredPictureBox_MouseDown);
+            this.tilesetLayeredPictureBox.MouseLeave += new System.EventHandler(this.tilesetLayeredPictureBox_MouseLeave);
+            this.tilesetLayeredPictureBox.MouseMove += new System.Windows.Forms.MouseEventHandler(this.tilesetLayeredPictureBox_MouseMove);
+            this.tilesetLayeredPictureBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.tilesetLayeredPictureBox_MouseUp);
             // 
             // tabPage2
             // 

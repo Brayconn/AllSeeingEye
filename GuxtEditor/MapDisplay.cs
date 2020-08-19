@@ -147,22 +147,16 @@ namespace GuxtEditor
 
 #region mouse stuff
 
-        void UpdateMouseMarquee(Point p1, Point p2)
-        {
-            UpdateMouseMarquee(GetRect(p1, p2));
-        }
-        void UpdateMouseMarquee(Rectangle rect)
-        {
-            mouseOverlay.Image = MakeMouseImage(rect.Size.Width * gridSize, rect.Size.Height * gridSize, UI.Default.CursorColor);
-            mouseOverlay.Location = new Point(rect.Location.X * gridSize, rect.Location.Y * gridSize);
-        }
-
         /// <summary>
-        /// Sets the mouse to the default size (1 tile)
+        /// Sets the mouse back to the right size for whatever edit mode we're in
         /// </summary>
-        void ResetMouseSize()
+        void RestoreMouseSize()
         {
-            mouseOverlay.Image = MakeMouseImage(gridSize, gridSize, UI.Default.CursorColor);
+            mouseOverlay.Image = editMode switch
+            {
+                EditModes.Tile => MakeMouseImage(SelectedTiles.Width * parentMod.TileSize, SelectedTiles.Height * parentMod.TileSize, UI.Default.CursorColor),
+                _ => MakeMouseImage(gridSize, gridSize, UI.Default.CursorColor),
+            };
         }
 
         void MoveMouse(Point gridPosition)
