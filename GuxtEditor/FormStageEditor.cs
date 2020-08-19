@@ -415,7 +415,7 @@ namespace GuxtEditor
             {
                 RemoveEntity(ent);
             }
-            entityListBox.SelectedItems.Clear();
+            SafeRefreshItems();
             SelectEntities();
             RedrawAllEntityLayers();
         }
@@ -509,6 +509,8 @@ namespace GuxtEditor
                     });
                 }
                 RedrawAllEntityLayers();
+                SafeRefreshItems();
+                SelectEntities(selectedEntities.ToArray());
             }
         }
         #endregion
@@ -1149,15 +1151,44 @@ namespace GuxtEditor
                 UnsavedEdits = true;
             }
 
-            //HACK need to refresh the entity list, and for whatever reason that method is private
-            typeof(ListBox).InvokeMember("RefreshItems",
-              BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.InvokeMethod,
-              null, entityListBox, Array.Empty<object>());
+            entityListBox_RefreshItems();
 
             //selecting entities after calling the above event to avoid the selected entities getting overwritten for some dumb reason
             SelectEntities(entitiesToMove);
 
             dragBox = Rectangle.Empty;
+        }
+
+
+        readonly static MethodInfo refreshItemsMethodInfo = typeof(ListBox).GetMethod("RefreshItems",
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.InvokeMethod,
+                null, Array.Empty<Type>(), null);
+        //HACK need to refresh the entity list, and for whatever reason that method is private
+        void entityListBox_RefreshItems()
+        {
+            refreshItemsMethodInfo.Invoke(entityListBox, Array.Empty<object>());
+            /*
+            typeof(ListBox).InvokeMember("RefreshItems",
+              BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.InvokeMethod,
+              null, entityListBox, Array.Empty<object>());
+            */
+        }
+
+        //HACK as if the other method wasn't bad enough...
+        //the listbox doesn't seem to like refreshing its items when you remove things, so I have to just ignore the exception...?!
+        //also put in the listboxCanUpdateSelection thing just for convienince
+        void SafeRefreshItems()
+        {
+            listboxCanUpdateSelection = false;
+            try
+            {
+                entityListBox_RefreshItems();
+            }
+            catch (TargetInvocationException)
+            {
+
+            }
+            listboxCanUpdateSelection = true;
         }
 
         #endregion
