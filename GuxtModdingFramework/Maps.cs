@@ -2,75 +2,100 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace GuxtModdingFramework.Maps
 {
+    public enum ResizeModes
+    {
+        Buffer,
+        Logical
+    }
     public class Map : IMap<List<byte>>
     {
-        public event Action MapResized = new Action(() => { });
-        public int Size { get => Width * Height; }
+        public event EventHandler? MapResized;
+        public event EventHandler? MapResizing;
 
-        private short width;
-        public short Width
+        private void NotifyMapResized()
         {
-            get => width;
-            set
-            {
-                if (width != value)
-                {
-                    width = value;
-                    Resize();
-                    MapResized();
-                }
-            }
+            MapResized?.Invoke(this, new EventArgs());
+        }
+        private void NotifyMapResizing()
+        {
+            MapResizing?.Invoke(this, new EventArgs());
         }
 
-        private short height;
-        public short Height
-        {
-            get => height;
-            set
-            {
-                if (height != value)
-                {
-                    height = value;
-                    Resize();
-                    MapResized();
-                }
-            }
-        }
+        public int PrefferedBufferSize => Width * Height;
+
+        public short Width { get; private set; }
+
+        public short Height { get; private set; }
 
         public List<byte> Tiles { get; set; }
 
-        /// <summary>
-        /// Clears the map and fills with 0s
-        /// </summary>
-        public void Init()
+        public void Resize(short width, short height, ResizeModes mode, bool shrinkBuffer = true)
         {
-            Tiles.Clear();
-            Resize();
-        }
-        public void Resize()
-        {
-            while (Tiles.Count != Size)
+            NotifyMapResizing();
+            switch (mode)
             {
-                if (Tiles.Count < Size)
-                    Tiles.Add(0x00);
-                else
-                    Tiles.RemoveAt(Tiles.Count - 1);
-            }            
+                case ResizeModes.Buffer:
+                    var newBuffer = width * height;
+                    if (Tiles.Count != newBuffer)
+                    {
+                        if (Tiles.Count < newBuffer)
+                        {
+                            Tiles.AddRange(new byte[newBuffer - Tiles.Count]);
+                        }
+                        else if (shrinkBuffer)
+                        {
+                            Tiles.RemoveRange(newBuffer, Tiles.Count - newBuffer);
+                        }
+                    }
+                    break;
+                case ResizeModes.Logical:
+                    if (width != Width)
+                    {
+                        if (width < Width)
+                        {
+                            for (int row = 0; row < Height; row++)
+                                Tiles.RemoveRange((row * width) + width, Width - width);
+                        }
+                        else
+                        {
+                            var diff = new byte[width - Width];
+                            for(int row = 0; row < Height; row++)
+                                Tiles.InsertRange((row * width) + Width, diff);
+                        }
+                    }
+                    if(height != Height)
+                    {
+                        if(height < Height)
+                        {
+                            for(int i =0; i < Height - height; i++)
+                                Tiles.RemoveRange(Tiles.Count - Height, width);
+                        }
+                        else
+                        {
+                            var buff = new byte[width];
+                            for (int i = 0; i < height - Height; i++)
+                                Tiles.AddRange(buff);
+                        }
+                    }
+                    break;
+            }
+            Width = width;
+            Height = height;
+            NotifyMapResized();
         }
 
         /// <summary>
-        /// Creates a new Map. Use Init() to initialise the tiles
+        /// Creates a new Map.
         /// </summary>
         /// <param name="w"></param>
         /// <param name="h"></param>
         public Map(short w, short h)
         {
-            width = w;
-            height = h;
+            Width = w;
+            Height = h;
             Tiles = new List<byte>(new byte[w * h]);
         }
 
@@ -78,12 +103,11 @@ namespace GuxtModdingFramework.Maps
         {
             using (BinaryReader br = new BinaryReader(new FileStream(path, FileMode.Open, FileAccess.Read)))
             {
-                width = br.ReadInt16();
-                height = br.ReadInt16();
+                Width = br.ReadInt16();
+                Height = br.ReadInt16();
                 Tiles = new List<byte>(Width * Height);
                 while (br.BaseStream.Position < br.BaseStream.Length)
                     Tiles.Add(br.ReadByte());
-                Resize();
             }
         }
 
