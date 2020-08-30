@@ -79,7 +79,7 @@ namespace GuxtEditor
             {
                 g.Clear(Color.Transparent);
 
-                foreach(var e in entities)
+                foreach(var e in Entities)
                 {                    
                     if (e.EntityID < EntityIcons.Images.Count)
                     {
@@ -98,7 +98,7 @@ namespace GuxtEditor
                 g.Clear(Color.Transparent);
 
                 //used to not draw selected entities, but that broke inserting new entities
-                foreach (var e in entities)
+                foreach (var e in Entities)
                 {
                     var y = (e.Y * parentMod.TileSize) / 2;
                     var x = (e.X * parentMod.TileSize) / 2;

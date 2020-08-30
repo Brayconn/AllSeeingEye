@@ -33,6 +33,9 @@
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.undoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.redoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.deleteAllEntitiesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tileTypesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -45,8 +48,8 @@
             this.editModeTabControl = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            this.mapPropertyGrid = new System.Windows.Forms.PropertyGrid();
             this.tilesetLayeredPictureBox = new LayeredPictureBox.LayeredPictureBox();
+            this.mapResizeControl = new GuxtEditor.MapResizeControl();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.entityPropertyGrid = new System.Windows.Forms.PropertyGrid();
@@ -101,15 +104,37 @@
             // editToolStripMenuItem
             // 
             this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.undoToolStripMenuItem,
+            this.redoToolStripMenuItem,
+            this.toolStripSeparator2,
             this.deleteAllEntitiesToolStripMenuItem});
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
             this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
             this.editToolStripMenuItem.Text = "Edit";
             // 
+            // undoToolStripMenuItem
+            // 
+            this.undoToolStripMenuItem.Name = "undoToolStripMenuItem";
+            this.undoToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.undoToolStripMenuItem.Text = "Undo";
+            this.undoToolStripMenuItem.Click += new System.EventHandler(this.undoToolStripMenuItem_Click);
+            // 
+            // redoToolStripMenuItem
+            // 
+            this.redoToolStripMenuItem.Name = "redoToolStripMenuItem";
+            this.redoToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.redoToolStripMenuItem.Text = "Redo";
+            this.redoToolStripMenuItem.Click += new System.EventHandler(this.redoToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(177, 6);
+            // 
             // deleteAllEntitiesToolStripMenuItem
             // 
             this.deleteAllEntitiesToolStripMenuItem.Name = "deleteAllEntitiesToolStripMenuItem";
-            this.deleteAllEntitiesToolStripMenuItem.Size = new System.Drawing.Size(165, 22);
+            this.deleteAllEntitiesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.deleteAllEntitiesToolStripMenuItem.Text = "Delete All Entities";
             this.deleteAllEntitiesToolStripMenuItem.Click += new System.EventHandler(this.deleteAllEntitiesToolStripMenuItem_Click);
             // 
@@ -223,8 +248,8 @@
             this.tableLayoutPanel2.ColumnCount = 1;
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel2.Controls.Add(this.mapPropertyGrid, 0, 0);
             this.tableLayoutPanel2.Controls.Add(this.tilesetLayeredPictureBox, 0, 1);
+            this.tableLayoutPanel2.Controls.Add(this.mapResizeControl, 0, 0);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
@@ -233,14 +258,6 @@
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel2.Size = new System.Drawing.Size(252, 394);
             this.tableLayoutPanel2.TabIndex = 1;
-            // 
-            // mapPropertyGrid
-            // 
-            this.mapPropertyGrid.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.mapPropertyGrid.Location = new System.Drawing.Point(3, 3);
-            this.mapPropertyGrid.Name = "mapPropertyGrid";
-            this.mapPropertyGrid.Size = new System.Drawing.Size(246, 191);
-            this.mapPropertyGrid.TabIndex = 1;
             // 
             // tilesetLayeredPictureBox
             // 
@@ -255,6 +272,15 @@
             this.tilesetLayeredPictureBox.MouseLeave += new System.EventHandler(this.tilesetLayeredPictureBox_MouseLeave);
             this.tilesetLayeredPictureBox.MouseMove += new System.Windows.Forms.MouseEventHandler(this.tilesetLayeredPictureBox_MouseMove);
             this.tilesetLayeredPictureBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.tilesetLayeredPictureBox_MouseUp);
+            // 
+            // mapResizeControl1
+            // 
+            this.mapResizeControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.mapResizeControl.Location = new System.Drawing.Point(3, 3);
+            this.mapResizeControl.Name = "mapResizeControl1";
+            this.mapResizeControl.Size = new System.Drawing.Size(246, 191);
+            this.mapResizeControl.TabIndex = 3;
+            this.mapResizeControl.MapResizeInitialized += new System.EventHandler<GuxtEditor.MapResizeInitiatedEventArgs>(this.mapResizeControl1_MapResizeInitialized);
             // 
             // tabPage2
             // 
@@ -426,7 +452,6 @@
         private System.Windows.Forms.PropertyGrid entityPropertyGrid;
         private System.Windows.Forms.ListView entityListView;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
-        private System.Windows.Forms.PropertyGrid mapPropertyGrid;
         private System.Windows.Forms.ToolStripMenuItem tileTypesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem entitySpritesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
@@ -442,5 +467,9 @@
         private System.Windows.Forms.ToolStripMenuItem gridToolStripMenuItem;
         private System.Windows.Forms.TabPage tabPage3;
         private System.Windows.Forms.ListBox entityListBox;
+        private MapResizeControl mapResizeControl;
+        private System.Windows.Forms.ToolStripMenuItem undoToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem redoToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
     }
 }

@@ -101,12 +101,40 @@
                                     &lt;Shift&gt;false&lt;/Shift&gt;
                                     &lt;Control&gt;true&lt;/Control&gt;
                                     &lt;Alt&gt;false&lt;/Alt&gt;
+                                    &lt;KeyValue&gt;Z&lt;/KeyValue&gt;
+                                &lt;/Input&gt;
+                                &lt;Action&gt;Undo&lt;/Action&gt;
+                            &lt;/Keybind&gt;
+                            &lt;Keybind&gt;
+                                &lt;Input&gt;
+                                    &lt;Shift&gt;true&lt;/Shift&gt;
+                                    &lt;Control&gt;true&lt;/Control&gt;
+                                    &lt;Alt&gt;false&lt;/Alt&gt;
+                                    &lt;KeyValue&gt;Z&lt;/KeyValue&gt;
+                                &lt;/Input&gt;
+                                &lt;Action&gt;Redo&lt;/Action&gt;
+                            &lt;/Keybind&gt;
+                            &lt;Keybind&gt;
+                                &lt;Input&gt;
+                                    &lt;Shift&gt;false&lt;/Shift&gt;
+                                    &lt;Control&gt;true&lt;/Control&gt;
+                                    &lt;Alt&gt;false&lt;/Alt&gt;
+                                    &lt;KeyValue&gt;Y&lt;/KeyValue&gt;
+                                &lt;/Input&gt;
+                                &lt;Action&gt;Redo&lt;/Action&gt;
+                            &lt;/Keybind&gt;
+                            &lt;Keybind&gt;
+                                &lt;Input&gt;
+                                    &lt;Shift&gt;false&lt;/Shift&gt;
+                                    &lt;Control&gt;true&lt;/Control&gt;
+                                    &lt;Alt&gt;false&lt;/Alt&gt;
                                     &lt;KeyValue&gt;S&lt;/KeyValue&gt;
                                 &lt;/Input&gt;
                                 &lt;Action&gt;Save&lt;/Action&gt;
                             &lt;/Keybind&gt;
                         &lt;/Keybinds&gt;
                     &lt;/KeybindCollection&gt;
+
                 </Value>
     </Setting>
   </Settings>

@@ -12,7 +12,7 @@ namespace GuxtEditor {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.4.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.6.0.0")]
     internal sealed partial class Keybinds : global::System.Configuration.ApplicationSettingsBase {
         
         private static Keybinds defaultInstance = ((Keybinds)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Keybinds())));
@@ -88,10 +88,27 @@ namespace GuxtEditor {
             "                             <Input>\r\n                                    <Shift" +
             ">false</Shift>\r\n                                    <Control>true</Control>\r\n   " +
             "                                 <Alt>false</Alt>\r\n                             " +
-            "       <KeyValue>S</KeyValue>\r\n                                </Input>\r\n       " +
-            "                         <Action>Save</Action>\r\n                            </Ke" +
-            "ybind>\r\n                        </Keybinds>\r\n                    </KeybindCollec" +
-            "tion>\r\n                ")]
+            "       <KeyValue>Z</KeyValue>\r\n                                </Input>\r\n       " +
+            "                         <Action>Undo</Action>\r\n                            </Ke" +
+            "ybind>\r\n                            <Keybind>\r\n                                <" +
+            "Input>\r\n                                    <Shift>true</Shift>\r\n               " +
+            "                     <Control>true</Control>\r\n                                  " +
+            "  <Alt>false</Alt>\r\n                                    <KeyValue>Z</KeyValue>\r\n" +
+            "                                </Input>\r\n                                <Actio" +
+            "n>Redo</Action>\r\n                            </Keybind>\r\n                       " +
+            "     <Keybind>\r\n                                <Input>\r\n                       " +
+            "             <Shift>false</Shift>\r\n                                    <Control>" +
+            "true</Control>\r\n                                    <Alt>false</Alt>\r\n          " +
+            "                          <KeyValue>Y</KeyValue>\r\n                              " +
+            "  </Input>\r\n                                <Action>Redo</Action>\r\n             " +
+            "               </Keybind>\r\n                            <Keybind>\r\n              " +
+            "                  <Input>\r\n                                    <Shift>false</Shi" +
+            "ft>\r\n                                    <Control>true</Control>\r\n              " +
+            "                      <Alt>false</Alt>\r\n                                    <Key" +
+            "Value>S</KeyValue>\r\n                                </Input>\r\n                  " +
+            "              <Action>Save</Action>\r\n                            </Keybind>\r\n   " +
+            "                     </Keybinds>\r\n                    </KeybindCollection>\r\n\r\n  " +
+            "              ")]
         public global::WinFormsKeybinds.KeybindCollection StageEditor {
             get {
                 return ((global::WinFormsKeybinds.KeybindCollection)(this["StageEditor"]));

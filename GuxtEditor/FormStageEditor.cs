@@ -13,6 +13,7 @@ using GuxtModdingFramework.Entities;
 using GuxtModdingFramework.Maps;
 using static PixelModdingFramework.Rendering;
 using static GuxtEditor.SharedGraphics;
+using System.ComponentModel;
 
 namespace GuxtEditor
 {
@@ -38,10 +39,6 @@ namespace GuxtEditor
                 }
             }
         }
-        private void SetUnsavedEdits(object o, EventArgs e)
-        {
-            UnsavedEdits = true;
-        }
         #endregion
 
         /// <summary>
@@ -60,11 +57,26 @@ namespace GuxtEditor
         readonly IDictionary<WinFormsKeybinds.KeyInput, string> Keybinds;
 
         readonly string mapPath, entityPath;
-
+        
         /// <summary>
         /// List of loaded entities
         /// </summary>
-        readonly List<Entity> entities;        
+        List<Entity> Entities
+        {
+            get => entities;
+            set
+            {
+                entities = value;
+
+                listboxCanUpdateSelection = false;
+                entityListBox.DataSource = entities;
+                listboxCanUpdateSelection = true;
+            }
+        }
+        List<Entity> entities;
+
+
+
         /// <summary>
         /// The map object this is editing
         /// </summary>
@@ -104,10 +116,11 @@ namespace GuxtEditor
 
             //entities
             entityPath = Path.Combine(parentMod.DataPath, parentMod.EntityName + StageNumber + "." + parentMod.EntityExtension);
-            entities = PXEVE.Read(entityPath);
-            foreach (var ent in entities)
+            Entities = PXEVE.Read(entityPath);
+            foreach (var ent in Entities)
             {
-                ent.PropertyChanged += SetUnsavedEdits;
+                ent.PropertyChanging += EntityPropertyChanging;
+                ent.PropertyChanged += EntityPropertyChanged;
             }
             //attributes
             var attributePath = Path.Combine(parentMod.DataPath, parentMod.AttributeName + StageNumber + "." + parentMod.AttributeExtension);
@@ -123,11 +136,10 @@ namespace GuxtEditor
             //base map setup
             mapPath = Path.Combine(parentMod.DataPath, parentMod.MapName + StageNumber + "." + parentMod.MapExtension);
             map = new Map(mapPath);
-            //need to re-display the map from scratch in the case of a resize
-            map.MapResized += delegate { UnsavedEdits = true; InitMap(); };
-            mapPropertyGrid.SelectedObject = map;            
-
-            InitMap();
+            map.MapResizing += MapResizing;
+            map.MapResized += MapResized;
+            mapResizeControl.InitSize(map.Width, map.Height);
+            InitMapImage();
                         
             //need to init entity images after the map has been initialized so we actually have a good size
             //need to init them each seperately since otherwise I think it would all be a reference to the same image...
@@ -144,7 +156,7 @@ namespace GuxtEditor
                         
             //Init screen preview to the bottom of the screen            
             UpdateScreenPreviewLocation(0, vScreenPreviewScrollBar.Maximum - vScreenPreviewScrollBar.LargeChange + 1);
-            entityListBox.DataSource = entities;
+            //entityListBox.DataSource = Entities;
         }
 
         private void FormStageEditor_Load(object sender, EventArgs e)
@@ -158,10 +170,12 @@ namespace GuxtEditor
         /// </summary>
         private void Save()
         {
-            UnsavedEdits = false;
             map.Save(mapPath);
             //attributes.Save();
-            PXEVE.Write(entities, entityPath);
+            PXEVE.Write(Entities, entityPath);
+            
+            LastSavedActionIndex = HistoryIndex;
+            UnsavedEdits = false;
         }
 
         #region Zoom
@@ -211,7 +225,7 @@ namespace GuxtEditor
         /// Initializes the entire map from scratch.
         /// only used on startup and resize
         /// </summary>
-        void InitMap()
+        void InitMapImage()
         {
             //hiding both of these so they can't affect the canvas size
             bool spShown = screenPreview.Shown;
@@ -299,6 +313,228 @@ namespace GuxtEditor
 
         #endregion
 
+
+        #region history
+
+        int historyIndex = -1;
+        int HistoryIndex
+        {
+            get => historyIndex;
+            set
+            {
+                if (historyIndex != value)
+                {
+                    historyIndex = value;
+                    UnsavedEdits = LastSavedActionIndex != historyIndex;
+                }
+            }
+        }
+        int LastSavedActionIndex = -1;
+        readonly List<IUndo> History = new List<IUndo>();
+
+        IUndo? CurrentAction;
+
+        T InitUndoAction<T>(Func<T> func) where T : IUndo
+        {
+            if (CurrentAction == null)
+            {
+                var @new = func();
+                CurrentAction = @new;
+                return @new;
+            }
+            else
+                throw new InvalidOperationException("Tried to overwrite an existing action");
+        }
+        T InitUndoAction<T>() where T : IUndo, new()
+        {
+            if (CurrentAction == null)
+            {
+                var @new = new T();
+                CurrentAction = @new;
+                return @new;
+            }
+            else
+                throw new InvalidOperationException("Tried to overwrite an existing action");
+        }
+
+        void FinalizeUndoAction()
+        {
+            if (CurrentAction != null)
+            {
+                if (HistoryIndex < History.Count - 1)
+                {
+                    if(HistoryIndex < LastSavedActionIndex)
+                        LastSavedActionIndex = -1;
+                    History.RemoveRange(HistoryIndex + 1, History.Count - (HistoryIndex + 1));
+                }
+                History.Add(CurrentAction);
+                CurrentAction = null;
+                HistoryIndex++;
+            }
+        }
+
+        #region entity history
+        Entity? entityWithChanges = null;
+        int entityPreviousValue = -1;
+        enum EntityPropertyWatchModes
+        {
+            Ignore,
+            QuickUndo,
+            SlowUndo
+        }
+        EntityPropertyWatchModes entityTrackChanges = EntityPropertyWatchModes.QuickUndo;
+
+
+        void MultiEntityPropertyChanging(object sender, PropertyChangingEventArgs e)
+        {
+            entityTrackChanges = EntityPropertyWatchModes.SlowUndo;
+        }
+
+        void EntityPropertyChanging(object sender, PropertyChangingEventArgs e)
+        {
+            if (entityTrackChanges != EntityPropertyWatchModes.Ignore)
+            {
+                InitUndoAction(() => new EntityPropertiesChanged(e.PropertyName));
+                entityWithChanges = (Entity)sender;
+                entityPreviousValue = (int)typeof(Entity).GetProperty(e.PropertyName).GetValue(entityWithChanges);
+            }
+        }
+        void EntityPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (entityTrackChanges != EntityPropertyWatchModes.Ignore)
+            {
+                if (entityWithChanges == null)
+                    throw new NoNullAllowedException("A property changed event was fired without an accompanying property changing event");
+                if (entityWithChanges != sender)
+                    throw new ArgumentException("An entity failed to send a property changing event");
+
+                var newVal = (int)typeof(Entity).GetProperty(e.PropertyName).GetValue(entityWithChanges);
+                var c = (EntityPropertiesChanged)CurrentAction!;
+                if (!c.Entities.ContainsKey(entityWithChanges))
+                    c.Entities.Add(entityWithChanges, new EntityPropertiesChanged.EntityPropertyChanged(entityPreviousValue, newVal));
+                else
+                    throw new ArgumentException("An entity somehow sent two edit messages without finalizing the undo action");
+
+                entityWithChanges = null;
+
+                if (entityTrackChanges == EntityPropertyWatchModes.QuickUndo)
+                    FinalizeUndoAction();
+            }
+        }
+
+        void MultiEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            FinalizeUndoAction();
+            entityTrackChanges = EntityPropertyWatchModes.QuickUndo;
+        }
+        #endregion
+
+        #region map history
+
+        bool TrackMapResizes = true;
+        void MapResizing(object sender, EventArgs e)
+        {
+            if (TrackMapResizes)
+            {
+                InitUndoAction(() => new MapResized(map.Width, map.Height, map.Tiles.ToArray()));
+            }
+        }
+        void MapResized(object sender, EventArgs e)
+        {
+            if (TrackMapResizes)
+            {
+                var act = ((MapResized)CurrentAction!);
+                act.NewWidth = map.Width;
+                act.NewHeight = map.Height;
+                act.NewTiles = map.Tiles.ToArray();
+                FinalizeUndoAction();
+                InitMapImage();
+            }
+        }
+
+        #endregion
+
+        void PerformUndo(IUndo action, bool undo)
+        {
+            if (action is TilesPlaced tp)
+            {
+                foreach (var tile in tp.Tiles)
+                    SetTile(tile.Key, undo ? tile.Value.OldValue : tile.Value.NewValue);
+            }
+            else if (action is EntityPropertiesChanged epc)
+            {
+                entityTrackChanges = EntityPropertyWatchModes.Ignore;
+                var property = typeof(Entity).GetProperty(epc.Property);
+                foreach (var ent in epc.Entities)
+                {
+                    property.SetValue(ent.Key, undo ? ent.Value.OldValue : ent.Value.NewValue);
+                }
+                entityTrackChanges = EntityPropertyWatchModes.QuickUndo;
+            }
+            else if (action is EntitiesMoved em)
+            {
+                entityTrackChanges = EntityPropertyWatchModes.Ignore;
+                foreach (var ent in em.Entities)
+                {
+                    if (undo)
+                    {
+                        ent.Key.X = ent.Value.OldLocation.X;
+                        ent.Key.Y = ent.Value.OldLocation.Y;
+                    }
+                    else
+                    {
+                        ent.Key.X = ent.Value.NewLocation.X;
+                        ent.Key.Y = ent.Value.NewLocation.Y;
+                    }
+                }
+                entityTrackChanges = EntityPropertyWatchModes.QuickUndo;
+            }
+            else if (action is EntityListChanged elc)
+            {
+                Entities = new List<Entity>(undo ? elc.OldEntities : elc.NewEntities);
+            }
+            else if(action is MapResized mr)
+            {
+                TrackMapResizes = false;
+                if (undo)
+                {
+                    map.Tiles = mr.OldTiles.ToList();
+                    map.Resize(mr.OldWidth, mr.OldHeight, ResizeModes.Buffer);
+                }
+                else
+                {
+                    map.Tiles = mr.NewTiles.ToList();
+                    map.Resize(mr.NewWidth, mr.NewHeight, ResizeModes.Buffer);
+                }
+                mapResizeControl.InitSize(map.Width, map.Height);
+                TrackMapResizes = true;
+            }
+        }
+        IUndo? Undo()
+        {
+            if (0 <= HistoryIndex && HistoryIndex < History.Count)
+            {
+                var h = History[HistoryIndex];
+                PerformUndo(History[HistoryIndex], true);
+                HistoryIndex--;
+                return h;
+            }
+            return null;
+        }
+        IUndo? Redo()
+        {
+            if(-1 <= HistoryIndex && HistoryIndex < History.Count - 1)
+            {
+                HistoryIndex++;
+                PerformUndo(History[HistoryIndex], false);
+                return History[HistoryIndex];
+            }
+            return null;
+        }
+
+        #endregion
+
+
         #region edit map
 
         Map SelectedTiles = new Map(1, 1);
@@ -322,17 +558,26 @@ namespace GuxtEditor
         }
 
 
-        void SetTile(Point p)
+        void SetTiles(Point p)
         {
             SetTiles(p, SelectedTiles);
         }
-        void SetTile(int tileNum)
+        void SetTiles(int tileNum)
         {
-            SetTile(new Point(tileNum%map.Width, tileNum/map.Width));
+            SetTiles(new Point(tileNum%map.Width, tileNum/map.Width));
         }
         void SetTile(int tileNum, byte tileValue)
         {
+            //this is here so the title updates right away when you start drawing, instead of after you mouse up
             UnsavedEdits = true;
+            if (CurrentAction != null)
+            {
+                var act = (TilesPlaced)CurrentAction;
+                if (!act.Tiles.ContainsKey(tileNum))
+                    act.Tiles.Add(tileNum, new TilesPlaced.TileChanged(map.Tiles[tileNum], tileValue));
+                else
+                    act.Tiles[tileNum].NewValue = tileValue;
+            }
             map.Tiles[tileNum] = tileValue;
             DrawTile(baseMap.Image, map, tileNum, (Bitmap)baseTileset.Image, parentMod.TileSize);
             DrawTile(mapTileTypes.Image, map, tileNum, (Bitmap)tilesetTileTypes.Image, parentMod.TileSize, System.Drawing.Drawing2D.CompositingMode.SourceCopy);
@@ -368,22 +613,25 @@ namespace GuxtEditor
         {
             string entityName = "<no name>";
             parentMod.EntityNames.TryGetValue(ent.EntityID, out entityName);
-            return $"{entities.IndexOf(ent)} - {entityName}";
+            return $"{Entities.IndexOf(ent)} - {entityName}";
         }
         private void AddEntity(Entity ent)
         {
-            ent.PropertyChanged += SetUnsavedEdits;
-            entities.Add(ent);
+            ent.PropertyChanging += EntityPropertyChanging;
+            ent.PropertyChanged += EntityPropertyChanged;
+            Entities.Add(ent);
         }
         private void InsertEntity(int index, Entity ent)
         {
-            ent.PropertyChanged += SetUnsavedEdits;
-            entities.Insert(index, ent);
+            ent.PropertyChanging += EntityPropertyChanging;
+            ent.PropertyChanged += EntityPropertyChanged;
+            Entities.Insert(index, ent);
         }
         private void RemoveEntity(Entity ent)
         {
-            entities.Remove(ent);
-            ent.PropertyChanged -= SetUnsavedEdits;
+            Entities.Remove(ent);
+            ent.PropertyChanging -= EntityPropertyChanging;
+            ent.PropertyChanged -= EntityPropertyChanged;
         }
 
         private IEnumerable<Entity> GetEntitiesAtLocation(Point p)
@@ -392,32 +640,61 @@ namespace GuxtEditor
         }
         private IEnumerable<Entity> GetEntitiesAtLocation(Rectangle rect)
         {
-            for(int i = 0; i < entities.Count; i++)
-                if (rect.X <= entities[i].X && entities[i].X <= rect.Right && rect.Y <= entities[i].Y && entities[i].Y <= rect.Bottom)
-                    yield return entities[i];
+            for(int i = 0; i < Entities.Count; i++)
+                if (rect.X <= Entities[i].X && Entities[i].X <= rect.Right && rect.Y <= Entities[i].Y && Entities[i].Y <= rect.Bottom)
+                    yield return Entities[i];
         }                
         void CreateNewEntity(Point pos)
         {
-            if (entityListView.SelectedIndices.Count <= 0)
-                return;
-            UnsavedEdits = true;
-            
-            var ent = new Entity(0, pos.X, pos.Y, entityListView.SelectedIndices[0], 0);
-            AddEntity(ent);
-            SelectEntities(ent);
+            if (entitySelected)
+            {
+                var ent = new Entity(0, pos.X, pos.Y, entityListView.SelectedIndices[0], 0);
+                var act = InitUndoAction(() => new EntityListChanged(Entities.ToArray()));
 
-            RedrawAllEntityLayers();
+                AddEntity(ent);
+                SelectEntities(ent);
+                RedrawAllEntityLayers();
+
+                act.NewEntities = Entities.ToArray();
+                FinalizeUndoAction();
+            }
         }
         void DeleteSelectedEntities()
         {
-            UnsavedEdits = true;
-            foreach (var ent in selectedEntities.ToList())
+            var act = InitUndoAction(() => new EntityListChanged(Entities.ToArray()));
+            foreach (var ent in selectedEntities.ToArray())
             {
                 RemoveEntity(ent);
             }
             SafeRefreshItems();
             SelectEntities();
             RedrawAllEntityLayers();
+
+            act.NewEntities = Entities.ToArray();
+            FinalizeUndoAction();
+        }
+
+        void MoveSelectedEntities(Point p)
+        {
+            var act = CurrentAction as EntitiesMoved ?? InitUndoAction<EntitiesMoved>();
+            entityTrackChanges = EntityPropertyWatchModes.Ignore;
+
+            int xd = lastMousePosition.X - p.X;
+            int yd = lastMousePosition.Y - p.Y;
+            foreach (var ent in selectedEntities)
+            {
+                var nx = ent.X - xd;
+                var ny = ent.Y - yd;
+                if (!act.Entities.ContainsKey(ent))
+                    act.Entities.Add(ent, new EntitiesMoved.MovedEntity(new Point(ent.X, ent.Y), new Point(nx, ny)));
+                else
+                    act.Entities[ent].NewLocation = new Point(nx, ny);
+
+                ent.X = nx;
+                ent.Y = ny;
+            }
+
+            entityTrackChanges = EntityPropertyWatchModes.QuickUndo;
         }
 
         /// <summary>
@@ -426,16 +703,25 @@ namespace GuxtEditor
         /// <param name="ents">Entities to edit</param>
         private void SetEditingEntity(params Entity[] ents)
         {
+            if(entityPropertyGrid.SelectedObject is MultiEntityShell mes)
+            {
+                mes.PropertyChanging -= MultiEntityPropertyChanging;
+                mes.PropertyChanged -= MultiEntityPropertyChanged;
+            }
             if (ents.Length == 0)
                 entityPropertyGrid.SelectedObject = null;
             else if(ents.Length == 1)
             {
                 //if the entity has a custom type, use that, otherwise edit the entity directly
                 entityPropertyGrid.SelectedObject = parentMod.EntityTypes.TryGetValue(ents[0].EntityID, out Type t) ? Activator.CreateInstance(t, ents) : ents[0];
+                entityTrackChanges = EntityPropertyWatchModes.QuickUndo;
             }
             else
             {
-                entityPropertyGrid.SelectedObject = new MultiEntityShell(ents);
+                var multi = new MultiEntityShell(ents);
+                multi.PropertyChanging += MultiEntityPropertyChanging;
+                multi.PropertyChanged += MultiEntityPropertyChanged;
+                entityPropertyGrid.SelectedObject = multi;
             }
         }
         /// <summary>
@@ -499,7 +785,8 @@ namespace GuxtEditor
         {
             if (entitiesInClipboard)
             {
-                UnsavedEdits = true;
+                var act = InitUndoAction(() => new EntityListChanged(Entities.ToArray()));
+
                 foreach (var e in entityClipboard)
                 {
                     AddEntity(new Entity(e)
@@ -511,6 +798,9 @@ namespace GuxtEditor
                 RedrawAllEntityLayers();
                 SafeRefreshItems();
                 SelectEntities(selectedEntities.ToArray());
+
+                act.NewEntities = Entities.ToArray();
+                FinalizeUndoAction();
             }
         }
         #endregion
@@ -609,6 +899,7 @@ namespace GuxtEditor
         /// The delete context menu item, just to save on creating a new one every time
         /// </summary>
         ToolStripMenuItem? delete = null;
+        bool entityContextMenuShown => entityContextMenu?.Visible ?? false;
         ContextMenuStrip? entityContextMenu = null;
 
         //can't do one for insert because it relies on the location of the click...
@@ -616,7 +907,7 @@ namespace GuxtEditor
         {
             if (sender is ToolStripMenuItem tsmi)
             {
-                CopyEntities(entities[int.Parse(tsmi.Name)]);
+                CopyEntities(Entities[int.Parse(tsmi.Name)]);
             }
         }
         //paste also relies on that location...
@@ -629,7 +920,7 @@ namespace GuxtEditor
         {
             if (sender is ToolStripMenuItem tsmi)
             {
-                SelectEntities(entities[int.Parse(tsmi.Name)]);
+                SelectEntities(Entities[int.Parse(tsmi.Name)]);
             }
         }
 
@@ -644,6 +935,8 @@ namespace GuxtEditor
 
         private void mapPictureBox_MouseDown(object sender, MouseEventArgs e)
         {
+            mapLayeredPictureBox.Select();
+            
             Point p = GetMousePointOnMap(e.Location);
 
             switch (editMode)
@@ -654,9 +947,10 @@ namespace GuxtEditor
                     switch (e.Button)
                     {
                         case MouseButtons.Left:
+                            InitUndoAction<TilesPlaced>();
                             HoldAction = HoldActions.DrawTiles;
                             mouseOverlay.Shown = false;
-                            SetTile(tile);
+                            SetTiles(tile);
                             mapLayeredPictureBox.Invalidate();
                             break;
                         case MouseButtons.Middle:
@@ -699,7 +993,7 @@ namespace GuxtEditor
                             //Insert
                             var insert = new ToolStripMenuItem("Insert Entity");
                             insert.Enabled = entitySelected;
-                            insert.Click += delegate { if (entitySelected) { CreateNewEntity(p); MoveMouse(lastMousePosition); } };
+                            insert.Click += delegate { if (entitySelected) { CreateNewEntity(p); MoveMouse(lastMousePosition); SafeRefreshItems(); } };
                             entityContextMenu.Items.Add(insert);
                                                         
                             //Copy
@@ -708,7 +1002,7 @@ namespace GuxtEditor
                             //copy enabled if only one entity selected, other stuff only initiallized then too
                             if (copy.Enabled = hoveredEntitiesCount == 1)
                             {
-                                copy.Name = entities.IndexOf(entitiesWhereClicked.First()).ToString();
+                                copy.Name = Entities.IndexOf(entitiesWhereClicked.First()).ToString();
                                 copy.Click += EntityContectMenu_CopyEntity;
                             }
                             entityContextMenu.Items.Add(copy);
@@ -716,7 +1010,7 @@ namespace GuxtEditor
                             //Paste
                             var paste = new ToolStripMenuItem("Paste");
                             paste.Enabled = entitiesInClipboard;
-                            paste.Click += delegate { PasteEntities(p); MoveMouse(lastMousePosition); };
+                            paste.Click += delegate { PasteEntities(p); MoveMouse(lastMousePosition); SafeRefreshItems(); };
                             entityContextMenu.Items.Add(paste);
 
                             //Delete
@@ -735,7 +1029,7 @@ namespace GuxtEditor
                                 entityContextMenu.Items.Add(new ToolStripSeparator());
                                 foreach(var ent in entitiesWhereClicked)
                                 {
-                                    var index = entities.IndexOf(ent);
+                                    var index = Entities.IndexOf(ent);
 
                                     //TODO temp text
                                     
@@ -771,20 +1065,14 @@ namespace GuxtEditor
             switch (HoldAction)
             {
                 case HoldActions.DrawTiles:
-                    SetTile(p);
+                    SetTiles(p);
                     mapLayeredPictureBox.Invalidate();
                     break;
                 case HoldActions.CopyTiles:
                     UpdateMouseMarquee(startMousePosition, p, mouseOverlay, gridSize, UI.Default.CursorColor);
                     break;
                 case HoldActions.MoveEntities:
-                    int xd = lastMousePosition.X - p.X;
-                    int yd = lastMousePosition.Y - p.Y;
-                    foreach(var ent in selectedEntities)
-                    {
-                        ent.X -= xd;
-                        ent.Y -= yd;
-                    }
+                    MoveSelectedEntities(p);
                     RedrawAllEntityLayers();
                     mapLayeredPictureBox.Invalidate();
                     break;
@@ -821,6 +1109,10 @@ namespace GuxtEditor
                         tilesetMouseOverlay.Shown = false;
                     }
                     break;
+                case HoldActions.DrawTiles:
+                case HoldActions.MoveEntities:
+                    FinalizeUndoAction();
+                    break;
             }
             MoveMouse(lastMousePosition);
             mouseOverlay.Shown = true;
@@ -831,7 +1123,7 @@ namespace GuxtEditor
         {
             HoldAction = null;
             //this check is here to stop the mouse hiding when the context menu appears, since that triggers MouseLeave
-            if (entityContextMenu == null || !entityContextMenu.Visible)
+            if (!entityContextMenuShown)
                 mouseOverlay.Shown = false;            
             RestoreMouseSize();
         }
@@ -842,10 +1134,9 @@ namespace GuxtEditor
         private void FormStageEditor_KeyDown(object sender, KeyEventArgs e)
         {
             //Kinda hacky way of checking if the user is editing something in a property grid
-            if (entityPropertyGrid.ActiveControl?.GetType().Name == "GridViewEdit" ||
-                mapPropertyGrid.ActiveControl?.GetType().Name == "GridViewEdit")
+            if (entityPropertyGrid.ActiveControl?.GetType().Name == "GridViewEdit" || mapResizeControl.IsBeingEdited)
                 return;
-
+            
             var input = new WinFormsKeybinds.KeyInput(e.KeyData);
             if (Keybinds.ContainsKey(input))
             {
@@ -868,6 +1159,7 @@ namespace GuxtEditor
                     case "InsertEntity" when editMode == EditModes.Entity && mouseOnMap:
                         CreateNewEntity(lastMousePosition);
                         mapLayeredPictureBox.Invalidate();
+                        SafeRefreshItems();
                         break;
                     case "Copy" when editMode == EditModes.Entity && userHasSelectedEntities:
                         CopyEntities(selectedEntities.ToArray());
@@ -875,10 +1167,53 @@ namespace GuxtEditor
                     case "Paste" when editMode == EditModes.Entity && entitiesInClipboard && mouseOnMap:
                         PasteEntities(lastMousePosition);
                         mapLayeredPictureBox.Invalidate();
+                        SafeRefreshItems();
+                        break;
+                    case "Undo" when !entityContextMenuShown:
+                        PostUndoUIUpdate(Undo());
+                        break;
+                    case "Redo" when !entityContextMenuShown:
+                        PostUndoUIUpdate(Redo());
                         break;
                     case "Save":
                         Save();
                         break;
+                }
+            }
+        }
+
+        void PostUndoUIUpdate(IUndo? t)
+        {
+            if (t != null)
+            {
+                if (t is TilesPlaced)
+                {
+                    mapLayeredPictureBox.Invalidate();
+                }
+                else if (t is EntitiesMoved)
+                {
+                    RedrawAllEntityLayers();
+                    mapLayeredPictureBox.Invalidate();
+                }
+                else if (t is EntityListChanged elc)
+                {
+                    if (elc.OldEntities.Length != elc.NewEntities.Length)
+                        SelectEntities();
+                    RedrawAllEntityLayers();
+                    mapLayeredPictureBox.Invalidate();
+                }
+                else if (t is EntityPropertiesChanged epc)
+                {
+                    //these are the only two properties that don't change anything visible on the map
+                    if (epc.Property != nameof(Entity.ExtraInfo) && epc.Property != nameof(Entity.Unused))
+                    {
+                        RedrawAllEntityLayers();
+                        mapLayeredPictureBox.Invalidate();
+                    }
+                }
+                else if(t is MapResized)
+                {
+                    InitMapImage();
                 }
             }
         }
@@ -914,8 +1249,8 @@ namespace GuxtEditor
             if (MessageBox.Show("Are you sure you want to delete EVERY entity?\nIf you save after this, there's no coming back.", "Warning", MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
                 SelectEntities();
-                while (entities.Count > 0)
-                    RemoveEntity(entities[0]);
+                while (Entities.Count > 0)
+                    RemoveEntity(Entities[0]);
 
                 DrawEntityIcons();
                 DrawEntityBoxes();
@@ -1056,7 +1391,7 @@ namespace GuxtEditor
         private void entityListBox_MouseDown(object sender, MouseEventArgs e)
         {
             var clickedIndex = entityListBox.IndexFromPoint(new Point(e.X, e.Y));
-            if (clickedIndex != ListBox.NoMatches && selectedEntities.Contains(entities[clickedIndex]) && e.Button == MouseButtons.Left)
+            if (clickedIndex != ListBox.NoMatches && selectedEntities.Contains(Entities[clickedIndex]) && e.Button == MouseButtons.Left)
             {
                 startIndex = clickedIndex;
                 dragBox = new Rectangle(new Point(
@@ -1112,26 +1447,27 @@ namespace GuxtEditor
             
             //calculate how much to move each entity by
             var difference = endIndex - startIndex;
-            if (0 < entitiesToMove.Length && entitiesToMove.Length < entities.Count && difference != 0)
+            if (0 < entitiesToMove.Length && entitiesToMove.Length < Entities.Count && difference != 0)
             {
+                var act = InitUndoAction(() => new EntityListChanged(Entities.ToArray()));
                 void MoveEntity(Entity ent, int newIndex)
                 {
                     RemoveEntity(ent);
-                    if (newIndex > entities.Count)
+                    if (newIndex > Entities.Count)
                         AddEntity(ent);
                     else
                         InsertEntity(Math.Max(0, newIndex), ent);
                 }
                 //sort list by index
-                var entsInOrder = (IEnumerable<Entity>)entitiesToMove.OrderBy(x => entities.IndexOf(x));
+                var entsInOrder = (IEnumerable<Entity>)entitiesToMove.OrderBy(x => Entities.IndexOf(x));
                 //moving down
-                if(startIndex < endIndex)
+                if (startIndex < endIndex)
                 {
-                    var lastIndex = entities.Count;
+                    var lastIndex = Entities.Count;
                     foreach (var ent in entsInOrder.Reverse())
                     {
                         //clamp the new entity location to the highest entity placed
-                        var newIndex = Math.Max(0, Math.Min(entities.IndexOf(ent) + difference, lastIndex-1));
+                        var newIndex = Math.Max(0, Math.Min(Entities.IndexOf(ent) + difference, lastIndex - 1));
                         MoveEntity(ent, newIndex);
                         lastIndex = newIndex;
                     }
@@ -1139,16 +1475,17 @@ namespace GuxtEditor
                 //moving up
                 else
                 {
-                    var lastIndex = -1;                    
-                    foreach(var ent in entsInOrder)
+                    var lastIndex = -1;
+                    foreach (var ent in entsInOrder)
                     {
                         //clamp the new entity location to the highest entity placed
-                        var newIndex = Math.Min(Math.Max(lastIndex+1, entities.IndexOf(ent) + difference), entities.Count);
+                        var newIndex = Math.Min(Math.Max(lastIndex + 1, Entities.IndexOf(ent) + difference), Entities.Count);
                         MoveEntity(ent, newIndex);
                         lastIndex = newIndex;
                     }
                 }
-                UnsavedEdits = true;
+                act.NewEntities = Entities.ToArray();
+                FinalizeUndoAction();
             }
 
             entityListBox_RefreshItems();
@@ -1192,6 +1529,21 @@ namespace GuxtEditor
         }
 
         #endregion
+
+        private void mapResizeControl1_MapResizeInitialized(object sender, MapResizeInitiatedEventArgs e)
+        {
+            map.Resize(e.Width, e.Height, e.ResizeMode, e.ShrinkBuffer);
+        }
+
+        private void undoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            PostUndoUIUpdate(Undo());
+        }
+
+        private void redoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            PostUndoUIUpdate(Redo());
+        }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {

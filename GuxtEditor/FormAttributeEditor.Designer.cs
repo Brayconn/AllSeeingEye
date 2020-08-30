@@ -37,8 +37,8 @@
             this.tileTypesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.attributePropertyGrid = new System.Windows.Forms.PropertyGrid();
             this.availableTileTypesLayeredPictureBox = new LayeredPictureBox.LayeredPictureBox();
+            this.attributesResizeControl = new GuxtEditor.MapResizeControl();
             this.panel1 = new System.Windows.Forms.Panel();
             this.attributesLayeredPictureBox = new LayeredPictureBox.LayeredPictureBox();
             this.menuStrip1.SuspendLayout();
@@ -122,8 +122,8 @@
             // 
             this.tableLayoutPanel1.ColumnCount = 1;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.Controls.Add(this.attributePropertyGrid, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.availableTileTypesLayeredPictureBox, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.attributesResizeControl, 0, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -132,14 +132,6 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.Size = new System.Drawing.Size(266, 426);
             this.tableLayoutPanel1.TabIndex = 0;
-            // 
-            // attributePropertyGrid
-            // 
-            this.attributePropertyGrid.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.attributePropertyGrid.Location = new System.Drawing.Point(3, 3);
-            this.attributePropertyGrid.Name = "attributePropertyGrid";
-            this.attributePropertyGrid.Size = new System.Drawing.Size(260, 207);
-            this.attributePropertyGrid.TabIndex = 1;
             // 
             // availableTileTypesLayeredPictureBox
             // 
@@ -151,6 +143,15 @@
             this.availableTileTypesLayeredPictureBox.Size = new System.Drawing.Size(260, 207);
             this.availableTileTypesLayeredPictureBox.TabIndex = 2;
             this.availableTileTypesLayeredPictureBox.MouseClick += new System.Windows.Forms.MouseEventHandler(this.availableTileTypesPictureBox_MouseClick);
+            // 
+            // attributesResizeControl
+            // 
+            this.attributesResizeControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.attributesResizeControl.Location = new System.Drawing.Point(3, 3);
+            this.attributesResizeControl.Name = "attributesResizeControl";
+            this.attributesResizeControl.Size = new System.Drawing.Size(260, 207);
+            this.attributesResizeControl.TabIndex = 3;
+            this.attributesResizeControl.MapResizeInitialized += new System.EventHandler<GuxtEditor.MapResizeInitiatedEventArgs>(this.attributesResizeControl_MapResizeInitialized);
             // 
             // panel1
             // 
@@ -214,9 +215,9 @@
         private System.Windows.Forms.ToolStripMenuItem tileTypesToolStripMenuItem;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-        private System.Windows.Forms.PropertyGrid attributePropertyGrid;
         private System.Windows.Forms.Panel panel1;
         private LayeredPictureBox.LayeredPictureBox availableTileTypesLayeredPictureBox;
         private LayeredPictureBox.LayeredPictureBox attributesLayeredPictureBox;
+        private MapResizeControl attributesResizeControl;
     }
 }

@@ -87,9 +87,8 @@ namespace GuxtEditor
             attributePath = Path.Combine(parentMod.DataPath, AttributeFilename);
             attributes = new Map(attributePath);
             attributes.MapResized += delegate { InitAttributeTileTypes(); };
-           
-            attributePropertyGrid.SelectedObject = attributes;
-
+            attributesResizeControl.InitSize(attributes.Width, attributes.Height);
+            
             //tileset image
             var t = new Bitmap(Path.ChangeExtension(attributePath, parentMod.ImageExtension));
             if (parentMod.ImagesScrambeled)
@@ -184,10 +183,10 @@ namespace GuxtEditor
         {
             UnsavedEdits = true;
             //auto-resize
-            if(p.X >= attributes.Width)
-                attributes.Width = (short)(p.X + 1);
-            if(p.Y >= attributes.Height)
-                attributes.Height = (short)(p.Y + 1);
+            if (attributes.Width <= p.X || attributes.Height <= p.Y)
+            {
+                attributes.Resize((short)Math.Max(attributes.Width, p.X + 1), (short)Math.Max(attributes.Height, p.Y + 1), ResizeModes.Logical);
+            }
             
             var tile = (p.Y * attributes.Width) + p.X;
             attributes.Tiles[tile] = SelectedTile;
@@ -226,6 +225,7 @@ namespace GuxtEditor
 
         private void attributesLayeredPictureBox_MouseDown(object sender, MouseEventArgs e)
         {
+            attributesLayeredPictureBox.Select();
             Draw = e.Button == MouseButtons.Left;
             mouseOverlay.Shown = !Draw;
             var p = GetMousePointOnAttributes(e.Location);
@@ -275,8 +275,8 @@ namespace GuxtEditor
 
         private void FormAttributeEditor_KeyDown(object sender, KeyEventArgs e)
         {
-            if (attributePropertyGrid.ActiveControl?.GetType().Name == "GridViewEdit")
-                return;
+            if (attributesResizeControl.IsBeingEdited)
+                return;            
 
             var input = new WinFormsKeybinds.KeyInput(e.KeyData);
             if(Keybinds.ContainsKey(input))
@@ -355,6 +355,11 @@ namespace GuxtEditor
         private void attributesLayeredPictureBox_MouseEnter(object sender, EventArgs e)
         {
             mouseOverlay.Shown = true;
+        }
+
+        private void attributesResizeControl_MapResizeInitialized(object sender, MapResizeInitiatedEventArgs e)
+        {
+            attributes.Resize(e.Width, e.Height, e.ResizeMode, e.ShrinkBuffer);
         }
     }
 }
