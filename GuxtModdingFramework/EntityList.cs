@@ -3,82 +3,65 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
+using System.Runtime.CompilerServices;
+using System.Reflection;
 
 namespace GuxtModdingFramework.Entities
 {
     #region Common
 
-    public class MultiEntityShell
+    public class MultiEntityShell : INotifyPropertyChanging, INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler? PropertyChanged;
+        public event PropertyChangingEventHandler? PropertyChanging;
+
+        private void NotifyPropertyChanging(string propertyName)
+        {
+            PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
+        }
+        private void NotifyPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
         readonly Entity[] hosts;
-        enum Properties
+        private int GetProperty(Entity e, PropertyInfo property)
         {
-            Unused,
-            X,
-            Y,
-            EntityID,
-            ExtraInfo
+            return (int)property.GetValue(e);
         }
-        private int GetProperty(Entity e, Properties p)
+        private int? GetProperty([CallerMemberName] string propertyName = "")
         {
-            return p switch
-            {
-                Properties.Unused => e.Unused,
-                Properties.X => e.X,
-                Properties.Y => e.Y,
-                Properties.EntityID => e.EntityID,
-                Properties.ExtraInfo => e.ExtraInfo,
-                _ => throw new ArgumentException("Invalid property", nameof(p))
-            };
-        }
-        private int? GetProperty(Properties p)
-        {
-            int val = GetProperty(hosts[0], p);
+            var property = typeof(Entity).GetProperty(propertyName);
+            int val = GetProperty(hosts[0], property);
             for(int i = 1; i < hosts.Length; i++)
-                if (val != GetProperty(hosts[i], p))
+                if (val != GetProperty(hosts[i], property))
                     return null;
             return val;
         }
 
-        private void SetProperty(int? value, Properties p)
+        private void SetProperty(int? value, [CallerMemberName] string propertyName = "")
         {
             if (value == null)
                 return;
-            foreach(var entity in hosts)
+            NotifyPropertyChanging(propertyName);
+            var property = typeof(Entity).GetProperty(propertyName);
+            foreach (var entity in hosts)
             {
-                switch(p)
-                {
-                    case Properties.Unused:
-                        entity.Unused = (int)value;
-                        break;
-                    case Properties.X:
-                        entity.X = (int)value;
-                        break;
-                    case Properties.Y:
-                        entity.Y = (int)value;
-                        break;
-                    case Properties.EntityID:
-                        entity.EntityID = (int)value;
-                        break;
-                    case Properties.ExtraInfo:
-                        entity.ExtraInfo = (int)value;
-                        break;
-                    default:
-                        throw new ArgumentException("Invalid property", nameof(p));
-                }
+                property.SetValue(entity, value);
             }
+            NotifyPropertyChanged(propertyName);
         }
 
         [Description(Entity.UnusedDescription)]
-        public int? Unused { get => GetProperty(Properties.Unused); set => SetProperty(value, Properties.Unused); }
+        public int? Unused { get => GetProperty(); set => SetProperty(value); }
         [Description(Entity.XDescription)]
-        public int? X { get => GetProperty(Properties.X); set => SetProperty(value, Properties.X); }
+        public int? X { get => GetProperty(); set => SetProperty(value); }
         [Description(Entity.YDescription)]
-        public int? Y { get => GetProperty(Properties.Y); set => SetProperty(value, Properties.Y); }
+        public int? Y { get => GetProperty(); set => SetProperty(value); }
         [Description(Entity.EntityIDDescription)]
-        public int? EntityID { get => GetProperty(Properties.EntityID); set => SetProperty(value, Properties.EntityID); }
+        public int? EntityID { get => GetProperty(); set => SetProperty(value); }
         [Description(Entity.ExtraInfoDescription)]
-        public int? ExtraInfo { get => GetProperty(Properties.ExtraInfo); set => SetProperty(value, Properties.ExtraInfo); }
+        public int? ExtraInfo { get => GetProperty(); set => SetProperty(value); }
 
         public MultiEntityShell(params Entity[] ents)
         {
