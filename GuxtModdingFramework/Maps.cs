@@ -24,6 +24,7 @@ namespace GuxtModdingFramework.Maps
             MapResizing?.Invoke(this, new EventArgs());
         }
 
+        public int CurrentBufferSize => Tiles.Count;
         public int PrefferedBufferSize => Width * Height;
 
         public short Width { get; private set; }
@@ -35,19 +36,20 @@ namespace GuxtModdingFramework.Maps
         public void Resize(short width, short height, ResizeModes mode, bool shrinkBuffer = true)
         {
             NotifyMapResizing();
+            int newBufferLength;
             switch (mode)
             {
                 case ResizeModes.Buffer:
-                    var newBuffer = width * height;
-                    if (Tiles.Count != newBuffer)
+                    newBufferLength = width * height;
+                    if (CurrentBufferSize != newBufferLength)
                     {
-                        if (Tiles.Count < newBuffer)
+                        if (CurrentBufferSize < newBufferLength)
                         {
-                            Tiles.AddRange(new byte[newBuffer - Tiles.Count]);
+                            Tiles.AddRange(new byte[newBufferLength - CurrentBufferSize]);
                         }
                         else if (shrinkBuffer)
                         {
-                            Tiles.RemoveRange(newBuffer, Tiles.Count - newBuffer);
+                            Tiles.RemoveRange(newBufferLength, CurrentBufferSize - newBufferLength);
                         }
                     }
                     break;
@@ -68,17 +70,29 @@ namespace GuxtModdingFramework.Maps
                     }
                     if(height != Height)
                     {
-                        if(height < Height)
+                        newBufferLength = width * height;
+                        //any bytes after this point were not visible before this resize (or don't exist yet)
+                        var hiddenStart = width * Height;
+                        //any bytes after this point are still not visible (or don't exist yet)
+                        var hiddenEnd = Math.Min(newBufferLength, CurrentBufferSize);
+
+                        //if the buffer size needs to change...
+                        if (newBufferLength != CurrentBufferSize)
                         {
-                            for(int i =0; i < Height - height; i++)
-                                Tiles.RemoveRange(Tiles.Count - Height, width);
+                            //add visible bytes
+                            if (CurrentBufferSize < newBufferLength)
+                            {
+                                Tiles.AddRange(new byte[newBufferLength - CurrentBufferSize]);
+                            }
+                            //remove non-visible bytes
+                            else if (shrinkBuffer)
+                            {
+                                Tiles.RemoveRange(newBufferLength, CurrentBufferSize - newBufferLength);
+                            }
                         }
-                        else
-                        {
-                            var buff = new byte[width];
-                            for (int i = 0; i < height - Height; i++)
-                                Tiles.AddRange(buff);
-                        }
+                        //clear any previously hidden bytes
+                        for (int i = hiddenStart; i < hiddenEnd; i++)
+                            Tiles[i] = 0x00;
                     }
                     break;
             }
