@@ -4,24 +4,18 @@ using GuxtModdingFramework.Maps;
 using LayeredPictureBox;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using static PixelModdingFramework.Rendering;
 using static GuxtEditor.SharedGraphics;
 
 namespace GuxtEditor
 {
-    //TODO this entire class is a mess
-    //it's just FormStageEditor, but without entities, and a slight simplification of the actual editor
-    //Really should merge the two
+    //TODO not sure what to do with this class anymore tbh
+    //it used to be really similar to FormStageEditor, but with all the changes made to that class, this one is now like a time capsule
+    //still kinda want to merge them, but it might be a bit infeasable now with undo
     public partial class FormAttributeEditor : Form
     {
         readonly Mod parentMod;
@@ -86,7 +80,7 @@ namespace GuxtEditor
             //attributes file
             attributePath = Path.Combine(parentMod.DataPath, AttributeFilename);
             attributes = new Map(attributePath);
-            attributes.MapResized += delegate { InitAttributeTileTypes(); };
+            attributes.MapResized += delegate { InitAttributeTileTypes(); attributesResizeControl.InitSize(attributes.Width, attributes.Height); };
             attributesResizeControl.InitSize(attributes.Width, attributes.Height);
             
             //tileset image
