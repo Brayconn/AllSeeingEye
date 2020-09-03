@@ -66,6 +66,13 @@ namespace GuxtEditor
 
 #region entity
 
+        void ResizeAllEntityLayers()
+        {
+            entityIcons.Image = new Bitmap(baseMap.Image.Width, baseMap.Image.Height);
+            entityBoxes.Image = new Bitmap(baseMap.Image.Width, baseMap.Image.Height);
+            selectedEntityBoxes.Image = new Bitmap(baseMap.Image.Width, baseMap.Image.Height);
+        }
+
         void RedrawAllEntityLayers()
         {
             DrawEntityIcons();

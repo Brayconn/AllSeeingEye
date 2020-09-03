@@ -140,12 +140,10 @@ namespace GuxtEditor
             map.MapResized += MapResized;
             mapResizeControl.InitSize(map.Width, map.Height, map.CurrentBufferSize);
             InitMapImage();
-                        
+
             //need to init entity images after the map has been initialized so we actually have a good size
             //need to init them each seperately since otherwise I think it would all be a reference to the same image...
-            entityIcons.Image = new Bitmap(baseMap.Image.Width, baseMap.Image.Height);
-            entityBoxes.Image = new Bitmap(baseMap.Image.Width, baseMap.Image.Height);
-            selectedEntityBoxes.Image = new Bitmap(baseMap.Image.Width, baseMap.Image.Height);
+            ResizeAllEntityLayers();
             DrawEntityIcons();
             DrawEntityBoxes();
 
@@ -449,6 +447,8 @@ namespace GuxtEditor
                 act.NewTiles = map.Tiles.ToArray();
                 FinalizeUndoAction();
                 InitMapImage();
+                ResizeAllEntityLayers();
+                RedrawAllEntityLayers();
             }
         }
 
@@ -1214,6 +1214,8 @@ namespace GuxtEditor
                 else if(t is MapResized)
                 {
                     InitMapImage();
+                    ResizeAllEntityLayers();
+                    RedrawAllEntityLayers();
                 }
             }
         }
