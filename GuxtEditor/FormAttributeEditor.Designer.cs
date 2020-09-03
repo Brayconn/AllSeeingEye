@@ -39,7 +39,7 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.availableTileTypesLayeredPictureBox = new LayeredPictureBox.LayeredPictureBox();
             this.attributesResizeControl = new GuxtEditor.MapResizeControl();
-            this.panel1 = new System.Windows.Forms.Panel();
+            this.pictureBoxPanel = new System.Windows.Forms.Panel();
             this.attributesLayeredPictureBox = new LayeredPictureBox.LayeredPictureBox();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -47,7 +47,7 @@
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
-            this.panel1.SuspendLayout();
+            this.pictureBoxPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -113,7 +113,7 @@
             // 
             // splitContainer1.Panel2
             // 
-            this.splitContainer1.Panel2.Controls.Add(this.panel1);
+            this.splitContainer1.Panel2.Controls.Add(this.pictureBoxPanel);
             this.splitContainer1.Size = new System.Drawing.Size(800, 426);
             this.splitContainer1.SplitterDistance = 266;
             this.splitContainer1.TabIndex = 1;
@@ -153,15 +153,15 @@
             this.attributesResizeControl.TabIndex = 3;
             this.attributesResizeControl.MapResizeInitialized += new System.EventHandler<GuxtEditor.MapResizeInitiatedEventArgs>(this.attributesResizeControl_MapResizeInitialized);
             // 
-            // panel1
+            // pictureBoxPanel
             // 
-            this.panel1.AutoScroll = true;
-            this.panel1.Controls.Add(this.attributesLayeredPictureBox);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(0, 0);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(530, 426);
-            this.panel1.TabIndex = 0;
+            this.pictureBoxPanel.AutoScroll = true;
+            this.pictureBoxPanel.Controls.Add(this.attributesLayeredPictureBox);
+            this.pictureBoxPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pictureBoxPanel.Location = new System.Drawing.Point(0, 0);
+            this.pictureBoxPanel.Name = "pictureBoxPanel";
+            this.pictureBoxPanel.Size = new System.Drawing.Size(530, 426);
+            this.pictureBoxPanel.TabIndex = 0;
             // 
             // attributesLayeredPictureBox
             // 
@@ -198,8 +198,8 @@
             this.splitContainer1.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
+            this.pictureBoxPanel.ResumeLayout(false);
+            this.pictureBoxPanel.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -215,7 +215,7 @@
         private System.Windows.Forms.ToolStripMenuItem tileTypesToolStripMenuItem;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Panel pictureBoxPanel;
         private LayeredPictureBox.LayeredPictureBox availableTileTypesLayeredPictureBox;
         private LayeredPictureBox.LayeredPictureBox attributesLayeredPictureBox;
         private MapResizeControl attributesResizeControl;

@@ -219,7 +219,7 @@ namespace GuxtEditor
 
         private void attributesLayeredPictureBox_MouseDown(object sender, MouseEventArgs e)
         {
-            attributesLayeredPictureBox.Select();
+            pictureBoxPanel.Select();
             Draw = e.Button == MouseButtons.Left;
             mouseOverlay.Shown = !Draw;
             var p = GetMousePointOnAttributes(e.Location);

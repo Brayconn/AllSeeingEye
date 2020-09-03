@@ -935,7 +935,7 @@ namespace GuxtEditor
 
         private void mapPictureBox_MouseDown(object sender, MouseEventArgs e)
         {
-            mapLayeredPictureBox.Select();
+            pictureBoxPanel.Select();
             
             Point p = GetMousePointOnMap(e.Location);
 
