@@ -138,7 +138,7 @@ namespace GuxtEditor
             map = new Map(mapPath);
             map.MapResizing += MapResizing;
             map.MapResized += MapResized;
-            mapResizeControl.InitSize(map.Width, map.Height);
+            mapResizeControl.InitSize(map.Width, map.Height, map.CurrentBufferSize);
             InitMapImage();
                         
             //need to init entity images after the map has been initialized so we actually have a good size
@@ -506,7 +506,7 @@ namespace GuxtEditor
                     map.Tiles = mr.NewTiles.ToList();
                     map.Resize(mr.NewWidth, mr.NewHeight, ResizeModes.Buffer);
                 }
-                mapResizeControl.InitSize(map.Width, map.Height);
+                mapResizeControl.InitSize(map.Width, map.Height, map.CurrentBufferSize);
                 TrackMapResizes = true;
             }
         }
@@ -1532,7 +1532,10 @@ namespace GuxtEditor
 
         private void mapResizeControl1_MapResizeInitialized(object sender, MapResizeInitiatedEventArgs e)
         {
-            map.Resize(e.Width, e.Height, e.ResizeMode, e.ShrinkBuffer);
+            map.Resize(e.NewWidth, e.NewHeight, e.ResizeMode, e.ShrinkBuffer);
+            e.NewWidth = map.Width;
+            e.NewHeight = map.Height;
+            e.NewBufferSize = map.CurrentBufferSize;
         }
 
         private void undoToolStripMenuItem_Click(object sender, EventArgs e)

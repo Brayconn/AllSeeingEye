@@ -80,8 +80,8 @@ namespace GuxtEditor
             //attributes file
             attributePath = Path.Combine(parentMod.DataPath, AttributeFilename);
             attributes = new Map(attributePath);
-            attributes.MapResized += delegate { InitAttributeTileTypes(); attributesResizeControl.InitSize(attributes.Width, attributes.Height); };
-            attributesResizeControl.InitSize(attributes.Width, attributes.Height);
+            attributes.MapResized += delegate { InitAttributeTileTypes(); attributesResizeControl.InitSize(attributes.Width, attributes.Height, attributes.CurrentBufferSize); };
+            attributesResizeControl.InitSize(attributes.Width, attributes.Height, attributes.CurrentBufferSize);
             
             //tileset image
             var t = new Bitmap(Path.ChangeExtension(attributePath, parentMod.ImageExtension));
@@ -353,7 +353,10 @@ namespace GuxtEditor
 
         private void attributesResizeControl_MapResizeInitialized(object sender, MapResizeInitiatedEventArgs e)
         {
-            attributes.Resize(e.Width, e.Height, e.ResizeMode, e.ShrinkBuffer);
+            attributes.Resize(e.NewWidth, e.NewHeight, e.ResizeMode, e.ShrinkBuffer);
+            e.NewWidth = attributes.Width;
+            e.NewHeight = attributes.Height;
+            e.NewBufferSize = attributes.CurrentBufferSize;
         }
     }
 }

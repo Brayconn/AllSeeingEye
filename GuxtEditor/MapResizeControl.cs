@@ -13,6 +13,8 @@ namespace GuxtEditor
         ResizeModes ResizeMode { get => (ResizeModes)resizeModeComboBox.SelectedItem; set => resizeModeComboBox.SelectedItem = value; }
         bool ShrinkBuffer { get => shrinkBufferCheckBox.Checked; set => shrinkBufferCheckBox.Checked = value; }
 
+        int CurrentBufferSize;
+
         public MapResizeControl()
         {
             InitializeComponent();
@@ -26,44 +28,37 @@ namespace GuxtEditor
 
             resizeModeComboBox.DataSource = Enum.GetValues(typeof(ResizeModes));
             resizeModeComboBox.SelectedItem = ResizeModes.Logical;
-            UpdateShrinkBufferEnabled();
         }
-        public MapResizeControl(short width, short height) : this()
+        public MapResizeControl(short width, short height, int bufferSize) : this()
         {
-            InitSize(width, height);
+            InitSize(width, height, bufferSize);
         }
-        public void InitSize(short width, short height)
+        public void InitSize(short width, short height, int bufferSize)
         {
-            SetCurrentSize(width, height);
+            SetCurrentSize(width, height, bufferSize);
             NewWidth = width;
             NewHeight = height;
         }
-        public void SetCurrentSize(short width, short height)
+        public void SetCurrentSize(short width, short height, int bufferSize)
         {
             CurrentWidth = width;
             CurrentHeight = height;
+            CurrentBufferSize = bufferSize;
 
             currentWidthLabel.Text = CurrentWidth.ToString();
             currentHeightLabel.Text = CurrentHeight.ToString();
+            currentBufferSizeLabel.Text = $"{CurrentBufferSize} Bytes";
 
             UpdateResizeButtonEnabled();
         }
-        void UpdateShrinkBufferEnabled()
-        {
-            shrinkBufferCheckBox.Enabled = (ResizeMode == ResizeModes.Buffer);
-        }
+
         void UpdateResizeButtonEnabled()
         {
-            resizeButton.Enabled = (NewWidth != CurrentWidth || NewHeight != CurrentHeight);
+            resizeButton.Enabled = (NewWidth != CurrentWidth || NewHeight != CurrentHeight || NewWidth * NewHeight != CurrentBufferSize);
         }
 
         readonly List<Control> editControls;
         public bool IsBeingEdited => editControls.Contains(ActiveControl);
-
-        private void resizeModeComboBox_SelectionChangeCommitted(object sender, EventArgs e)
-        {
-            UpdateShrinkBufferEnabled();
-        }
 
         private void numericUpDown_ValueChanged(object sender, EventArgs e)
         {
@@ -76,23 +71,25 @@ namespace GuxtEditor
         {
             if (MapResizeInitialized != null)
             {
-                MapResizeInitialized.Invoke(this, new MapResizeInitiatedEventArgs(NewWidth, NewHeight, ResizeMode, ShrinkBuffer));
-                SetCurrentSize(NewWidth, NewHeight);
+                var args = new MapResizeInitiatedEventArgs(NewWidth, NewHeight, ResizeMode, ShrinkBuffer);
+                MapResizeInitialized.Invoke(this, args);
+                SetCurrentSize(args.NewWidth, args.NewHeight, args.NewBufferSize);
             }
         }
     }
 
     class MapResizeInitiatedEventArgs : EventArgs
     {
-        public short Width { get; }
-        public short Height { get; }
+        public short NewWidth { get; set; }
+        public short NewHeight { get; set; }
         public ResizeModes ResizeMode { get; }
         public bool ShrinkBuffer { get; }
+        public int NewBufferSize { get; set; }
 
         public MapResizeInitiatedEventArgs(short width, short height, ResizeModes resizeMode, bool shrinkBuffer)
         {
-            Width = width;
-            Height = height;
+            NewWidth = width;
+            NewHeight = height;
             ResizeMode = resizeMode;
             ShrinkBuffer = shrinkBuffer;
         }
