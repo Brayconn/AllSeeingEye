@@ -60,5 +60,6 @@ Alternatively, use a patch to disable the algorithm alltogether.
 As with all of Pixel's newer games, Guxt uses pxtone files for its music.
 Hoever, the version of the pxtone.dll it uses is so old that modern songs probably won't work.
 
-To fix this, simply replace the dll with a newer version.
-The `pxtoneWin32.dll` file included with new versions of [pxtone collage](https://www.cavestory.org/pixels-works/pxtone-collage.php) is the one you're looking for.
+To fix this, you'll need to apply a hex patch to your game, and replace the dll with a newer version.
+The hex patch can be found in my folder of [Guxt Patches](https://www.dropbox.com/sh/irevah4xviujcfk/AADKg5LLmt36lczgwFdLIfPja?dl=1) (Fix_New_Pxtone_dll.txt), and be applied with [BPP](https://github.com/Brayconn/BPP).
+As for the dll, the `pxtoneWin32.dll` file included with new versions of [pxtone collage](https://www.cavestory.org/pixels-works/pxtone-collage.php) is the one you're looking for.

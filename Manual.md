@@ -14,7 +14,7 @@ There are three main windows in ASE:
 2. Stage Editor - Pretty much what it sounds like, edit tiles and entities for each stage.
 3. Attribute Editor - Changes how each tile in tileset behaves.
 
-The Stage Editor and Attribute Editor function exactly the same, except that the Attribute Editor has all the entity functionality removed.
+The Stage Editor and Attribute Editor function very similarly, with the latter having all the entity functionality and a bunch of the advanced tile editing features removed.
 
 
 # Main Window
@@ -59,9 +59,12 @@ As stated earlier, ASE does not make any changes to your exe. If you see somethi
 - `File`
   - `Save` - Saves the currently loaded tile and entity data, or the attribute data for that editor.
 - `Edit`
-  - `Delete All Entities` - Deletes all entities (this is a one way process after you save).
+  - `Undo` - Undo the last action.
+  - `Redo` - Redo the last action.
+  - `Select All Entities` - Selects all entities.
 - `View`
   - `Tile Types` - The tile type for each tile on the map is displayed.
+  - `Grid` - A grid to help you differentiate between tiles.
   - `Entity Sprites` - Entity sprites/icons appear where entities are placed.
   - `Entity Boxes` - Boxes appear where entities are placed.
   - `Screen Preview` - Draws a box as big as the in-game screen size. Useful for lining up enemies in just the right spot. Use the extra scrollbars in the Stage Editor to move it around.
@@ -81,20 +84,31 @@ See the section on [Controls] lower down for more info.
 |Delete|Delete Entity|
 |Ctrl + C|Copy Entities|
 |Ctrl + V|Paste Entities|
+|Ctrl + Z|Undo|
+|Ctrl + Shift + Z|Redo|
+|Ctrl + Y|Redo|
 |Ctrl + S|Save|
 
 ## Mouse Controls
 Unlike the keyboard, these controls are NOT rebindable. Sorry.
 
-|Button|Action|
-|---|---|
-|Left|Place Tiles, Select/Move Entities|
-|Middle|Pick Tile|
-|Right|Context Menu|
+|Button|Tile Action|Entity Action|
+|---|---|---|
+|Left|Place Tiles|Select/Move Entities|
+|Middle|Copy Tiles|N/A|
+|Right|Copy Tiles|Context Menu|
 
 ## Map Tab
-The top panel lets you change things about the map, such as the size.
-If you really want, you could edit tiles from here, but I can't recommend it.
+The top panel lets you resize the map in many different ways.
+At the top is the Buffer Size, this is how many bytes are allocated in-game for this map's tiles. After that is the current size of the map in tiles (Width x Height).
+Next is the new size you want to resize the map to, and finally are the Resize Mode options.
+
+|Resize Mode|Action|
+|---|---|
+|Buffer|Resizes the map by directly changing the values of the width and height. This directly mirrors how changing the map size at runtime would function|
+|Logical|Resizes the map the way that you would expect any other program to. Adds/removes tiles to/from the right and bottom of the map.|
+
+The Shrink Buffer checkbox determines whether or not making the map smaller actually removes tiles from the buffer. Unless you're messing around with editing the map size at runtime, you'll probably want to leave this on.
 
 The lower panel is the tileset. Click on a tile to select it, then drag around on the map to draw.
 You can also use Pick Tile to quickly select whatever tile you're hovering over on the map.
@@ -104,6 +118,11 @@ The top panel lets you edit the currently selected npc. If you have multiple npc
 
 The lower panel lets you select what entity you would like to place. It will change to reflect the type of the first selected NPC.
 You can also type while the lower panel is selected to quickly select an entity.
+
+## Entity List Tab
+It's a list of every entity on your map!
+
+You can select entities by clicking and dragging, or by Ctrl+Clicking, and you can move them around by clicking and dragging on selected entities.
 
 
 # The .config file
