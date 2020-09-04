@@ -36,7 +36,7 @@
             this.undoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.redoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
-            this.deleteAllEntitiesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.selectAllEntitiesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tileTypesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.gridToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -107,7 +107,7 @@
             this.undoToolStripMenuItem,
             this.redoToolStripMenuItem,
             this.toolStripSeparator2,
-            this.deleteAllEntitiesToolStripMenuItem});
+            this.selectAllEntitiesToolStripMenuItem});
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
             this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
             this.editToolStripMenuItem.Text = "Edit";
@@ -131,12 +131,12 @@
             this.toolStripSeparator2.Name = "toolStripSeparator2";
             this.toolStripSeparator2.Size = new System.Drawing.Size(177, 6);
             // 
-            // deleteAllEntitiesToolStripMenuItem
+            // selectAllEntitiesToolStripMenuItem
             // 
-            this.deleteAllEntitiesToolStripMenuItem.Name = "deleteAllEntitiesToolStripMenuItem";
-            this.deleteAllEntitiesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.deleteAllEntitiesToolStripMenuItem.Text = "Delete All Entities";
-            this.deleteAllEntitiesToolStripMenuItem.Click += new System.EventHandler(this.deleteAllEntitiesToolStripMenuItem_Click);
+            this.selectAllEntitiesToolStripMenuItem.Name = "selectAllEntitiesToolStripMenuItem";
+            this.selectAllEntitiesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.selectAllEntitiesToolStripMenuItem.Text = "Select All Entities";
+            this.selectAllEntitiesToolStripMenuItem.Click += new System.EventHandler(this.selectAllEntitiesToolStripMenuItem_Click);
             // 
             // viewToolStripMenuItem
             // 
@@ -273,11 +273,11 @@
             this.tilesetLayeredPictureBox.MouseMove += new System.Windows.Forms.MouseEventHandler(this.tilesetLayeredPictureBox_MouseMove);
             this.tilesetLayeredPictureBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.tilesetLayeredPictureBox_MouseUp);
             // 
-            // mapResizeControl1
+            // mapResizeControl
             // 
             this.mapResizeControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.mapResizeControl.Location = new System.Drawing.Point(3, 3);
-            this.mapResizeControl.Name = "mapResizeControl1";
+            this.mapResizeControl.Name = "mapResizeControl";
             this.mapResizeControl.Size = new System.Drawing.Size(246, 191);
             this.mapResizeControl.TabIndex = 3;
             this.mapResizeControl.MapResizeInitialized += new System.EventHandler<GuxtEditor.MapResizeInitiatedEventArgs>(this.mapResizeControl1_MapResizeInitialized);
@@ -455,7 +455,7 @@
         private System.Windows.Forms.ToolStripMenuItem tileTypesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem entitySpritesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem deleteAllEntitiesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem selectAllEntitiesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem entityBoxesToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem screenPreviewToolStripMenuItem;
