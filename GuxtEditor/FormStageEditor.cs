@@ -953,7 +953,8 @@ namespace GuxtEditor
                             SetTiles(tile);
                             mapLayeredPictureBox.Invalidate();
                             break;
-                        case MouseButtons.Middle:
+                        case MouseButtons.Middle: //Making these both do the same thing since not everyone has a middle mouse button
+                        case MouseButtons.Right:
                             HoldAction = HoldActions.CopyTiles;
                             mouseOverlay.Image = MakeMouseImage(parentMod.TileSize, parentMod.TileSize, UI.Default.CursorColor);
                             startMousePosition = p;
