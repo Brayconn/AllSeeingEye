@@ -10,7 +10,7 @@ namespace GuxtModdingFramework.Maps
         Buffer,
         Logical
     }
-    public class Map : IMap<List<byte>>
+    public class Map : IMap<short, List<byte>, byte>
     {
         public event EventHandler? MapResized;
         public event EventHandler? MapResizing;
